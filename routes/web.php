@@ -1,9 +1,8 @@
 <?php
 
-use App\Http\Controllers\DroneController;
+use App\Http\Controllers\AssetController;
 use App\Http\Controllers\FarmerController;
 use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImportExportController;
 use App\Http\Controllers\RoleController;
@@ -46,9 +45,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('add_pilot', [PilotController::class, 'add_pilot']);
     Route::get('/show_import', [ImportExportController::class, 'ShowImportExcel']);
     Route::post('/import_data', [ImportExportController::class, 'ImportExcel']);
-    Route::get('drone_list', [DroneController::class, 'show_drone_list']);
-    Route::get('add_drone', [DroneController::class, 'add_drone']);
-    Route::post('submit_drone_details', [DroneController::class, 'submit_drone_details']);
+    Route::get('asset_list', [AssetController::class, 'show_asset_list']);
+    Route::get('add_asset', [AssetController::class, 'add_asset']);
+    Route::post('submit_asset_details', [AssetController::class, 'submit_asset_details']);
 
     Route::get('logout', [UserController::class, 'logout']);
 

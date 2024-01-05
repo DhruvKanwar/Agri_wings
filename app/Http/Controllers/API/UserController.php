@@ -74,8 +74,13 @@ class UserController extends Controller
             return response()->json(['error' => $validator->errors()], 400);
         }
 
+        $user = User::find($id);
+
+        // Get roles assigned to the user
+        $roles = $user->getRoleNames();
+        // dd($request->input('role'));
         //   start permission
-        if ($input['role'] == 'super-admin') {
+        if ($roles != "super-admin" && $input['role'] == 'super-admin') {
             $user = User::find($id); // Replace 1 with the user ID you want to assign permissions to
 
             // Assign multiple permissions to the user
@@ -98,7 +103,7 @@ class UserController extends Controller
         $user->update($input);
         DB::table('model_has_roles')->where('model_id', $id)->delete();
 
-        $user->assignRole($request->input('roles'));
+        $user->assignRole($request->input('role'));
 
         return response()->json(['message' => 'User updated successfully']);
     }

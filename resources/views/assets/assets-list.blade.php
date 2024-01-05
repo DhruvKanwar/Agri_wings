@@ -1,5 +1,5 @@
 @extends('layouts.main')
-@section('title', 'Drone List')
+@section('title', 'Asset List')
 @section('content')
 <!--  BEGIN MAIN CONTAINER  -->
 <div class="main-container" id="container">
@@ -21,7 +21,7 @@
                 <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
                     <div class="widget-content widget-content-area br-6">
                         <div class="btn-group relative">
-                            <a class="btn-primary btn-cstm btn w-100" id="add_role" href="{{'add_drone'}}" style="font-size: 12px; padding: 8px 0px;"><span><i class="fa fa-plus"></i> Add New</span></a>
+                            <a class="btn-primary btn-cstm btn w-100" id="add_role" href="{{'add_asset'}}" style="font-size: 12px; padding: 8px 0px;"><span><i class="fa fa-plus"></i> Add New</span></a>
                         </div>
                         <div class="btn-group relat">
                             <a href="{{ route('export_farmer_details.route') }}" class="btn btn-primary" style="font-size: 12px; padding: 8px 0px;">
@@ -41,7 +41,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @if(count($drone_details) < 1) <tr>
+                                @if(count($asset_details) < 1) <tr>
                                     <td colspan="6">
                                         <div class="d-flex justify-content-center align-items-center" style="min-height: min(45vh, 400px)">
                                             No data to display
@@ -49,15 +49,15 @@
                                     </td>
                                     </tr>
                                     @else
-                                    @foreach ($drone_details as $key => $drone_detail)
+                                    @foreach ($asset_details as $key => $asset_details)
                                     <tr>
                                         <td>{{$key+1}}</td>
-                                        <td>{{$drone_detail->drone_id}}</td>
-                                        <td>{{$drone_detail->model}}</td>
-                                        <td>{{$drone_detail->uin}}</td>
-                                        <td>{{$drone_detail->mfg_year}}</td>
-                                        <td>{{$drone_detail->capacity}}</td>
-                                        @if($drone_detail->status == 1)
+                                        <td>{{$asset_details->asset_id}}</td>
+                                        <td>{{$asset_details->model}}</td>
+                                        <td>{{$asset_details->uin}}</td>
+                                        <td>{{$asset_details->mfg_year}}</td>
+                                        <td>{{$asset_details->capacity}}</td>
+                                        @if($asset_details->status == 1)
                                         <td>Active</td>
                                         @else
                                         <td>Inactive</td>

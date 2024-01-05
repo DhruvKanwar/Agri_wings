@@ -29,17 +29,17 @@
                             <div class="form-row mb-0">
                                 <div class="form-group col-md-6">
                                     <label for="exampleFormControlInput2">UIN<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" id="regn_no" name="regn_no" placeholder="" v-model="drone_details.uin" autocomplete="off">
+                                    <input type="text" class="form-control" id="regn_no" name="regn_no" placeholder="" v-model="asset_details.uin" autocomplete="off">
                                 </div>
                                 <div class="form-group col-md-6">
                                     <label for="exampleFormControlInput2">Manufacturing year<span class="text-danger">*</span></label>
-                                    <input type="number" class="form-control" name="mfg" placeholder="" v-model="drone_details.mfg_year" autocomplete="off">
+                                    <input type="number" class="form-control" name="mfg" placeholder="" v-model="asset_details.mfg_year" autocomplete="off">
                                 </div>
                             </div>
                             <div class="form-row mb-0">
                                 <div class="form-group col-md-6">
                                     <label for="exampleFormControlSelect1">Drone Model<span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="make" placeholder="" v-model="drone_details.model" autocomplete="off">
+                                    <input type="text" class="form-control" name="make" placeholder="" v-model="asset_details.model" autocomplete="off">
                                 </div>
                                 <!-- <div class="form-group col-md-6">
                                     <label for="exampleFormControlSelect1">Engine No.<span class="text-danger">*</span></label>
@@ -47,14 +47,14 @@
                                 </div> -->
                                 <div class="form-group col-md-6">
                                     <label for="exampleFormControlInput2">Drone Capacity(Ltrs)</label>
-                                    <input type="number" class="form-control" id="gross_vehicle_weight" name="gross_vehicle_weight" v-model="drone_details.capacity" placeholder="">
+                                    <input type="number" class="form-control" id="gross_vehicle_weight" name="gross_vehicle_weight" v-model="asset_details.capacity" placeholder="">
                                 </div>
                             </div>
                             <div class="form-row mb-0">
 
                             </div>
 
-                            <button type="button" class="mt-4 mb-4 btn btn-primary" @click="add_drone_details()">Submit</button>
+                            <button type="button" class="mt-4 mb-4 btn btn-primary" @click="add_asset_details()">Submit</button>
                         </form>
                     </div>
                 </div>
@@ -69,7 +69,7 @@
         //   ValidationProvider
         // },
         data: {
-            drone_details: {},
+            asset_details: {},
 
 
         },
@@ -79,12 +79,12 @@
             // console.log(this.location_datas)
         },
         methods: {
-            add_drone_details: function() {
-                // console.log(this.drone_details)
+            add_asset_details: function() {
+                // console.log(this.asset_details)
                 // return 1;
 
-                axios.post('/submit_drone_details', {
-                        'drone_details': this.drone_details
+                axios.post('/submit_asset_details', {
+                        'asset_details': this.asset_details
                     })
                     .then(response => {
                         console.log(response.data);

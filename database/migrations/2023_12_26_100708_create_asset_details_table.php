@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateDroneDetailsTable extends Migration
+class CreateAssetDetailsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,10 @@ class CreateDroneDetailsTable extends Migration
      */
     public function up()
     {
-        Schema::create('drone_details', function (Blueprint $table) {
+        Schema::create('asset_details', function (Blueprint $table) {
             $table->id();
-            $table->string('drone_id');
+            $table->string('asset_name');
+            $table->string('asset_id');
             $table->string('model');
             $table->string('uin');
             $table->string('capacity')->nullable();
