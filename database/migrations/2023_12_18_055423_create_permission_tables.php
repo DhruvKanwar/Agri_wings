@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 use Spatie\Permission\PermissionRegistrar;
+use Spatie\Permission\Models\Permission;
 
 class CreatePermissionTables extends Migration
 {
@@ -117,6 +118,29 @@ class CreatePermissionTables extends Migration
         app('cache')
             ->store(config('permission.cache.store') != 'default' ? config('permission.cache.store') : null)
             ->forget(config('permission.cache.key'));
+
+        // Add the creation of permissions
+        $permissions = [
+            'role-list',
+            'role-create',
+            'role-edit',
+            'role-delete',
+            'product-list',
+            'product-create',
+            'product-edit',
+            'product-delete',
+            'test-permission',
+            'permission-list',
+            'permission-create',
+            'permission-edit',
+            'test-new-custom',
+            'permission-delete'
+        ];
+
+        foreach ($permissions as $permission) {
+            Permission::create(['name' => $permission, 'guard_name' => 'web']);
+        }
+        // end
     }
 
     /**
