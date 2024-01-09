@@ -45,4 +45,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('update', [UserController::class, 'update']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
     });
+
+    Route::any('/fetch-towns', [FarmerController::class, 'districtDetails']);
+    Route::get('/get-locations', [FarmerController::class, 'location_datas']);
+
+
 });

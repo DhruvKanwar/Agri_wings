@@ -18,26 +18,43 @@ class FarmerController extends Controller
     public function show_farmer_list()
     {
         $farmDetailData = FarmerDetails::with('FarmInfo')->get();
-       
-        // api
-// return ['farmer_details' => $farmDetailData] ;
-        // api
         return view('farmers.farmer-list', ['farmer_details' => $farmDetailData]);
+
+
+        if (!empty($farmDetailData)) {
+            return ['farmer_details' => $farmDetailData, 'statuscode' => '200', 'msg' => 'Farmers list fetched sucessfully..'];
+        } else {
+            return ['statuscode' => '200', 'msg' => 'Farmers not Found'];
+        }
+        // api
+        // web
 
     }
 
     public function add_farmers()
     {
         $location_datas = LocationData::select('state_name', 'subdistrict_name')
-        ->distinct()
-        ->get();
-        return ['location_datas' => $location_datas];
+            ->distinct()
+            ->get();
+        // return ['location_datas' => $location_datas];
         return view('farmers.create_new_farmer', ['location_datas' => $location_datas]);
+    }
+
+    public function location_datas()
+    {
+        $location_datas = LocationData::select('state_name', 'subdistrict_name')
+            ->distinct()
+            ->get();
+        if (!empty($location_datas)) {
+            return ['location_datas' => $location_datas, 'statuscode' => '200', 'msg' => 'Location Fetched Suceessfully.'];
+        } else {
+            return [ 'statuscode' => '200', 'msg' => 'Location Not Found...'];
+        }
     }
 
     public function submit_farmer_details(Request $request)
     {
-        $data=$request->all();
+        $data = $request->all();
         // return $data;
         $request->validate([
             'farmer_details' => 'required|array',
@@ -61,7 +78,7 @@ class FarmerController extends Controller
             'farmer_details.farm_addresses.*.state' => 'required|string|max:255',
             'farmer_details.farm_addresses.*.address' => 'required|string',
         ]);
-        $farm_details=$data['farmer_details']['farm_addresses'];
+        $farm_details = $data['farmer_details']['farm_addresses'];
 
         unset($data['farmer_details']['farm_addresses']);
         $details = Auth::user();
@@ -75,7 +92,7 @@ class FarmerController extends Controller
         $farmer_code = FarmerDetails::select('farmer_code')->latest('farmer_code')->first();
         $farmer_code = json_decode(json_encode($farmer_code), true);
         if (empty($farmer_code) || $farmer_code == null) {
-            $initial_number= "1000001";
+            $initial_number = "1000001";
             $data['farmer_details']['farmer_code'] = $initial_number;
         } else {
             $data['farmer_details']['farmer_code'] = $farmer_code['farmer_code'] + 1;
@@ -99,7 +116,7 @@ class FarmerController extends Controller
         }
 
         // check relation working
-        $db= FarmerDetails::where('id', $farmer_id)->with('FarmInfo')->get();
+        $db = FarmerDetails::where('id', $farmer_id)->with('FarmInfo')->get();
         return $db;
     }
 
@@ -107,7 +124,7 @@ class FarmerController extends Controller
     public function getPostalAddress(Request $request)
     {
         $postcode = $request->postcode;
-       
+
         $getZone = '';
         $pin = file_get_contents('https://api.postalpincode.in/pincode/' . $postcode);
         $pins = json_decode($pin);
@@ -141,13 +158,14 @@ class FarmerController extends Controller
 
     public function districtDetails(Request $request)
     {
+        // return "DS";
         $subdistrict = $request->input('subdistrict');
         $state = $request->input('state');
-        // return $state;
+        // return [$state,$subdistrict];
 
         $district_details = LocationData::where('subdistrict_name', $subdistrict)
-        ->where('state_name', $state)
-        ->get();
+            ->where('state_name', $state)
+            ->get();
 
         if (!empty($district_details)) {
 
@@ -155,12 +173,17 @@ class FarmerController extends Controller
             $response['error_message'] = "District Fetch";
             $response['error'] = true;
             $response['district_details'] = $district_details;
+            $response['statuscode'] = '200';
+            $response['msg'] = 'Districts Fetched Successfully';
             return response()->json($response);
         }
 
         $response['success'] = false;
         $response['success_message'] = 'Not Found';
         $response['error'] = false;
+        $response['statuscode'] = '200';
+
+
         return response()->json($response);
     }
 }

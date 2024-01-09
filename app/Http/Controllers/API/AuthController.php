@@ -20,20 +20,21 @@ class AuthController extends Controller
         if (preg_match("/([%\$#{}!()+\=\-\*\'\"\/\\\]+)/", request('email'))) {
             $result_array = array(
                 'status' => 'fail',
+                'statuscode' => '405',
                 'msg' => 'Invalid characters given'
             );
 
-            return response()->json($result_array, 405);
+            return response()->json($result_array, 200);
         }
 
         if ($validator->fails()) {
             $errors = $validator->errors();
 
             if ($errors->first('email')) {
-                return response()->json(['status' => 'error', 'msg' => $errors->first('email')], 400);
+                return response()->json(['status' => 'error',  'statuscode' => '400', 'msg' => $errors->first('email')], 400);
             }
             if ($errors->first('password')) {
-                return response()->json(['status' => 'error', 'msg' => $errors->first('password')], 400);
+                return response()->json(['status' => 'error',  'statuscode' => '400', 'msg' => $errors->first('password')], 400);
             }
 
             return response()->json(['error' => $validator->errors()], 400);
@@ -44,21 +45,24 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
             $token = $user->createToken('api-token')->plainTextToken;
-            $role=  $user->roles()->first();;
-            $send_api_res['role'] = $role;
+            $user['role']=  $user->roles()->first();
             $send_api_res['user'] = $user;
+            $send_api_res['statuscode'] = '200';
+            $send_api_res['msg'] = 'Login Successful';
             $send_api_res['accessToken'] = $token;
             return $send_api_res;
         }else{
             $result_array = array(
                 'status' => 'fail',
+                'statuscode'=>'403',
                 'msg' => 'Invalid credentials entered'
             );
-            return response()->json($result_array, 403);
+            return response()->json($result_array, 200);
         }
 
       
     }
+
 
     public function test(Request $request)
     {
@@ -72,9 +76,9 @@ class AuthController extends Controller
 
         if ($token) {
             $token->delete();
-            return response()->json(['message' => 'Successfully logged out']);
+            return response()->json(['msg' => 'Successfully logged out', 'statuscode' => '200'],200);
         }
 
-        return response()->json(['message' => 'Token not found'], 404);
+        return response()->json(['msg' => 'Token not found', 'statuscode' => '401'], 401);
     }
 }

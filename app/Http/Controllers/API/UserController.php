@@ -24,6 +24,8 @@ class UserController extends Controller
         $formattedData = $data->map(function ($user) {
             // Get all roles from the database
             $allRoles = Role::pluck('name')->toArray();
+            $users = array();
+
             return [
                 'id' => $user->id,
                 'name' => $user->name,
@@ -32,9 +34,22 @@ class UserController extends Controller
                 'all_roles' => $allRoles,
                 // Include any other user details you want in the response
             ];
+
+            // return [
+            //     $users['id'] => $user->id,
+            //     $users['name'] => $user->name,
+            //     $users['email'] => $user->email,
+            //     $users['roles'] => $user->getRoleNames()->toArray(),
+            //     $users['all_roles'] => $allRoles,
+            //     // Include any other user details you want in the response
+            // ];
         });
 
-        return response()->json(['data' => $formattedData]);
+        if (!empty($data)) {
+            return response()->json(['users' => $formattedData, 'statuscode' => '200', 'msg' => 'User Fetched Sucessfully..']);
+        } else {
+            return response()->json(['statuscode' => '200', 'msg' => 'User Table NOt Found']);
+        }
     }
 
     // ... other methods
@@ -107,7 +122,4 @@ class UserController extends Controller
 
         return response()->json(['message' => 'User updated successfully']);
     }
-
- 
-  
 }

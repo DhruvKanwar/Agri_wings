@@ -372,7 +372,7 @@
                 // alert(this.selectedState)
                 // return;
 
-                axios.get("common-district", {
+                axios.get("fetch-towns", {
                         params: {
                             subdistrict: this.selectedSubdistrict,
                             state: this.selectedState, // Make sure to set selectedState in your data if needed

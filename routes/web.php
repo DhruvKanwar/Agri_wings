@@ -40,7 +40,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('submit_farmer_details', [FarmerController::class, 'submit_farmer_details']);
     Route::get('/get_area_details/{postcode}', [FarmerController::class, 'getPostalAddress']);
     Route::get('/export_farmer_details', [FarmerController::class, 'export_farmer_details'])->name('export_farmer_details.route');;
-    Route::any('/common-district', [FarmerController::class, 'districtDetails']);
+    Route::any('/fetch-towns', [FarmerController::class, 'districtDetails']);
     Route::get('pilot_list', [PilotController::class, 'show_pilot_list']);
     Route::get('add_pilot', [PilotController::class, 'add_pilot']);
     Route::get('/show_import', [ImportExportController::class, 'ShowImportExcel']);
