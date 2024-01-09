@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class FarmerDetails extends Model
 {
     use HasFactory;
+    protected $table = 'farmer_details';
+
     protected $fillable = [
         'farmer_code',
         'farmer_name',
@@ -30,5 +32,10 @@ class FarmerDetails extends Model
     public function FarmInfo()
     {
         return $this->hasMany('App\Models\FarmDetails', 'farmer_id', 'id');
+    }
+
+    public function FarmerProfileInfo()
+    {
+        return $this->hasMany('App\Models\FarmerProfile', 'farmer_id', 'id');
     }
 }

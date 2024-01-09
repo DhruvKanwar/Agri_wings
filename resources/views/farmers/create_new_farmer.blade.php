@@ -184,10 +184,6 @@
                             <h4>Farmer Profile</h4>
                             <label>Demographic Info</label><br>
                             <div class="form-row mb-0">
-                                <div class="form-group col-md-2">
-                                    <label for="age">Age<span class="text-danger">*</span></label>
-                                    <input type="text" id="age" class="form-control form-control-sm" name="age" v-model="farmer_details.profile.age" autocomplete="false" required />
-                                </div>
 
                                 <div class="form-group col-md-2">
                                     <label for="gender">Gender<span class="text-danger">*</span></label>
@@ -226,7 +222,10 @@
                             </div>
 
                             <!-- Continue adding fields for attitude, lifestyle, professional_info, hobbies, favourite_activities, interests, mobile_phone_used, social_media_platform, tech_proficiency, preferred_communication, email_id, ratings, suggestion_for_improvement -->
-
+                            <div class="form-group col-md-2">
+                                <label for="attitude">Influence</label>
+                                <input type="text" id="attitude" class="form-control form-control-sm" name="attitude" v-model="farmer_details.profile.influence" autocomplete="false" />
+                            </div>
 
                             <div class="form-group col-md-2">
                                 <label for="attitude">Attitude</label>
@@ -280,6 +279,8 @@
 
                             <div class="form-group col-md-2">
                                 <label for="preferred_communication">Preferred Communication</label>
+                                <input type="text" id="preferred_communication" class="form-control form-control-sm" name="preferred_communication" v-model="farmer_details.profile.preferred_communication" autocomplete="false" />
+
                                 <!-- You can use checkboxes here -->
                             </div>
 
@@ -315,38 +316,97 @@
         //   ValidationProvider
         // },
         data: {
+            // farmer_details: {
+            //     farm_addresses: [{
+            //         field_area: '',
+            //         pin_code: '',
+            //         city: '',
+            //         district: '',
+            //         state: '',
+            //         address: '',
+            //         acerage: ""
+            //     }],
+            //     profile: [{
+            //         gender: '',
+            //         income: '',
+            //         education_level: '',
+            //         date_of_birth: '',
+            //         wedding_anniversary: '',
+            //         attitude: '',
+            //         lifestyle: "",
+            //         professional_info: "",
+            //         influence: "",
+            //         hobbies: "",
+            //         favourite_activities: "",
+            //         intrests: "",
+            //         mobile_phone_used: "",
+            //         social_media_platform: "",
+            //         tech_proficiency: "",
+            //         prferred_communication: "",
+            //         email_id: "",
+            //         ratings: "",
+            //         suggestion_for_improvement: "",
+            //         preferred_communication: "",
+
+            //     }]
+
+            // },
             farmer_details: {
                 farm_addresses: [{
-                    field_area: '',
-                    pin_code: '',
-                    city: '',
-                    district: '',
-                    state: '',
-                    address: '',
-                    acerage: ""
-                }],
+                        field_area: "Farm 1",
+                        pin_code: "123456",
+                        city: null,
+                        district: "dist 1",
+                        state: "punjab",
+                        address: "add 1",
+                        sub_district: "sub dis 1",
+                        village: "vil 1",
+                        acerage: "123"
+                    },
+                    {
+                        field_area: "Farm 2",
+                        pin_code: "9876541",
+                        city: null,
+                        district: "dist 2",
+                        state: "haryana",
+                        address: "add 2",
+                        sub_district: "sub dist 2",
+                        village: "vil 2",
+                        acerage: "432"
+                    }
+                ],
                 profile: [{
-                    age: '',
-                    gender: '',
-                    income: '',
-                    education_level: '',
-                    date_of_birth: '',
-                    wedding_anniversary: '',
-                    attitude: '',
-                    lifestyle: "",
-                    professional_info: "",
-                    hobbies: "",
-                    favourite_activities: "",
-                    intrests: "",
-                    mobile_phone_used: "",
-                    social_media_platform: "",
-                    tech_proficiency: "",
-                    prferred_communication: "",
-                    email_id: "",
-                    ratings: "",
-                    suggestion_for_improvement: ""
-
-                }]
+                            gender: 'Male',
+                            income: '120',
+                            education_level: '8th',
+                            date_of_birth: '07-09-1998',
+                            wedding_anniversary: '23-08-2003',
+                            attitude: 'Good',
+                            lifestyle: "Engaing",
+                            professional_info: "farmer",
+                            influence: "high",
+                            hobbies: "cricket",
+                            favourite_activities: "music",
+                            intrests: "badminton",
+                            mobile_phone_used: "smart",
+                            social_media_platform: "fb,insta",
+                            tech_proficiency: "high",
+                            prferred_communication: "whatsapp,email",
+                            email_id: "naveen@test.com",
+                            ratings: "5",
+                            suggestion_for_improvement: "nothing",
+                }], // You may want to add fields for the profile object
+                farmer_name: "Naveen",
+                farmer_mobile_no: "9876543210",
+                farmer_pincode: "140603",
+                farmer_district: "Udalguri",
+                farmer_state: "Assam",
+                selected_villages: {
+                    // Fields for selected_villages
+                },
+                farmer_address: "add main",
+                farmer_sub_district: "Dhekiajuli (Pt)",
+                farmer_village: "Chengelimaragaon"
             },
             areaDetails: {},
             timer: "",
@@ -443,10 +503,10 @@
                 // this.farmer_details.farmer_state = "";
             },
             add_farmer_details: function() {
-                // console.log()
+                // console.log(this.farmer_details.profile.ratings)
                 // return 1;
-                this.farmer_details.farmer_sub_district = this.farmer_details.selected_villages.subdistrict_name;
-                this.farmer_details.farmer_village = this.farmer_details.selected_villages.vil_town_name;
+                // this.farmer_details.farmer_sub_district = this.farmer_details.selected_villages.subdistrict_name;
+                // this.farmer_details.farmer_village = this.farmer_details.selected_villages.vil_town_name;
 
                 axios.post('/submit_farmer_details', {
                         'farmer_details': this.farmer_details

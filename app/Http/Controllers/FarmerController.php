@@ -7,17 +7,60 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\FarmerDetails;
 use App\Models\FarmDetails;
 use App\Exports\ExportFarmerDetail;
+use App\Models\FarmerProfile;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Models\LocationData;
-
+use Illuminate\Support\Facades\Validator;
 
 class FarmerController extends Controller
 {
     //
 
+    private
+        $stateArray = [
+            "JK" => "JAMMU AND KASHMIR (UT)",
+            "HP" => "HIMACHAL PRADESH",
+            "PB" => "PUNJAB",
+            "CH" => "CHANDIGARH (UT)",
+            "UK" => "UTTARAKHAND",
+            "HR" => "HARYANA",
+            "DL" => "DELHI (UT)",
+            "RJ" => "RAJASTHAN",
+            "UP" => "UTTAR PRADESH",
+            "BH" => "BIHAR",
+            "SK" => "SIKKIM",
+            "AR" => "ARUNACHAL PRADESH",
+            "NL" => "NAGALAND",
+            "MN" => "MANIPUR",
+            "MZ" => "MIZORAM",
+            "TR" => "TRIPURA",
+            "ML" => "MEGHALAYA",
+            "AS" => "ASSAM",
+            "WB" => "WEST BENGAL",
+            "JH" => "JHARKHAND",
+            "OR" => "ODISHA",
+            "CG" => "CHATTISGARH",
+            "MP" => "MADHYA PRADESH",
+            "GJ" => "GUJARAT",
+            "DN" => "DADRA AND NAGAR HAVELI AND DAMAN AND DIU (UT)",
+            "MH" => "MAHARASHTRA",
+            "KA" => "KARNATAKA",
+            "GA" => "GOA",
+            "LD" => "LAKSHADWEEP (UT)",
+            "KL" => "KERALA",
+            "TN" => "TAMIL NADU",
+            "PY" => "PUDUCHERRY (UT)",
+            "AN" => "ANDAMAN AND NICOBAR ISLANDS (UT)",
+            "TG" => "TELANGANA",
+            "AP" => "ANDHRA PRADESH",
+            "LA" => "LADAKH (UT)",
+        ];
+
+
     public function show_farmer_list()
     {
         $farmDetailData = FarmerDetails::with('FarmInfo')->get();
+
         return view('farmers.farmer-list', ['farmer_details' => $farmDetailData]);
 
 
@@ -28,7 +71,6 @@ class FarmerController extends Controller
         }
         // api
         // web
-
     }
 
     public function add_farmers()
@@ -56,28 +98,52 @@ class FarmerController extends Controller
     {
         $data = $request->all();
         // return $data;
-        $request->validate([
-            'farmer_details' => 'required|array',
-            'farmer_details.farm_addresses' => 'required|array|min:1', // Ensure at least one farm address is provided
+        // $jsonPayload = json_encode($data, JSON_PRETTY_PRINT);
 
+        // // Print the JSON payload
+        // echo $jsonPayload;
+        // exit;
+        $validator = Validator::make($request->all(), [
+            'farmer_details' => 'required|array',
+            'farmer_details.farm_addresses' => 'required|array|min:1',
             'farmer_details.farmer_name' => 'required|string|max:255',
-            'farmer_details.farmer_mobile_no' => 'required|string|max:15', // Adjust max length based on actual requirements
-            'farmer_details.farmer_pincode' => 'required|string|max:10', // Assuming pin code is a string, adjust as needed
+            'farmer_details.farmer_mobile_no' => 'required|string|max:15',
+            'farmer_details.farmer_pincode' => 'required|string|max:10',
             'farmer_details.farmer_district' => 'required|string|max:255',
             'farmer_details.farmer_state' => 'required|string|max:255',
             'farmer_details.farmer_village' => 'required|string|max:255',
             'farmer_details.farmer_sub_district' => 'required|string|max:255',
             'farmer_details.farmer_address' => 'required|string',
 
-            'farmer_details.farm_addresses.*.field_area' => 'nullable|string|max:255',
-            'farmer_details.farm_addresses.*.pin_code' => 'required|string|max:10', // Assuming pin code is a string, adjust as needed
-            'farmer_details.farm_addresses.*.village' => 'required|string|max:255',
-            'farmer_details.farm_addresses.*.sub_district' => 'required|string|max:255',
-            'farmer_details.farm_addresses.*.acerage' => 'required|string|max:255',
-            'farmer_details.farm_addresses.*.district' => 'required|string|max:255',
-            'farmer_details.farm_addresses.*.state' => 'required|string|max:255',
-            'farmer_details.farm_addresses.*.address' => 'required|string',
+            'farmer_details.profile' => 'nullable|array|min:1',
+            'farmer_details.profile.*.gender' => 'nullable|string|max:255',
+            'farmer_details.profile.*.income' => 'nullable|string|max:255',
+            'farmer_details.profile.*.education_level' => 'nullable|string|max:255',
+            'farmer_details.profile.*.date_of_birth' => 'nullable|date',
+            'farmer_details.profile.*.wedding_anniversary' => 'nullable|date',
+            'farmer_details.profile.*.attitude' => 'nullable|string|max:255',
+            'farmer_details.profile.*.lifestyle' => 'nullable|string|max:255',
+            'farmer_details.profile.*.professional_info' => 'nullable|string|max:255',
+            'farmer_details.profile.*.influence' => 'nullable|string|max:255',
+            'farmer_details.profile.*.hobbies' => 'nullable|string|max:255',
+            'farmer_details.profile.*.favourite_activities' => 'nullable|string|max:255',
+            'farmer_details.profile.*.intrests' => 'nullable|string|max:255',
+            'farmer_details.profile.*.mobile_phone_used' => 'nullable|string|max:255',
+            'farmer_details.profile.*.social_media_platform' => 'nullable|string|max:255',
+            'farmer_details.profile.*.tech_proficiency' => 'nullable|string|max:255',
+            'farmer_details.profile.*.preferred_communication' => 'nullable|string|max:255',
+            'farmer_details.profile.*.email_id' => 'nullable|email|max:255',
+            'farmer_details.profile.*.ratings' => 'nullable|string|max:255',
+            'farmer_details.profile.*.suggestion_for_improvement' => 'nullable|string',
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+        
         $farm_details = $data['farmer_details']['farm_addresses'];
 
         unset($data['farmer_details']['farm_addresses']);
@@ -88,15 +154,32 @@ class FarmerController extends Controller
         $data['farmer_details']['updated_by_name'] = "";
         $data['farmer_details']['updated_by_id'] = "";
         // return $data;
-        // Create or update the farmer details
-        $farmer_code = FarmerDetails::select('farmer_code')->latest('farmer_code')->first();
-        $farmer_code = json_decode(json_encode($farmer_code), true);
-        if (empty($farmer_code) || $farmer_code == null) {
-            $initial_number = "1000001";
-            $data['farmer_details']['farmer_code'] = $initial_number;
+
+        // start sate code
+        $inputState =   $data['farmer_details']['farmer_state'];
+
+        $stateName = strtoupper($inputState); // Convert to uppercase to match the state codes in uppercase
+
+        // Generate the state code based on the state name
+        $stateCode = $this->generateStateCode($stateName);
+
+   
+        // Query the database to get the latest farmer code for the state
+        $latestCode = FarmerDetails::where('farmer_code', 'like', "AWF$stateCode%")
+        ->orderBy('farmer_code', 'desc')
+            ->value('farmer_code');
+
+        // Generate the new farmer code
+        if ($latestCode) {
+             $data['farmer_details']['farmer_code'] = $this->generateFarmerCodeFromLatest($stateCode, $latestCode);
         } else {
-            $data['farmer_details']['farmer_code'] = $farmer_code['farmer_code'] + 1;
+             $data['farmer_details']['farmer_code'] = "AWF$stateCode-0001";
         }
+
+        // end state code
+
+// print_r($data['farmer_details']['farmer_code']);
+// exit;
 
         $farmerDetails = FarmerDetails::create($data['farmer_details']);
 
@@ -115,9 +198,46 @@ class FarmerController extends Controller
             FarmDetails::create($farmDetailData);
         }
 
+        $profileData = $request->input('farmer_details.profile')[0]; // Assuming only one profile is submitted
+        $profileData['farmer_id'] = $farmer_id;
+        // return $profileData;
+        $farmerProfile = FarmerProfile::create($profileData);
         // check relation working
-        $db = FarmerDetails::where('id', $farmer_id)->with('FarmInfo')->get();
-        return $db;
+        $farmer_data = FarmerDetails::where('id', $farmer_id)
+        ->with(['FarmInfo', 'FarmerProfileInfo']) // Include FarmInfo and nested FarmerProfile
+        ->get();
+        $result_array = array(
+            'status' => 'success',
+            'statuscode' => '200',
+            'msg' => 'Farmer Details Stored Successfully...',
+            'farmerdata'=>$farmer_data
+        );
+        return response()->json($result_array, 200);
+    }
+
+    private function generateFarmerCodeFromLatest($stateCode, $latestCode)
+    {
+        // Extract the numeric part and increment
+        $numericPart = (int)substr($latestCode, -4) + 1;
+
+        // Generate the new farmer code
+        $newCode = "AWF" . $stateCode . "-" . str_pad($numericPart, 4, '0', STR_PAD_LEFT);
+
+        return $newCode;
+    }
+
+    private function generateStateCode($stateName)
+    {
+        // Find the state code based on the state name in the state array
+        $stateCode = array_search($stateName, $this->stateArray);
+
+        // If state code not found, you might want to handle this case accordingly
+        if (!$stateCode) {
+            // You can throw an exception or use a default value
+            $stateCode = 'UnknownState';
+        }
+
+        return $stateCode;
     }
 
     // get address detail from postal code api
