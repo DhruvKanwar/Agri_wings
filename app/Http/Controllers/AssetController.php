@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\AssetDetails;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class AssetController extends Controller
 {
@@ -30,14 +31,25 @@ class AssetController extends Controller
     {
         $data = $request->all();
         // return $data;
-        $request->validate([
+        $validator = Validator::make($request->all(), [
             'asset_details.capacity' => 'numeric',
             'asset_details.mfg_year' => 'required|numeric',
             'asset_details.model' => 'required|string|max:255',
             'asset_details.uin' => 'required|string|max:255',
         ]);
-    
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+ 
+
+     
         $details = Auth::user();
+      
 
         $data['asset_details']['saved_by_name'] = $details->name;
         $data['asset_details']['saved_by_id'] = $details->id;
@@ -49,7 +61,7 @@ class AssetController extends Controller
         $asset_id = AssetDetails::select('asset_id')->latest('asset_id')->first();
         $asset_id = json_decode(json_encode($asset_id), true);
         if (empty($asset_id) || $asset_id == null) {
-            $initial_number = "Asset-1000001";
+            $initial_number = "HAWK-1";
             $data['asset_details']['asset_id'] = $initial_number;
         } else {
             $parts = explode('-', $asset_id['asset_id']);
@@ -59,12 +71,23 @@ class AssetController extends Controller
 
             // Concatenate the string and the incremented number
             $next_asset_id = $parts[0] . '-' . $next_number;
-            $data['asset_details']['asset_id'] = $next_asset_id['asset_id'] + 1;
+            $data['asset_details']['asset_id'] = $next_asset_id;
         }
 
         $AssetDetails = AssetDetails::create($data['asset_details']);
 
 
-    return 1;
+    if($AssetDetails)
+    {
+            $response['success'] = true;
+            $response['statuscode'] = '200';
+            $response['msg'] = 'Assest Added Successfully...';
+            return response()->json($response);
+    }else{
+            $response['success'] = false;
+            $response['statuscode'] = '403';
+            $response['msg'] = 'There is server problem. Record Not Saved.';
+            return response()->json($response);
+    }
     }
 }
