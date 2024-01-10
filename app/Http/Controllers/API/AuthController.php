@@ -5,7 +5,8 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Validator;
+use Illuminate\Support\Facades\Validator;
+
 
 class AuthController extends Controller
 {
@@ -80,5 +81,57 @@ class AuthController extends Controller
         }
 
         return response()->json(['msg' => 'Token not found', 'statuscode' => '401'], 401);
+    }
+
+    public function operator_login(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'login_id' => 'required',
+            'password' => 'required',
+        ]);
+
+        if (preg_match("/([%\$#{}!()+\=\-\*\'\"\/\\\]+)/", request('email'))) {
+            $result_array = array(
+                'status' => 'fail',
+                'statuscode' => '405',
+                'msg' => 'Invalid characters given'
+            );
+
+            return response()->json($result_array, 200);
+        }
+
+        if ($validator->fails()) {
+            $errors = $validator->errors();
+
+            if ($errors->first('login_id')) {
+                return response()->json(['status' => 'error',  'statuscode' => '400', 'msg' => $errors->first('email')], 400);
+            }
+            if ($errors->first('password')) {
+                return response()->json(['status' => 'error',  'statuscode' => '400', 'msg' => $errors->first('password')], 400);
+            }
+
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+
+        $credentials = $request->only('login_id', 'password');
+
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            $token = $user->createToken('api-token')->plainTextToken;
+            $user['role'] =  $user->roles()->first();
+            $send_api_res['user'] = $user;
+            $send_api_res['statuscode'] = '200';
+            $send_api_res['msg'] = 'Login Successful';
+            $send_api_res['accessToken'] = $token;
+            return $send_api_res;
+        } else {
+            $result_array = array(
+                'status' => 'fail',
+                'statuscode' => '403',
+                'msg' => 'Invalid credentials entered'
+            );
+            return response()->json($result_array, 200);
+        }
+
     }
 }

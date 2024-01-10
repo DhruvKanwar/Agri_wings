@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\AssetOperatorController;
 use App\Http\Controllers\FarmerController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -23,6 +24,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/operator_login', [AuthController::class, 'operator_login']);
+
 
 Route::group(['prefix' => 'users'], function () {
     Route::get('/', [UserController::class, 'index']);
@@ -53,6 +56,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('edit_farmer_details', [FarmerController::class, 'edit_farmer_details']);
 
     Route::post('submit_asset_details', [AssetController::class, 'submit_asset_details']);
+    Route::post('test_upload', [AssetController::class, 'test_upload']);
+    Route::post('submit_operator_details', [AssetOperatorController::class, 'submit_operator_details']);
+
+
 
 
 

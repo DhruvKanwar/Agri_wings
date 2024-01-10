@@ -6,6 +6,7 @@ use App\Models\AssetDetails;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class AssetController extends Controller
 {
@@ -89,5 +90,19 @@ class AssetController extends Controller
             $response['msg'] = 'There is server problem. Record Not Saved.';
             return response()->json($response);
     }
+    }
+
+    public function test_upload(Request $request)
+    {
+        
+        $file = $request->file('file');
+        // dd(config('services.s3'));
+        // dd($file);
+        $path = $file->store('test', 's3');
+
+        // Optionally, you can generate a publicly accessible URL
+        $url = Storage::disk('s3')->url($path);
+
+        return response()->json(['url' => $url]);
     }
 }
