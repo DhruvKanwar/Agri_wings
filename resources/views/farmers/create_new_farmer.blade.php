@@ -51,6 +51,11 @@
                                 </div>
 
                                 <div class="form-group col-md-3">
+                                    <label for="state">Village</label>
+                                    <input type="text" class="form-control  form-control-sm" id="state" name="state_id" placeholder="" v-model="village_name" @change="get_village()">
+                                </div>
+
+                                <div class="form-group col-md-3">
                                     <label for="exampleFormControlInput2">Village/ Town<span class="text-danger">*</span></label>
                                     <select class="form-control my-select2" name="village" id="village" required v-model="farmer_details.selected_villages">
                                         <option v-for="village in districts" :key="village.vil_town_code.vil_town_name" :value="village">@{{ village.vil_town_name }}</option>
@@ -376,25 +381,25 @@
                     }
                 ],
                 profile: [{
-                            gender: 'Male',
-                            income: '120',
-                            education_level: '8th',
-                            date_of_birth: '07-09-1998',
-                            wedding_anniversary: '23-08-2003',
-                            attitude: 'Good',
-                            lifestyle: "Engaing",
-                            professional_info: "farmer",
-                            influence: "high",
-                            hobbies: "cricket",
-                            favourite_activities: "music",
-                            intrests: "badminton",
-                            mobile_phone_used: "smart",
-                            social_media_platform: "fb,insta",
-                            tech_proficiency: "high",
-                            prferred_communication: "whatsapp,email",
-                            email_id: "naveen@test.com",
-                            ratings: "5",
-                            suggestion_for_improvement: "nothing",
+                    gender: 'Male',
+                    income: '120',
+                    education_level: '8th',
+                    date_of_birth: '07-09-1998',
+                    wedding_anniversary: '23-08-2003',
+                    attitude: 'Good',
+                    lifestyle: "Engaing",
+                    professional_info: "farmer",
+                    influence: "high",
+                    hobbies: "cricket",
+                    favourite_activities: "music",
+                    intrests: "badminton",
+                    mobile_phone_used: "smart",
+                    social_media_platform: "fb,insta",
+                    tech_proficiency: "high",
+                    prferred_communication: "whatsapp,email",
+                    email_id: "naveen@test.com",
+                    ratings: "5",
+                    suggestion_for_improvement: "nothing",
                 }], // You may want to add fields for the profile object
                 farmer_name: "Naveen",
                 farmer_mobile_no: "9876543210",
@@ -417,6 +422,8 @@
             selectedState: "",
             districts: "",
             subdistricts: "",
+            village_name: "",
+
         },
         created: function() {
             // alert(this.got_details)
@@ -424,6 +431,37 @@
             // console.log(this.location_datas)
         },
         methods: {
+            get_village() {
+                // alert(this.village_name)
+                // return 1;
+                if (this.inputText.length === 3) {
+
+                    axios.get("fetch-villages", {
+                            params: {
+                                village_name: this.village_name,
+                            },
+                        })
+                        .then(response => {
+                            return 1;
+                            this.districts = response.data.district_details;
+                            this.subdistricts = this.districts;
+                            this.selectedVillage = ''; // Clear the selected village
+                            document.getElementById("district").value = response.data.district_details[0].district_name;
+                            document.getElementById("state").value = response.data.district_details[0].state_name;
+
+                            this.farmer_details.farmer_district = response.data.district_details[0].district_name;
+                            this.farmer_details.farmer_state = response.data.district_details[0].state_name;
+
+
+                            // console.log(this.farmer_details)
+                        })
+                        .catch(error => {
+                            console.error('Error fetching districts:', error);
+                        });
+                } else {
+                    alert("Length is more")
+                }
+            },
             fetchDistricts() {
                 this.selectedState = event.target.options[event.target.selectedIndex].getAttribute('data-state');
                 this.farmer_details.farmer_district = "";

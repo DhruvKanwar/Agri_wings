@@ -51,6 +51,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::any('/fetch-towns', [FarmerController::class, 'districtDetails']);
+    Route::any('/fetch-villages', [FarmerController::class, 'fetchVillages']);
     Route::get('/get-locations', [FarmerController::class, 'location_datas']);
     Route::post('submit_farmer_details', [FarmerController::class, 'submit_farmer_details']);
     Route::post('edit_farmer_details', [FarmerController::class, 'edit_farmer_details']);

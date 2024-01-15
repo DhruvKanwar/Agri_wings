@@ -388,6 +388,30 @@ class FarmerController extends Controller
         return Excel::download(new ExportFarmerDetail(), 'Farmers.xlsx');
     }
 
+    public function fetchVillages(Request $request)
+    {
+        $village_name = $request->input('village_name');
+        $validator = Validator::make(['village_name' => $village_name], [
+            'village_name' => 'required|string|min:3|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            // Validation failed
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+        if (strlen($village_name) === 3) {
+            $village_data = LocationData::select('vil_town_name', 'state_name', 'district_name', 'subdistrict_name')
+            ->where('vil_town_name', 'like', '%' . $village_name . '%')
+            ->get();
+        }
+
+        if (!empty($village_data)) {
+            return ['village_data' => $village_data, 'statuscode' => '200', 'msg' => 'Villages Fetched Suceessfully.'];
+        } else {
+            return ['statuscode' => '200', 'msg' => 'Location Not Found...'];
+        }
+    }
+
     public function districtDetails(Request $request)
     {
         // return "DS";
