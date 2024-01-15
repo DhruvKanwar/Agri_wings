@@ -401,7 +401,7 @@ class FarmerController extends Controller
         }
         if (strlen($village_name) === 3) {
             $village_data = LocationData::select('vil_town_name', 'state_name', 'district_name', 'subdistrict_name')
-            ->where('vil_town_name', 'like', '%' . $village_name . '%')
+            ->whereRaw('SUBSTRING(vil_town_name, 1, 3) = ?', [$village_name])
             ->get();
         }
 
