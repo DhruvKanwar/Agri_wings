@@ -74,6 +74,46 @@ class FarmerController extends Controller
         // web
     }
 
+    public function fetch_farmer_list()
+    {
+        $farmDetailData = FarmerDetails::with('FarmInfo')->get();
+
+        // return view('farmers.farmer-list', ['farmer_details' => $farmDetailData]);
+
+
+        if (!empty($farmDetailData)) {
+            return ['farmer_details' => $farmDetailData, 'statuscode' => '200', 'msg' => 'Farmers list fetched sucessfully..'];
+        } else {
+            return ['statuscode' => '200', 'msg' => 'Farmers not Found'];
+        }
+        // api
+        // web
+    }
+
+    public function get_farmer_info(Request $request)
+    {
+        $id = $request->input('id');
+
+        $validator = Validator::make(['id' => $id], [
+            'id' => 'required|numeric|min:1', // Change the validation rules based on your requirements
+        ]);
+
+        if ($validator->fails()) {
+            // Validation failed
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        $farmer_data = FarmerDetails::where('id', $id)
+            ->with(['FarmInfo', 'FarmerProfileInfo']) // Include FarmInfo and nested FarmerProfile
+            ->get();
+        if (!empty($farmer_data)) {
+            return ['farmer_data' => $farmer_data, 'statuscode' => '200', 'msg' => 'Farmer Fetched Suceessfully.'];
+        } else {
+            return ['statuscode' => '200', 'msg' => 'Farmer Not Found...'];
+        }
+
+    }
+
     public function add_farmers()
     {
         $location_datas = LocationData::select('state_name', 'subdistrict_name')
@@ -144,6 +184,22 @@ class FarmerController extends Controller
                 'errors' => $validator->errors(),
             ], 422);
         }
+
+        // check farmer already exists
+        $check_farmer_exists = FarmerDetails::where('farmer_mobile_no',$data['farmer_details']['farmer_mobile_no'] )->get();
+       
+        if(!empty($check_farmer_exists))
+        {
+            $result_array = array(
+                'status' => 'success',
+                'statuscode' => '409',
+                'msg' => 'Farmer Already Exists with the same phone number',
+                'farmerdata' => $check_farmer_exists
+            );
+            return response()->json($result_array, 200);
+        }
+        // end
+
 
         $farm_details = $data['farmer_details']['farm_addresses'];
 
@@ -273,7 +329,21 @@ class FarmerController extends Controller
             ], 422);
         }
 
-        $farm_details = $data['farmer_details']['farm_addresses'];
+        // check farmer already exists
+        // $check_farmer_exists = FarmerDetails::where('farmer_mobile_no', $data['farmer_details']['farmer_mobile_no'])->get();
+
+        // if (!empty($check_farmer_exists)) {
+        //     $result_array = array(
+        //         'status' => 'success',
+        //         'statuscode' => '409',
+        //         'msg' => 'Farmer Already Exists with the same phone number',
+        //         'farmerdata' => $check_farmer_exists
+        //     );
+        //     return response()->json($result_array, 200);
+        // }
+        // end
+
+        $submittedFarmDetail = $data['farmer_details']['farm_addresses'];
 
         unset($data['farmer_details']['farm_addresses']);
         $details = Auth::user();
@@ -289,26 +359,42 @@ class FarmerController extends Controller
         // return $data['farmer_details'];
         $farmerDetails = FarmerDetails::where('id', $farmer_id)->update($data['farmer_details']);
 
-
+        // return $farmerDetails;
         // $farmer_id = $farmerDetails->id;
 
         $existingFarmDetails = DB::table('farm_details')->where('farmer_id', $farmer_id)->get();
 
+        foreach ($submittedFarmDetail as $index => $farmAddress) {
+            // Get the existing farm detail for the current index
+            $existingFarmDetail = $existingFarmDetails[$index];
 
-        // Loop through the submitted farm details
-        foreach ($existingFarmDetails as $submittedFarmDetail) {
-            // Check if the farm detail has an 'id'
-            // return $submittedFarmDetail;
-            DB::table('farm_details')->where('id', $submittedFarmDetail['id'])->update($submittedFarmDetail);
+            // Extract the id from the existing farm detail
+            $farmerDetailId = $existingFarmDetail->id;
+            $details = Auth::user();
+            // Update the farm address in the database using id
+            DB::table('farm_details')->where('id', $farmerDetailId)
+            ->update([
+                'field_area' => $farmAddress['field_area'], // If field_area is also updated
+                'pin_code' => $farmAddress['pin_code'],
+                'district' => $farmAddress['district'],
+                'state' => $farmAddress['state'],
+                'address' => $farmAddress['address'],
+                'sub_district' => $farmAddress['sub_district'],
+                'village' => $farmAddress['village'],
+                'acerage' => $farmAddress['acerage'],
+                'updated_by_name' => $details->name,
+                'updated_by_id'=> $details->id,
+            ]);
         }
 
-        return 1;
+
 
         // Get the existing profile associated with the given farmer_id
         $existingProfile = FarmerProfile::where('farmer_id', $farmer_id)->first();
 
+        // return $existingProfile['id'];
         // Check if the submitted profile has an 'id'
-        if (isset($farmer_profile['id'])) {
+        if (isset($existingProfile['id'])) {
             // If 'id' is present, update the existing profile
             if ($existingProfile) {
                 $existingProfile->update($farmer_profile);
@@ -392,18 +478,16 @@ class FarmerController extends Controller
     {
         $village_name = $request->input('village_name');
         $validator = Validator::make(['village_name' => $village_name], [
-            'village_name' => 'required|string|min:3|max:255',
+            'village_name' => 'required|string',
         ]);
 
         if ($validator->fails()) {
             // Validation failed
             return response()->json(['errors' => $validator->errors()], 400);
         }
-        if (strlen($village_name) === 3) {
-            $village_data = LocationData::select('vil_town_name', 'state_name', 'district_name', 'subdistrict_name')
-            ->whereRaw('SUBSTRING(vil_town_name, 1, 3) = ?', [$village_name])
-            ->get();
-        }
+        $village_data = LocationData::select('vil_town_name', 'state_name', 'district_name', 'subdistrict_name')
+        ->where('vil_town_name', 'like', $village_name . '%')
+        ->get();
 
         if (!empty($village_data)) {
             return ['village_data' => $village_data, 'statuscode' => '200', 'msg' => 'Villages Fetched Suceessfully.'];
