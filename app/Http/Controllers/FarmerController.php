@@ -200,13 +200,20 @@ class FarmerController extends Controller
         }
 
         $profileData = $request->input('farmer_details.profile')[0]; // Assuming only one profile is submitted
-        $profileData['farmer_id'] = $farmer_id;
-        // return $profileData;
-        $farmerProfile = FarmerProfile::create($profileData);
-        // check relation working
-        $farmer_data = FarmerDetails::where('id', $farmer_id)
-            ->with(['FarmInfo', 'FarmerProfileInfo']) // Include FarmInfo and nested FarmerProfile
-            ->get();
+     
+        if (count(array_unique(array_values($profileData))) === 1 && reset($profileData) === null) {
+            $farmer_data = FarmerDetails::where('id', $farmer_id)
+                ->with(['FarmInfo']) // Include FarmInfo and nested FarmerProfile
+                ->get();
+        }else{
+            $profileData['farmer_id'] = $farmer_id;
+            $farmerProfile = FarmerProfile::create($profileData);
+            // check relation working
+            $farmer_data = FarmerDetails::where('id', $farmer_id)
+                ->with(['FarmInfo', 'FarmerProfileInfo']) // Include FarmInfo and nested FarmerProfile
+                ->get();
+        }
+ 
         $result_array = array(
             'status' => 'success',
             'statuscode' => '200',

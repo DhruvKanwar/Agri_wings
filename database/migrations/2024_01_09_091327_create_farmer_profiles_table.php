@@ -15,26 +15,26 @@ class CreateFarmerProfilesTable extends Migration
     {
         Schema::create('farmer_profiles', function (Blueprint $table) {
             $table->id();
-            $table->string('farmer_id');
-            $table->string('gender');
-            $table->string('income');
-            $table->string('education_level');
-            $table->string('date_of_birth');
-            $table->string('wedding_anniversary');
-            $table->string('attitude');
-            $table->string('lifestyle');
-            $table->string('professional_info');
-            $table->string('influence');
-            $table->string('hobbies');
-            $table->string('favourite_activities');
-            $table->string('intrests');
-            $table->string('mobile_phone_used');
-            $table->string('social_media_platform');
-            $table->string('tech_proficiency');
-            $table->string('prferred_communication');
-            $table->string('email_id');
-            $table->string('ratings');
-            $table->text('suggestion_for_improvement');
+            $table->string('farmer_id')->nullable();
+            $table->string('gender')->nullable();
+            $table->string('income')->nullable();
+            $table->string('education_level')->nullable();
+            $table->string('date_of_birth')->nullable();
+            $table->string('wedding_anniversary')->nullable();
+            $table->string('attitude')->nullable();
+            $table->string('lifestyle')->nullable();
+            $table->string('professional_info')->nullable();
+            $table->string('influence')->nullable();
+            $table->string('hobbies')->nullable();
+            $table->string('favourite_activities')->nullable();
+            $table->string('intrests')->nullable();
+            $table->string('mobile_phone_used')->nullable();
+            $table->string('social_media_platform')->nullable();
+            $table->string('tech_proficiency')->nullable();
+            $table->string('prferred_communication')->nullable();
+            $table->string('email_id')->nullable();
+            $table->string('ratings')->nullable();
+            $table->text('suggestion_for_improvement')->nullable();
             $table->timestamps();
         });
     }
