@@ -191,7 +191,7 @@ class FarmerController extends Controller
         if(!empty($check_farmer_exists))
         {
             $result_array = array(
-                'status' => 'success',
+                'status' => 'error',
                 'statuscode' => '409',
                 'msg' => 'Farmer Already Exists with the same phone number',
                 'farmerdata' => $check_farmer_exists
@@ -386,8 +386,6 @@ class FarmerController extends Controller
                 'updated_by_id'=> $details->id,
             ]);
         }
-
-
 
         // Get the existing profile associated with the given farmer_id
         $existingProfile = FarmerProfile::where('farmer_id', $farmer_id)->first();
