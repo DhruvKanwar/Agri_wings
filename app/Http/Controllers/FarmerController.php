@@ -187,15 +187,13 @@ class FarmerController extends Controller
 
         // check farmer already exists
         $check_farmer_exists = FarmerDetails::where('farmer_mobile_no',$data['farmer_details']['farmer_mobile_no'] )->get();
-       
-        if(!empty($check_farmer_exists))
-        {
-            $result_array = array(
+        if ($check_farmer_exists->count() > 0) {
+            $result_array = [
                 'status' => 'error',
                 'statuscode' => '409',
                 'msg' => 'Farmer Already Exists with the same phone number',
-                'farmerdata' => $check_farmer_exists
-            );
+                'farmerdata' => $check_farmer_exists->toArray(), // if you need it as an array
+            ];
             return response()->json($result_array, 200);
         }
         // end
