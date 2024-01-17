@@ -111,7 +111,6 @@ class FarmerController extends Controller
         } else {
             return ['statuscode' => '200', 'msg' => 'Farmer Not Found...'];
         }
-
     }
 
     public function add_farmers()
@@ -186,7 +185,7 @@ class FarmerController extends Controller
         }
 
         // check farmer already exists
-        $check_farmer_exists = FarmerDetails::where('farmer_mobile_no',$data['farmer_details']['farmer_mobile_no'] )->get();
+        $check_farmer_exists = FarmerDetails::where('farmer_mobile_no', $data['farmer_details']['farmer_mobile_no'])->get();
         if ($check_farmer_exists->count() > 0) {
             $result_array = [
                 'status' => 'error',
@@ -254,12 +253,12 @@ class FarmerController extends Controller
         }
 
         $profileData = $request->input('farmer_details.profile')[0]; // Assuming only one profile is submitted
-     
+
         if (count(array_unique(array_values($profileData))) === 1 && reset($profileData) === null) {
             $farmer_data = FarmerDetails::where('id', $farmer_id)
                 ->with(['FarmInfo']) // Include FarmInfo and nested FarmerProfile
                 ->get();
-        }else{
+        } else {
             $profileData['farmer_id'] = $farmer_id;
             $farmerProfile = FarmerProfile::create($profileData);
             // check relation working
@@ -267,7 +266,7 @@ class FarmerController extends Controller
                 ->with(['FarmInfo', 'FarmerProfileInfo']) // Include FarmInfo and nested FarmerProfile
                 ->get();
         }
- 
+
         $result_array = array(
             'status' => 'success',
             'statuscode' => '200',
@@ -278,7 +277,7 @@ class FarmerController extends Controller
     }
 
     public function edit_farmer_details(Request $request)
-   {
+    {
         $data = $request->all();
         // return $data;
         // $jsonPayload = json_encode($data, JSON_PRETTY_PRINT);
@@ -346,13 +345,13 @@ class FarmerController extends Controller
         unset($data['farmer_details']['farm_addresses']);
         $details = Auth::user();
 
-  
+
         $data['farmer_details']['updated_by_name'] = "$details->name;";
         $data['farmer_details']['updated_by_id'] = "$details->id";
 
-  $farmer_id= $data['farmer_details']['farmer_id'];
+        $farmer_id = $data['farmer_details']['farmer_id'];
         unset($data['farmer_details']['farmer_id']);
-        $farmer_profile= $data['farmer_details']['profile'][0];
+        $farmer_profile = $data['farmer_details']['profile'][0];
         unset($data['farmer_details']['profile']);
         // return $data['farmer_details'];
         $farmerDetails = FarmerDetails::where('id', $farmer_id)->update($data['farmer_details']);
@@ -360,30 +359,86 @@ class FarmerController extends Controller
         // return $farmerDetails;
         // $farmer_id = $farmerDetails->id;
 
+
+        // start new
         $existingFarmDetails = DB::table('farm_details')->where('farmer_id', $farmer_id)->get();
+        $existingFarmIds = $existingFarmDetails->pluck('id')->toArray();
 
         foreach ($submittedFarmDetail as $index => $farmAddress) {
-            // Get the existing farm detail for the current index
-            $existingFarmDetail = $existingFarmDetails[$index];
+            // Check if farm ID is present in the payload
+            if (isset($farmAddress['id'])) {
+                $farmDetailId = $farmAddress['id'];
 
-            // Extract the id from the existing farm detail
-            $farmerDetailId = $existingFarmDetail->id;
-            $details = Auth::user();
-            // Update the farm address in the database using id
-            DB::table('farm_details')->where('id', $farmerDetailId)
-            ->update([
-                'field_area' => $farmAddress['field_area'], // If field_area is also updated
-                'pin_code' => $farmAddress['pin_code'],
-                'district' => $farmAddress['district'],
-                'state' => $farmAddress['state'],
-                'address' => $farmAddress['address'],
-                'sub_district' => $farmAddress['sub_district'],
-                'village' => $farmAddress['village'],
-                'acerage' => $farmAddress['acerage'],
-                'updated_by_name' => $details->name,
-                'updated_by_id'=> $details->id,
-            ]);
+                // Update the farm address in the database using ID
+                DB::table('farm_details')->where('id', $farmDetailId)->update([
+                    'field_area' => $farmAddress['field_area'],
+                    'pin_code' => $farmAddress['pin_code'],
+                    'district' => $farmAddress['district'],
+                    'state' => $farmAddress['state'],
+                    'address' => $farmAddress['address'],
+                    'sub_district' => $farmAddress['sub_district'],
+                    'village' => $farmAddress['village'],
+                    'acerage' => $farmAddress['acerage'],
+                    'updated_by_name' => $details->name,
+                    'updated_by_id' => $details->id,
+                ]);
+
+                // Remove the farm ID from the existing IDs array
+                $key = array_search($farmDetailId, $existingFarmIds);
+                if ($key !== false) {
+                    unset($existingFarmIds[$key]);
+                }
+            } else {
+                // If farm ID is not present, insert a new farm record
+                DB::table('farm_details')->insert([
+                    'farmer_id' => $farmer_id,
+                    'field_area' => $farmAddress['field_area'],
+                    'pin_code' => $farmAddress['pin_code'],
+                    'district' => $farmAddress['district'],
+                    'state' => $farmAddress['state'],
+                    'address' => $farmAddress['address'],
+                    'sub_district' => $farmAddress['sub_district'],
+                    'village' => $farmAddress['village'],
+                    'acerage' => $farmAddress['acerage'],
+                    'saved_by_name' => $details->name,
+                    'saved_by_id' => $details->id,
+                    'updated_by_name' => "",
+                    'updated_by_id' => "",
+                ]);
+            }
         }
+
+     
+        FarmDetails::destroy($existingFarmIds);
+
+        // end
+        // start
+        // $existingFarmDetails = DB::table('farm_details')->where('farmer_id', $farmer_id)->get();
+
+        // foreach ($submittedFarmDetail as $index => $farmAddress) {
+        //     // Get the existing farm detail for the current index
+        //     $existingFarmDetail = $existingFarmDetails[$index];
+
+        //     // Extract the id from the existing farm detail
+        //     $farmerDetailId = $existingFarmDetail->id;
+        //     $details = Auth::user();
+        //     // Update the farm address in the database using id
+        //     DB::table('farm_details')->where('id', $farmerDetailId)
+        //         ->update([
+        //             'field_area' => $farmAddress['field_area'], // If field_area is also updated
+        //             'pin_code' => $farmAddress['pin_code'],
+        //             'district' => $farmAddress['district'],
+        //             'state' => $farmAddress['state'],
+        //             'address' => $farmAddress['address'],
+        //             'sub_district' => $farmAddress['sub_district'],
+        //             'village' => $farmAddress['village'],
+        //             'acerage' => $farmAddress['acerage'],
+        //             'updated_by_name' => $details->name,
+        //             'updated_by_id' => $details->id,
+        //         ]);
+        // }
+
+        // ends
 
         // Get the existing profile associated with the given farmer_id
         $existingProfile = FarmerProfile::where('farmer_id', $farmer_id)->first();
@@ -407,7 +462,7 @@ class FarmerController extends Controller
             'farmerdata' => $farmer_data
         );
         return response()->json($result_array, 200);
-   }
+    }
 
     private function generateFarmerCodeFromLatest($stateCode, $latestCode)
     {
@@ -482,8 +537,8 @@ class FarmerController extends Controller
             return response()->json(['errors' => $validator->errors()], 400);
         }
         $village_data = LocationData::select('vil_town_name', 'state_name', 'district_name', 'subdistrict_name')
-        ->where('vil_town_name', 'like', $village_name . '%')
-        ->get();
+            ->where('vil_town_name', 'like', $village_name . '%')
+            ->get();
 
         if (!empty($village_data)) {
             return ['village_data' => $village_data, 'statuscode' => '200', 'msg' => 'Villages Fetched Suceessfully.'];
