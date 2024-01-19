@@ -53,6 +53,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::any('/fetch-towns', [FarmerController::class, 'districtDetails']);
+    Route::any('/check-mobile', [FarmerController::class, 'check_mobile_number']);
     Route::any('/fetch-villages', [FarmerController::class, 'fetchVillages']);
     Route::get('/get-locations', [FarmerController::class, 'location_datas']);
     Route::get('/get-farmers', [FarmerController::class, 'fetch_farmer_list']);

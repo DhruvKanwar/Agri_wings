@@ -577,4 +577,45 @@ class FarmerController extends Controller
 
         return response()->json($response);
     }
+
+    public function check_mobile_number(Request $request)
+    {
+        // Validate the request
+        $validator = Validator::make($request->all(), [
+            'mobile_no' => 'required|numeric|digits:10', // Assuming a 10-digit mobile number
+        ]);
+
+        // Check if validation fails
+        if ($validator->fails()) {
+            $result_array = [
+                'status' => 'error',
+                'statuscode' => '422', // Unprocessable Entity
+                'msg' => 'Invalid mobile number format',
+                'errors' => $validator->errors(),
+            ];
+            return response()->json($result_array, 422);
+        }
+
+        // Continue with checking if the farmer exists
+        $mobile_no = $request->input('mobile_no');
+        $check_farmer_exists = FarmerDetails::where('farmer_mobile_no', $mobile_no)->get();
+
+        if ($check_farmer_exists->count() > 0) {
+            $result_array = [
+                'status' => 'error',
+                'statuscode' => '409',
+                'msg' => 'Farmer Already Exists with the same phone number',
+                'farmerdata' => $check_farmer_exists->toArray(),
+            ];
+            return response()->json($result_array, 200);
+        } else {
+            $result_array = [
+                'status' => 'success',
+                'statuscode' => '200',
+                'msg' => 'Farmer Number can be used for creating the new farmer.',
+            ];
+            return response()->json($result_array, 200);
+        }
+    }
+
 }
