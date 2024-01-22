@@ -15,7 +15,7 @@ class BatteryController extends Controller
         $validator = Validator::make($request->all(), [
             'battery_code' => 'required|string',
             'battery_type' => 'required|string',
-            'status' => 'required|string',
+            // 'status' => 'required|string',
             'battery_id' => 'required|string',
         ]);
 
@@ -118,7 +118,7 @@ class BatteryController extends Controller
         $validator = Validator::make($request->all(), [
             'battery_code' => 'required|string',
             'battery_type' => 'required|string',
-            'status' => 'required|string',
+            // 'status' => 'required|string',
             'battery_id' => 'required|string',
         ]);
 
@@ -143,14 +143,18 @@ class BatteryController extends Controller
         // Get the authenticated user details
         $details = Auth::user();
 
-        // Create an array with the request data and additional details
-        $data = [
-            'battery_code' => $request->input('battery_code'),
-            'battery_type' => $request->input('battery_type'),
-            'status' => $request->input('status'),
-            'updated_by_name' => $details->name,
-            'updated_by_id' => $details->id,
-        ];
+      
+
+        $data['battery_code']= $request->input('battery_code');
+        $data['battery_type'] = $request->input('battery_type');
+        if(!empty($request->input('status')))
+        {
+            $data['status'] = $request->input('status');
+        }
+       
+        $data['updated_by_name'] = $details->name;
+        $data['updated_by_id'] = $details->id;
+
 
         // Update the existing Battery record
         $battery = Battery::where('battery_id', $request->input('battery_id'))->update($data);
@@ -175,7 +179,7 @@ class BatteryController extends Controller
     public function get_all_batteries()
     {
         // Retrieve all batteries from the database
-        $batteries = Battery::all();
+        $batteries = Battery::where('status',1)->get();
 
         // Check if any batteries are found
         if ($batteries->isEmpty()) {

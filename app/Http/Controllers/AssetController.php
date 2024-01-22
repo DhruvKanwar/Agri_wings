@@ -96,12 +96,12 @@ class AssetController extends Controller
 
 
         if ($AssetDetails) {
-            $response['success'] = true;
+            $response['status'] = 'success';
             $response['statuscode'] = '200';
             $response['msg'] = 'Assest Added Successfully...';
             return response()->json($response);
         } else {
-            $response['success'] = false;
+            $response['status'] = 'error';
             $response['statuscode'] = '403';
             $response['msg'] = 'There is server problem. Record Not Saved.';
             return response()->json($response);
