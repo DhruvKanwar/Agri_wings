@@ -64,6 +64,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('edit_farmer_details', [FarmerController::class, 'edit_farmer_details']);
 
     Route::post('submit_asset_details', [AssetController::class, 'submit_asset_details']);
+    Route::post('edit_asset', [AssetController::class, 'edit_asset']);
+    Route::post('delete_asset', [AssetController::class, 'delete_asset']);
+    Route::get('show_asset_list', [AssetController::class, 'show_asset_list']);
+
     Route::post('test_upload', [AssetController::class, 'test_upload']);
     Route::post('submit_operator_details', [AssetOperatorController::class, 'submit_operator_details']);
     Route::post('submit_vehicle_details', [VehicleController::class, 'submit_vehicle_details']);

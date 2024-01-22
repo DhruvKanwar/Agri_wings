@@ -14,17 +14,20 @@ class AssetController extends Controller
     public function show_asset_list()
     {
 
-        $asset_details = AssetDetails::get();
+        $asset_details = AssetDetails::where('status',1)->get();
 
-        return view('assets.assets-list', ['asset_details' => $asset_details]);
-        // return view('drones.drone-list');
+        if (!$asset_details->isEmpty()) {
+            return ['asset_details' => $asset_details, 'statuscode' => '200', 'msg' => 'Asset list fetched successfully.'];
+        } else {
+            return ['statuscode' => '200', 'statuscode' => '200', 'msg' => 'Assets not found.'];
+        }
 
-        // return view('farmers.farmer-list', ['farmer_details' => $farmDetailData]);
+
     }
 
     public function add_asset()
     {
-       
+
         return view('assets.create_new_asset');
     }
 
@@ -46,11 +49,21 @@ class AssetController extends Controller
             ], 422);
         }
 
- 
 
-     
+        // check asset   already exists
+        $check_asset_already_exists = AssetDetails::where('uin', $data['asset_details']['uin'])->get();
+        if ($check_asset_already_exists->count() > 0) {
+            $result_array = [
+                'status' => 'error',
+                'statuscode' => '409',
+                'msg' => 'Asset Already Exists with the same uin number',
+                'assetdata' => $check_asset_already_exists->toArray(), // if you need it as an array
+            ];
+            return response()->json($result_array, 200);
+        }
+
         $details = Auth::user();
-      
+
 
         $data['asset_details']['saved_by_name'] = $details->name;
         $data['asset_details']['saved_by_id'] = $details->id;
@@ -78,23 +91,83 @@ class AssetController extends Controller
         $AssetDetails = AssetDetails::create($data['asset_details']);
 
 
-    if($AssetDetails)
-    {
+        if ($AssetDetails) {
             $response['success'] = true;
             $response['statuscode'] = '200';
             $response['msg'] = 'Assest Added Successfully...';
             return response()->json($response);
-    }else{
+        } else {
             $response['success'] = false;
             $response['statuscode'] = '403';
             $response['msg'] = 'There is server problem. Record Not Saved.';
             return response()->json($response);
+        }
     }
+
+    public function edit_asset(Request $request)
+    {
+        $data = $request->all();
+        // return $data;
+
+        $asset_id =$data['asset_details']['id'];
+        // return $asset_id;
+
+        // Validate the request data
+        $validator = Validator::make($request->all(), [
+            'asset_details.capacity' => 'numeric',
+            'asset_details.mfg_year' => 'nullable|numeric',
+            'asset_details.model' => 'nullable|string|max:255',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'The given data was invalid.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $details = Auth::user();
+
+
+        // Update the asset details
+        $data['asset_details']['updated_by_name'] = $details->name;
+        $data['asset_details']['updated_by_id'] = $details->id;
+
+        $asset = AssetDetails::where('id', $asset_id)->first();
+
+        if (!$asset) {
+            $response['success'] = false;
+            $response['statuscode'] = '404';
+            $response['msg'] = 'Asset not found.';
+            return response()->json($response);
+        }
+
+        $asset->update($data['asset_details']);
+
+        $response['success'] = true;
+        $response['statuscode'] = '200';
+        $response['msg'] = 'Asset Updated Successfully...';
+        return response()->json($response);
     }
+
+    public function delete_asset(Request $request)
+    {
+        $data = $request->all();
+        $asset_id = $data['id'];
+
+
+        AssetDetails::where('id',$asset_id)->update(['status'=>0]);
+
+        $response['success'] = true;
+        $response['statuscode'] = '200';
+        $response['msg'] = 'Asset Deleted Successfully...';
+        return response()->json($response);
+    }
+
 
     public function test_upload(Request $request)
     {
-        
+
         $file = $request->file('file');
         // dd(config('services.s3'));
         // dd($file);
