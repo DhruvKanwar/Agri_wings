@@ -5,6 +5,7 @@ use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssetOperatorController;
 use App\Http\Controllers\BatteryController;
+use App\Http\Controllers\ClientController;
 use App\Http\Controllers\FarmerController;
 use App\Http\Controllers\VehicleController;
 use Illuminate\Http\Request;
@@ -72,10 +73,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('submit_operator_details', [AssetOperatorController::class, 'submit_operator_details']);
     Route::post('submit_vehicle_details', [VehicleController::class, 'submit_vehicle_details']);
     Route::post('edit_vehicle_details', [VehicleController::class, 'edit_vehicle_details']);
+    Route::get('fetch_vehicle_list', [VehicleController::class, 'fetch_vehicle_list']);
+    Route::post('delete_vehicle', [VehicleController::class, 'delete_vehicle']);
     Route::post('submit_battery_details', [BatteryController::class, 'submit_battery_details']);
     Route::post('edit_battery_details', [BatteryController::class, 'edit_battery_details']);
     Route::get('get_all_batteries', [BatteryController::class, 'get_all_batteries']);
     Route::get('get_battery_by_id', [BatteryController::class, 'get_battery_by_id']);
+    Route::post('submit_client_details', [ClientController::class, 'submit_client_details']);
 
 
 

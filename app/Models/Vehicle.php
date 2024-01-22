@@ -27,4 +27,9 @@ class Vehicle extends Model
         'created_at',
         'updated_at'
     ];
+
+    public function AssetOperatorDetail()
+    {
+        return $this->hasOne('App\Models\AssetOperator', 'id', 'operator_id');
+    }
 }

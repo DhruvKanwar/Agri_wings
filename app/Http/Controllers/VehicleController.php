@@ -11,6 +11,42 @@ class VehicleController extends Controller
 {
     //
 
+
+    public function fetch_vehicle_list()
+    {
+        $vehicle_list = Vehicle::with('AssetOperatorDetail')
+        ->where('status', 1)
+        ->get();
+
+        if (!$vehicle_list->isEmpty()) {
+            return ['data' => $vehicle_list, 'statuscode' => '200','status'=>'success', 'msg' => 'Vehicle list fetched successfully.'];
+        } else {
+            return ['status' => 'success', 'statuscode' => '200', 'msg' => 'Vehicle not found.'];
+        }
+    }
+
+    public function delete_vehicle(Request $request)
+    {
+        $data=$request->all();
+        $id=$data['id'];
+
+        $get_vehicle=Vehicle::where('id',$data['id'])->first();
+
+        if($get_vehicle->operator_id == "")
+        {
+            $update_vehicle = Vehicle::where('id',$id)->update(['status'=>0]);
+           if($update_vehicle)
+           {
+                return ['status' => 'success', 'data'=> $get_vehicle,'statuscode' => '200', 'msg' => 'Vehicle Deleted Succeddfully.'];
+
+           }
+
+        }else{
+            return ['status' => 'error', 'statuscode' => '404', 'msg' => 'Vehicle Already Assigned to the Operator', 'data' => $get_vehicle];
+
+        }
+    }
+
     public function submit_vehicle_details(Request $request)
     {
         // Validate the incoming request data
@@ -95,7 +131,7 @@ class VehicleController extends Controller
         }
 
         // Check if the registration number already exists
-        $existingVehicle = Vehicle::where('registration_no', $request->input('registration_no'))->first();
+        $existingVehicle = Vehicle::where('id', $request->input('id'))->first();
 
         if (!$existingVehicle) {
             $result_array = array(
@@ -109,7 +145,7 @@ class VehicleController extends Controller
         $details = Auth::user();
 
         $existingVehicle->update([
-            'operator_id' => $request->input('operator_id'),
+            // 'operator_id' => $request->input('operator_id'),
             'operator_name' => $request->input('operator_name'),
             'owned_by' => $request->input('owned_by'),
             'type' => $request->input('type'),
@@ -117,7 +153,7 @@ class VehicleController extends Controller
             'engine_no' => $request->input('engine_no'),
             'manufacturer' => $request->input('manufacturer'),
             'year_of_make' => $request->input('year_of_make'),
-            'assigned_to_operator' => $request->input('assigned_to_operator'),
+            // 'assigned_to_operator' => $request->input('assigned_to_operator'),
             'updated_by_name' => $details->name,
             'updated_by_id' => $details->id,
         ]);
@@ -126,6 +162,7 @@ class VehicleController extends Controller
             'status' => 'success',
             'statuscode' => '200',
             'msg' => 'Vehicle updated successfully',
+            'data'=> $existingVehicle
         );
         return response()->json($result_array, 200);
     }

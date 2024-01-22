@@ -17,9 +17,13 @@ class AssetController extends Controller
         $asset_details = AssetDetails::where('status',1)->get();
 
         if (!$asset_details->isEmpty()) {
-            return ['asset_details' => $asset_details, 'statuscode' => '200', 'msg' => 'Asset list fetched successfully.'];
+            return ['data' => $asset_details, 
+            'statuscode' => '200', 
+            'msg' => 'Asset list fetched successfully.'];
         } else {
-            return ['statuscode' => '200', 'statuscode' => '200', 'msg' => 'Assets not found.'];
+            return ['status' => 'error', 
+            'statuscode' => '200', 
+            'msg' => 'Assets not found.'];
         }
 
 
@@ -44,7 +48,7 @@ class AssetController extends Controller
 
         if ($validator->fails()) {
             return response()->json([
-                'message' => 'The given data was invalid.',
+                'msg' => 'The given data was invalid.',
                 'errors' => $validator->errors(),
             ], 422);
         }
@@ -57,7 +61,7 @@ class AssetController extends Controller
                 'status' => 'error',
                 'statuscode' => '409',
                 'msg' => 'Asset Already Exists with the same uin number',
-                'assetdata' => $check_asset_already_exists->toArray(), // if you need it as an array
+                'data' => $check_asset_already_exists->toArray(), // if you need it as an array
             ];
             return response()->json($result_array, 200);
         }
