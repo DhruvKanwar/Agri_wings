@@ -37,6 +37,6 @@ class AssetOperator extends Model
 
     public function VehicleDetails()
     {
-        return $this->hasOne('App\Models\Vehicle', 'operator_id', 'id');
+        return $this->belongsTo('App\Models\Vehicle', 'vehicle_id', 'id');
     }
 }
