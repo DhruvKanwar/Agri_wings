@@ -125,31 +125,33 @@ class BatteryController extends Controller
             return response()->json(['error' => $validator->errors()], 422);
         }
 
-        // Check if the battery code already exists for a different battery_id
-        $existingBatteryCode = Battery::where('battery_code', $request->input('battery_code'))
-            ->first();
+        // // Check if the battery code already exists for a different battery_id
+        // $existingBatteryCode = Battery::where('battery_code', $request->input('battery_code'))
+        //     ->where('battery_id', '!=', $request->input('battery_id'))
+        //     ->first();
 
-        if ($existingBatteryCode) {
-            $result_array = [
-                'status' => 'error',
-                'statuscode' => '422',
-                'msg' => "Battery code {$request->input('battery_code')} already exists for a different Battery ID.",
-            ];
-            return response()->json($result_array, 200);
-        }
+        // if ($existingBatteryCode) {
+        //     $result_array = [
+        //         'status' => 'error',
+        //         'statuscode' => '422',
+        //         'msg' => "Battery code {$request->input('battery_code')} already exists for a different Battery ID.",
+        //     ];
+        //     return response()->json($result_array, 200);
+        // }
 
         // Get the authenticated user details
         $details = Auth::user();
 
       
 
-        $data['battery_code']= $request->input('battery_code');
-        $data['battery_type'] = $request->input('battery_type');
-        if(!empty($request->input('status')))
-        {
-            $data['status'] = $request->input('status');
-        }
-       
+        // $data['battery_code']= $request->input('battery_code');
+        // $data['battery_type'] = $request->input('battery_type');
+        // if(!empty($request->input('status')))
+        // {
+        //     $data['status'] = $request->input('status');
+        // }
+
+        $data['status'] = $request->input('status');
         $data['updated_by_name'] = $details->name;
         $data['updated_by_id'] = $details->id;
 
