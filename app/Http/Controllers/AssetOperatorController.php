@@ -164,7 +164,7 @@ class AssetOperatorController extends Controller
         $assetOperator = AssetOperator::create($data);
 
         // You can return a response or perform any other logic here
-        return response()->json(['message' => 'Details stored successfully', 'data' => $assetOperator]);
+        return response()->json(['msg' => 'Details stored successfully','status' =>'success','statuscode'=>'200', 'data' => $assetOperator]);
     }
 
     public function edit_operator_details(Request $request)
@@ -296,12 +296,12 @@ class AssetOperatorController extends Controller
 
             if ($assetOperator) {
                 $assetOperator->delete();
-                return response()->json(['success' => true, 'message' => 'Record deleted successfully']);
+                return response()->json(['statuscode' => '200', 'status' => 'success',  'msg' => 'Record deleted successfully']);
             } else {
-                return response()->json(['success' => false, 'message' => 'Record not found'], 404);
+                return response()->json(['statuscode' => '200', 'status' => 'success',  'msg' => 'Record not found'], 404);
             }
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Error deleting record', 'error' => $e->getMessage()], 500);
+            return response()->json(['statuscode' => '400', 'status' => 'error',  'msg' => 'Error deleting record', 'data' => $e->getMessage()], 500);
         }
     }
 
