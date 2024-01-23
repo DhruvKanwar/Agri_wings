@@ -80,7 +80,6 @@ class BatteryController extends Controller
             'battery_id' => $nextAvailableSlot,
             'battery_code' => $request->input('battery_code'),
             'battery_type' => $request->input('battery_type'),
-            'status' => $request->input('status'),
             'saved_by_name' => $details->name,
             'saved_by_id' => $details->id,
             'updated_by_name' => null,
