@@ -70,7 +70,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('show_asset_list', [AssetController::class, 'show_asset_list']);
 
     Route::post('test_upload', [AssetController::class, 'test_upload']);
+    Route::get('get_all_operators', [AssetOperatorController::class, 'get_all_operators']);
     Route::post('submit_operator_details', [AssetOperatorController::class, 'submit_operator_details']);
+    Route::post('edit_operator_details', [AssetOperatorController::class, 'edit_operator_details']);
+    Route::post('delete_operator', [AssetOperatorController::class, 'delete_operator']);
     Route::post('submit_vehicle_details', [VehicleController::class, 'submit_vehicle_details']);
     Route::post('edit_vehicle_details', [VehicleController::class, 'edit_vehicle_details']);
     Route::get('fetch_vehicle_list', [VehicleController::class, 'fetch_vehicle_list']);
