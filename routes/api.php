@@ -83,6 +83,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('get_all_batteries', [BatteryController::class, 'get_all_batteries']);
     Route::get('get_battery_by_id', [BatteryController::class, 'get_battery_by_id']);
     Route::post('submit_client_details', [ClientController::class, 'submit_client_details']);
+    Route::get('get_all_clients_list', [ClientController::class, 'get_all_clients_list']);
+
 
 
 
