@@ -307,7 +307,7 @@ class AssetOperatorController extends Controller
 
     public function get_all_operators()
     {
-        $vehicle_list = AssetOperator::with('VehicleDetails')
+        $vehicle_list = AssetOperator::with('VehicleDetails', 'UserDetails')
             ->where('status', 1)
             ->get();
 
