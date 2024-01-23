@@ -7,6 +7,7 @@ use App\Http\Controllers\AssetOperatorController;
 use App\Http\Controllers\BatteryController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\FarmerController;
+use App\Http\Controllers\SchemeController;
 use App\Http\Controllers\VehicleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -88,7 +89,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
 
-
+    // Routes for SchemeController
+    Route::get('/schemes', [SchemeController::class, 'index']);
+    Route::get('/schemes/{id}', [SchemeController::class, 'show']);
+    Route::post('/schemes', [SchemeController::class, 'store']);
+    Route::put('/schemes/{id}', [SchemeController::class, 'update']);
+    Route::delete('/schemes/{id}', [SchemeController::class, 'destroy']);
 
 
 

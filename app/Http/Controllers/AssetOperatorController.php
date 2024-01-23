@@ -280,7 +280,7 @@ class AssetOperatorController extends Controller
 
 
         // You can return a response or perform any other logic here
-        return response()->json(['msg' => 'Details updated successfully','statuscode'=>'200','status'=>'suceess','data' => $get_operator]);
+        return response()->json(['msg' => 'Details updated successfully','statuscode'=>'200','status'=>'success','data' => $get_operator]);
     }
 
     public function delete_operator(Request $request)
@@ -291,10 +291,13 @@ class AssetOperatorController extends Controller
             ]);
 
             $id = $request->input('id');
+            $end_date = $request->input('end_date');
+           
 
             $assetOperator = AssetOperator::find($id);
 
             if ($assetOperator) {
+                AssetOperator::where('id',$id)->update(['end_date'=>$end_date,'status'=>0]);
                 $assetOperator->delete();
                 return response()->json(['statuscode' => '200', 'status' => 'success',  'msg' => 'Record deleted successfully']);
             } else {
