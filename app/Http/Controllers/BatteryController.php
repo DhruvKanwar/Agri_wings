@@ -127,7 +127,6 @@ class BatteryController extends Controller
 
         // Check if the battery code already exists for a different battery_id
         $existingBatteryCode = Battery::where('battery_code', $request->input('battery_code'))
-            ->where('battery_id', '!=', $request->input('battery_id'))
             ->first();
 
         if ($existingBatteryCode) {
