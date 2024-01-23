@@ -115,9 +115,9 @@ class BatteryController extends Controller
     {
         // Validate the incoming request data
         $validator = Validator::make($request->all(), [
-            'battery_code' => 'required|string',
-            'battery_type' => 'required|string',
-            // 'status' => 'required|string',
+            // 'battery_code' => 'required|string',
+            // 'battery_type' => 'required|string',
+            'status' => 'required|string',
             'battery_id' => 'required|string',
         ]);
 
