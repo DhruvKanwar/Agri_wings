@@ -85,6 +85,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('get_battery_by_id', [BatteryController::class, 'get_battery_by_id']);
     Route::post('submit_client_details', [ClientController::class, 'submit_client_details']);
     Route::get('get_all_clients_list', [ClientController::class, 'get_all_clients_list']);
+    Route::get('get_all_base_clients', [ClientController::class, 'get_all_base_clients']);
+    Route::post('update_base_client', [ClientController::class, 'update_base_client']);
+    Route::post('update_regional_client', [ClientController::class, 'update_regional_client']);
+    Route::post('create_regional_client', [ClientController::class, 'create_regional_client']);
+
+
 
 
 

@@ -10,7 +10,7 @@ class BaseClient extends Model
 {
     use HasFactory;
     use SoftDeletes;
-
+    protected $table = 'base_clients';
     protected $fillable = [
         'client_name',
         'pan_no',
