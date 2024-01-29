@@ -14,19 +14,21 @@ class AssetController extends Controller
     public function show_asset_list()
     {
 
-        $asset_details = AssetDetails::where('status',1)->get();
+        $asset_details = AssetDetails::where('status', 1)->get();
 
         if (!$asset_details->isEmpty()) {
-            return ['data' => $asset_details, 
-            'statuscode' => '200', 
-            'msg' => 'Asset list fetched successfully.'];
+            return [
+                'data' => $asset_details,
+                'statuscode' => '200',
+                'msg' => 'Asset list fetched successfully.'
+            ];
         } else {
-            return ['status' => 'error', 
-            'statuscode' => '200', 
-            'msg' => 'Assets not found.'];
+            return [
+                'status' => 'error',
+                'statuscode' => '200',
+                'msg' => 'Assets not found.'
+            ];
         }
-
-
     }
 
     public function add_asset()
@@ -76,7 +78,8 @@ class AssetController extends Controller
         $data['asset_details']['asset_name'] = 'Drone';
         // return $data;
         // Create or update the farmer details
-        $asset_id = AssetDetails::select('asset_id')->latest('asset_id')->first();
+        $asset_id = AssetDetails::select('asset_id')->latest('id')->first();
+        // return $asset_id;
         $asset_id = json_decode(json_encode($asset_id), true);
         if (empty($asset_id) || $asset_id == null) {
             $initial_number = "HAWK-1";
@@ -113,7 +116,7 @@ class AssetController extends Controller
         $data = $request->all();
         // return $data;
 
-        $asset_id =$data['asset_details']['id'];
+        $asset_id = $data['asset_details']['id'];
         // return $asset_id;
 
         // Validate the request data
@@ -160,7 +163,7 @@ class AssetController extends Controller
         $asset_id = $data['id'];
 
 
-        AssetDetails::where('id',$asset_id)->update(['status'=>0]);
+        AssetDetails::where('id', $asset_id)->update(['status' => 0]);
 
         $response['success'] = true;
         $response['statuscode'] = '200';
