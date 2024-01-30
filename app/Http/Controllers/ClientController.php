@@ -838,6 +838,37 @@ class ClientController extends Controller
         }
     }
 
+    public function get_base_client_details(Request $request)
+    {
+        $data=$request->all();
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|string|max:255',
+        ]);
+
+        // Check if validation fails
+        if ($validator->fails()) {
+            return response()->json(['msg' => $validator->errors(), 'statuscode' => '400', 'status' => 'error',], 422);
+        }
+  
+        $id=$data['id'];
+        $base_clients_data = BaseClient::where('id',$id)->get();
+        if (!$base_clients_data->isEmpty()) {
+            return [
+                'data' => $base_clients_data,
+                'statuscode' => '200',
+                'status'=>'success',
+                'msg' => 'Base CLient Details fetched successfully.'
+            ];
+        } else {
+            return [
+                'data' => "",
+                'status' => 'error',
+                'statuscode' => '200',
+                'msg' => 'Base Client not found.'
+            ];
+        }
+    }
+
 
     // public function submit_client_details(Request $request)
     // {

@@ -89,6 +89,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('update_base_client', [ClientController::class, 'update_base_client']);
     Route::post('update_regional_client', [ClientController::class, 'update_regional_client']);
     Route::post('create_regional_client', [ClientController::class, 'create_regional_client']);
+    Route::post('get_base_client_details', [ClientController::class, 'get_base_client_details']);
+
 
 
 
