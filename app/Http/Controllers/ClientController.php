@@ -62,7 +62,12 @@ class ClientController extends Controller
 
         // start img
 
-        $qr_code = $base_client_data['qr_code'];
+        if (array_key_exists('qr_code', $base_client_data)) {
+            $qr_code = $base_client_data['qr_code'];
+        } else {
+            $qr_code = "";
+        }
+
         if (!empty($qr_code)) {
             // Generate a random string for the filename
             $randomString = Str::random(10); // Adjust the length as needed
@@ -80,8 +85,12 @@ class ClientController extends Controller
             $base_client_data['qr_code'] = $customFilename;
         }
 
-        
-        $sign_img = $base_client_data['sign_img'];
+        if (array_key_exists('sign_img', $base_client_data)) {
+            $sign_img = $base_client_data['sign_img'];
+        } else {
+            $sign_img = "";
+        }
+      
         if (!empty($sign_img)) {
             // Generate a random string for the filename
             $randomString = Str::random(10); // Adjust the length as needed
@@ -99,7 +108,12 @@ class ClientController extends Controller
             $base_client_data['sign_img'] = $customFilename;
         }
 
-        $logo_img = $base_client_data['logo_img'];
+        
+        if (array_key_exists('logo_img', $base_client_data)) {
+            $logo_img = $base_client_data['logo_img'];
+        } else {
+            $logo_img = "";
+        }
         if (!empty($logo_img)) {
             // Generate a random string for the filename
             $randomString = Str::random(10); // Adjust the length as needed
@@ -257,8 +271,11 @@ class ClientController extends Controller
         }
 
         // start img
-
+        if (array_key_exists('qr_code', $base_client_data)) {
         $qr_code = $base_client_data['qr_code'];
+        }else{
+            $qr_code="";
+        }
         if (!empty($qr_code)) {
             // Generate a random string for the filename
             $randomString = Str::random(10); // Adjust the length as needed
@@ -276,7 +293,11 @@ class ClientController extends Controller
             $base_client_data['qr_code'] = $customFilename;
         }
 
-        $sign_img = $base_client_data['sign_img'];
+        if (array_key_exists('sign_img', $base_client_data)) {
+            $sign_img = $base_client_data['sign_img'];
+        } else {
+            $sign_img = "";
+        }
         if (!empty($sign_img)) {
             // Generate a random string for the filename
             $randomString = Str::random(10); // Adjust the length as needed
@@ -294,7 +315,12 @@ class ClientController extends Controller
             $base_client_data['sign_img'] = $customFilename;
         }
 
-        $logo_img = $base_client_data['logo_img'];
+        if (array_key_exists('logo_img', $base_client_data)) {
+            $logo_img = $base_client_data['logo_img'];
+        } else {
+            $logo_img = "";
+        }
+     
         if (!empty($logo_img)) {
             // Generate a random string for the filename
             $randomString = Str::random(10); // Adjust the length as needed
