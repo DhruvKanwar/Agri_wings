@@ -131,7 +131,7 @@ class ClientController extends Controller
 
         if ($existingBaseClient) {
             // PAN number already exists, return an error response
-            return response()->json(['msg' => 'PAN number already exists in the database', 'status' => 'error', 'statuscode' => '400',  'data' => $existingBaseClient], 409);
+            return response()->json(['msg' => 'PAN number already exists in the database', 'status' => 'error', 'statuscode' => '400',  'data' => $existingBaseClient]);
         }
 
         // Use a database transaction to ensure atomicity
