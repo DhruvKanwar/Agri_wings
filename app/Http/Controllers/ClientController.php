@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+
 
 class ClientController extends Controller
 {
@@ -60,7 +62,7 @@ class ClientController extends Controller
 
         // start img
 
-        $qr_code = $request->file('qr_code');
+        $qr_code = $base_client_data['qr_code'];
         if (!empty($qr_code)) {
             // Generate a random string for the filename
             $randomString = Str::random(10); // Adjust the length as needed
@@ -78,7 +80,8 @@ class ClientController extends Controller
             $base_client_data['qr_code'] = $customFilename;
         }
 
-        $sign_img = $request->file('sign_img');
+        
+        $sign_img = $base_client_data['sign_img'];
         if (!empty($sign_img)) {
             // Generate a random string for the filename
             $randomString = Str::random(10); // Adjust the length as needed
@@ -96,7 +99,7 @@ class ClientController extends Controller
             $base_client_data['sign_img'] = $customFilename;
         }
 
-        $logo_img = $request->file('logo_img');
+        $logo_img = $base_client_data['logo_img'];
         if (!empty($logo_img)) {
             // Generate a random string for the filename
             $randomString = Str::random(10); // Adjust the length as needed
@@ -255,7 +258,7 @@ class ClientController extends Controller
 
         // start img
 
-        $qr_code = $request->file('qr_code');
+        $qr_code = $base_client_data['qr_code'];
         if (!empty($qr_code)) {
             // Generate a random string for the filename
             $randomString = Str::random(10); // Adjust the length as needed
@@ -273,7 +276,7 @@ class ClientController extends Controller
             $base_client_data['qr_code'] = $customFilename;
         }
 
-        $sign_img = $request->file('sign_img');
+        $sign_img = $base_client_data['sign_img'];
         if (!empty($sign_img)) {
             // Generate a random string for the filename
             $randomString = Str::random(10); // Adjust the length as needed
@@ -291,7 +294,7 @@ class ClientController extends Controller
             $base_client_data['sign_img'] = $customFilename;
         }
 
-        $logo_img = $request->file('logo_img');
+        $logo_img = $base_client_data['logo_img'];
         if (!empty($logo_img)) {
             // Generate a random string for the filename
             $randomString = Str::random(10); // Adjust the length as needed
@@ -522,7 +525,7 @@ class ClientController extends Controller
 
     //     // start img
 
-    //     $qr_code = $request->file('qr_code');
+    //     $qr_code = $base_client_data['qr_code'];
     //     if (!empty($qr_code)) {
     //         // Generate a random string for the filename
     //         $randomString = Str::random(10); // Adjust the length as needed
@@ -540,7 +543,7 @@ class ClientController extends Controller
     //         $base_client_data['qr_code'] = $customFilename;
     //     }
 
-    //     $sign_img = $request->file('sign_img');
+    //     $sign_img = $base_client_data['sign_img'];
     //     if (!empty($sign_img)) {
     //         // Generate a random string for the filename
     //         $randomString = Str::random(10); // Adjust the length as needed
@@ -558,7 +561,7 @@ class ClientController extends Controller
     //         $base_client_data['sign_img'] = $customFilename;
     //     }
 
-    //     $logo_img = $request->file('logo_img');
+    //     $logo_img = $base_client_data['logo_img'];
     //     if (!empty($logo_img)) {
     //         // Generate a random string for the filename
     //         $randomString = Str::random(10); // Adjust the length as needed
@@ -684,7 +687,7 @@ class ClientController extends Controller
 
     //             // start img
 
-    //             $qr_code = $request->file('qr_code');
+    //             $qr_code = $base_client_data['qr_code'];
     //             if (!empty($qr_code)) {
     //                 // Generate a random string for the filename
     //                 $randomString = Str::random(10); // Adjust the length as needed
@@ -702,7 +705,7 @@ class ClientController extends Controller
     //                 $base_client_data['qr_code'] = $customFilename;
     //             }
 
-    //             $sign_img = $request->file('sign_img');
+    //             $sign_img = $base_client_data['sign_img'];
     //             if (!empty($sign_img)) {
     //                 // Generate a random string for the filename
     //                 $randomString = Str::random(10); // Adjust the length as needed
@@ -720,7 +723,7 @@ class ClientController extends Controller
     //                 $base_client_data['sign_img'] = $customFilename;
     //             }
 
-    //             $logo_img = $request->file('logo_img');
+    //             $logo_img = $base_client_data['logo_img'];
     //             if (!empty($logo_img)) {
     //                 // Generate a random string for the filename
     //                 $randomString = Str::random(10); // Adjust the length as needed
