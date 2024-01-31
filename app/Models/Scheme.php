@@ -25,6 +25,10 @@ class Scheme extends Model
         'max_acreage',
         'client_id',
         'status',
+        'saved_by_id',
+        'saved_by_name',
+        'updated_by_id',
+        'updated_by_name',
     ];
 
     protected $casts = [

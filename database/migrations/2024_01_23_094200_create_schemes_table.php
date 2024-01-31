@@ -28,6 +28,10 @@ class CreateSchemesTable extends Migration
             $table->string('max_acreage')->nullable();
             $table->string('client_id');
             $table->string('status')->default(1);
+            $table->string('saved_by_id');
+            $table->string('saved_by_name');
+            $table->string('updated_by_id')->nullable();
+            $table->string('updated_by_name')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

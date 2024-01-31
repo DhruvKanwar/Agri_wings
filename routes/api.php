@@ -6,6 +6,7 @@ use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssetOperatorController;
 use App\Http\Controllers\BatteryController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\CropController;
 use App\Http\Controllers\FarmerController;
 use App\Http\Controllers\SchemeController;
 use App\Http\Controllers\VehicleController;
@@ -90,6 +91,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('update_regional_client', [ClientController::class, 'update_regional_client']);
     Route::post('create_regional_client', [ClientController::class, 'create_regional_client']);
     Route::post('get_base_client_details', [ClientController::class, 'get_base_client_details']);
+
+    Route::post('submit_crop_prices', [CropController::class, 'submit_crop_prices']);
+    Route::post('update_crop_prices', [CropController::class, 'update_crop_prices']);
+    Route::get('get_crop_price_list', [CropController::class, 'get_crop_price_list']);
+    Route::get('get_crops', [CropController::class, 'get_crops']);
+
+
+
+
 
 
 
