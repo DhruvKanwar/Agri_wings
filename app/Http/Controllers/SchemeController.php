@@ -6,10 +6,12 @@ use Illuminate\Http\Request;
 use App\Models\Scheme;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
+
 
 class SchemeController extends Controller
 {
-    public function index()
+    public function get_scheme_list()
     {
         // Retrieve all schemes
         $schemes = Scheme::all();
@@ -29,13 +31,12 @@ class SchemeController extends Controller
         return response()->json(['data' => $scheme]);
     }
 
-    public function store(Request $request)
+    public function submit_scheme_details(Request $request)
     {
         // return "Ds";
         // Validate request data
         $rules = [
             'type' => 'required|string',
-            'applicability' => 'required|string',
             'scheme_code' => 'required|string|unique:schemes',
             'scheme_name' => 'required|string',
             'crop_id' => 'required|string',
@@ -46,57 +47,74 @@ class SchemeController extends Controller
             'discount_price' => 'nullable|numeric',
             'min_acreage' => 'nullable|integer',
             'max_acreage' => 'nullable|integer|gte:min_acreage',
-            'client_id' => 'required|string',
-            'status' => 'required|boolean',
+            'client_id' => 'nullable|string',
         ];
+
+   
 
         // Validate the request data
         $validator = Validator::make($request->all(), $rules);
 
         // Check if validation fails
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 400);
+            return response()->json(['error' => $validator->errors()]);
         }
 
         $data=$request->all();
 
+        if(!empty($data['client_id']))
+        {
+            $check_scheme_exists = Scheme::where('client_id', $data['client_id'])->where('status',1)->get();
+
+        }else{
+            $check_scheme_exists = Scheme::where('type', $data['type'])->where('status', 1)->get();
+            $data['client_id']='';
+
+
+        }
+        foreach ($check_scheme_exists as $scheme) {
+            $periodToDatabase = strtotime(date('Y-m-d', strtotime($scheme->period_to)));
+            $periodFromInput = strtotime(date('Y-m-d', strtotime($data['period_from'])));
+            // return [$data['period_from'], $scheme->period_to, $periodToDatabase, $periodFromInput];
+
+            // var_dump($periodFromInput, $periodToDatabase);
+            // Check if $data['period_from'] is greater than the 'period_to' from the database
+            if ($periodFromInput < $periodToDatabase) {
+                return response()->json(['status'=>'error','data'=> "Scheme Id : ".$scheme->id,'statuscode'=>'400','msg' => 'Invalid Period From Date. It should be greater than the existing scheme Period To Date.']);
+            }
+        }
+        // return $check_scheme_exists;
+
         // Create a new scheme
+        $details = Auth::user();
+        $data['saved_by_name'] = $details->name;
+        $data['saved_by_id'] = $details->id;
+    
         $scheme = Scheme::create($data);
 
         return response()->json(['msg' => 'Scheme created successfully', 'status' => 'success', 'statuscode' => '201', 'data' => $scheme], 201);
     }
 
-    public function update(Request $request, $id)
+    public function update_scheme(Request $request)
     {
         // Validate request data
         $validatedData = $request->validate([
-            'type' => 'string',
-            'applicability' => 'string',
-            'scheme_code' => [
-                'string',
-                Rule::unique('schemes')->ignore($id),
-            ],
-            'scheme_name' => 'string',
-            'crop_id' => 'string',
-            'period_from' => 'date',
-            'period_to' => 'date|after_or_equal:period_from',
-            'crop_base_price' => 'numeric',
-            'discount_price' => 'nullable|numeric',
-            'min_acreage' => 'nullable|integer',
-            'max_acreage' => 'nullable|integer|gte:min_acreage',
-            'client_id' => 'string',
+            'id' => 'required|string',
             'status' => 'boolean',
         ]);
-
-        // Find the scheme by ID
+           $data=$request->all();
+           $id=$data['id'];
         $scheme = Scheme::find($id);
 
         if (!$scheme) {
             return response()->json(['msg' => 'Scheme not found', 'status' => 'error', 'statuscode' => '404']);
         }
 
+        $updated_data['status'] = 0;
+        $scheme->delete();
+
         // Update the scheme
-        $scheme->update($validatedData);
+        $scheme->update($updated_data);
 
         return response()->json(['msg' => 'Scheme updated successfully', 'status' => 'success', 'statuscode' => '200', 'data' => $scheme]);
     }

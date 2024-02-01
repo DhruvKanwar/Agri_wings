@@ -108,9 +108,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
     // Routes for SchemeController
-    Route::get('/schemes', [SchemeController::class, 'index']);
+    Route::get('/get_scheme_list', [SchemeController::class, 'get_scheme_list']);
     Route::get('/schemes/{id}', [SchemeController::class, 'show']);
-    Route::post('/schemes', [SchemeController::class, 'store']);
+    Route::post('/submit_scheme_details', [SchemeController::class, 'submit_scheme_details']);
+    Route::post('/update_scheme', [SchemeController::class, 'update_scheme']);
     Route::put('/schemes/{id}', [SchemeController::class, 'update']);
     Route::delete('/schemes/{id}', [SchemeController::class, 'destroy']);
 
