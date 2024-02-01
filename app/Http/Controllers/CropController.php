@@ -280,17 +280,21 @@ class CropController extends Controller
             foreach ($cropData['availability'] as $availabilityData) {
 
                 // return $availabilityData['id'];
+
+                // return $availabilityData['id'];
+               
+
                 $existingAvailability = CropPrice::where('id', $availabilityData['id'])
                     ->first();
 
                 // return $existingAvailability;
-                if (empty($existingAvailability)) {
+                if (empty($existingAvailability) && !empty($availabilityData['id'])) {
                     // Rollback the transaction if record already exists
                     DB::rollBack();
 
                     return response()->json([
                         'msg' => 'Record Does not exists',
-                        'data' => $existingAvailability,
+                        'data' => $availabilityData['id'],
                         'statuscode' => '400',
                         'status' => 'error'
                     ]);
@@ -306,9 +310,27 @@ class CropController extends Controller
                     $cropinsertData['updated_by_name'] = $details->name;
                     $cropinsertData['updated_by_id'] = $details->id;
 
-                    print_r($availabilityData['id']);
-                    $updatedcrop = CropPrice::find($availabilityData['id']);
-                    $insertedRecord =  $updatedcrop->update($cropinsertData);
+                    // print_r($availabilityData['id']);
+                
+
+
+                    if (empty($availabilityData['id'])) {
+                        $crop_new_data['state'] = $availabilityData['state'];
+                        $crop_new_data['state_price'] = $availabilityData['state_price'];
+                        $crop_new_data['saved_by_name'] = $details->name;
+                        $crop_new_data['saved_by_id'] = $details->id;
+                        $crop_new_data['crop_id'] = $cropData['crop_id'];
+
+                        $get_crop_name=Crop::where('id', $crop_new_data['crop_id'])->first();
+                        $crop_new_data['crop_name']= $get_crop_name->crop_name;
+
+                        $insert_new_crop=CropPrice::create($crop_new_data);
+
+                    }else{
+                        $updatedcrop = CropPrice::find($availabilityData['id']);
+                        $insertedRecord =  $updatedcrop->update($cropinsertData);
+
+                    }
 
 
                     $insertedRecords[] = $insertedRecord;
