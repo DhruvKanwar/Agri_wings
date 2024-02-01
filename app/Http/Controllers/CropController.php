@@ -40,8 +40,9 @@ class CropController extends Controller
     {
         try {
             // You can add any conditions or filters based on your requirements
-            $cropPrices = CropPrice::all();
-            
+            $cropPrices = Crop::select('id', 'crop_name', 'base_price')->where('base_price','!=','' )->get();
+
+
 
             return response()->json([
                 'msg' => 'Crop prices fetched successfully',
@@ -63,12 +64,12 @@ class CropController extends Controller
     public function get_crop_details(Request $request)
     {
         try {
-            $data=$request->all();
-            $crop_id=$data['crop_id'];
+            $data = $request->all();
+            $crop_id = $data['crop_id'];
             // You can add any conditions or filters based on your requirements
-            $cropPrices = CropPrice::select('id','crop_id', 'crop_name', 'state','state_price')->where('crop_id', $crop_id)->get();
+            $cropPrices = CropPrice::select('id', 'crop_id', 'crop_name', 'state', 'state_price')->where('crop_id', $crop_id)->get();
 
-            $cropPrices['crop_details']=Crop::select('crop_name','base_price')->where('id',$crop_id)->get();
+            $cropPrices['crop_details'] = Crop::select('crop_name', 'base_price')->where('id', $crop_id)->get();
             return response()->json([
                 'msg' => 'Crop price Details fetched successfully',
                 'data' => $cropPrices,
@@ -120,18 +121,16 @@ class CropController extends Controller
                 $existingCrop = Crop::where('id', $cropData['crop_id'])
                     ->first();
 
-                    if(empty($existingCrop))
-                    {
+                if (empty($existingCrop)) {
                     DB::rollBack();
 
                     return response()->json([
-                        'msg' => 'Crop does not exists for Crop ID '.$cropData['crop_id'],
+                        'msg' => 'Crop does not exists for Crop ID ' . $cropData['crop_id'],
                         'data' => $existingCrop,
                         'statuscode' => '400',
                         'status' => 'error'
                     ]);
-
-                    }
+                }
 
                 if ($existingAvailability) {
                     // Rollback the transaction if record already exists
@@ -156,7 +155,7 @@ class CropController extends Controller
                     ];
 
                     $insertedRecord = CropPrice::create($cropinsertData);
-                    $crop_base_price=Crop::where('id',$cropData['crop_id'])->update(['base_price' => $cropData['base_price']]);
+                    $crop_base_price = Crop::where('id', $cropData['crop_id'])->update(['base_price' => $cropData['base_price']]);
                     // return $cropData['base_price'];
                     $insertedRecords[] = $insertedRecord;
                 }
@@ -214,7 +213,7 @@ class CropController extends Controller
     //         $existingAvailability = CropPrice::where('crop_id',$cropData['crop_id'])
     //         ->where('state', $state)
     //         ->first();
-       
+
 
 
     //         if($existingAvailability)
@@ -250,7 +249,7 @@ class CropController extends Controller
     //         }
     //     }
 
-    
+
     // }
 
     public function update_crop_prices(Request $request)
@@ -284,7 +283,7 @@ class CropController extends Controller
                 $existingAvailability = CropPrice::where('id', $availabilityData['id'])
                     ->first();
 
-                    // return $existingAvailability;
+                // return $existingAvailability;
                 if (empty($existingAvailability)) {
                     // Rollback the transaction if record already exists
                     DB::rollBack();
@@ -300,19 +299,18 @@ class CropController extends Controller
                     if (isset($cropData['base_price'])) {
                         $crop_base_price_insert['base_price'] = $cropData['base_price'];
                         $crop_base_price = Crop::where('id', $cropData['crop_id'])->update(['base_price' => $crop_base_price_insert['base_price']]);
-
                     }
                     if (isset($availabilityData['state_price'])) {
                         $cropinsertData['state_price'] = $availabilityData['state_price'];
                     }
-                    $cropinsertData['updated_by_name'] =$details->name;
+                    $cropinsertData['updated_by_name'] = $details->name;
                     $cropinsertData['updated_by_id'] = $details->id;
 
                     print_r($availabilityData['id']);
                     $updatedcrop = CropPrice::find($availabilityData['id']);
-                   $insertedRecord =  $updatedcrop->update($cropinsertData);
+                    $insertedRecord =  $updatedcrop->update($cropinsertData);
 
-                   
+
                     $insertedRecords[] = $insertedRecord;
                 }
             }
@@ -338,6 +336,4 @@ class CropController extends Controller
             ]);
         }
     }
-
- 
 }
