@@ -10,6 +10,15 @@ class Crop extends Model
     use HasFactory;
 
     protected $table = 'crops';
+    protected $fillable = [
+        'crop_name',
+        'base_price',
+        'status',
+        'saved_by_id', 'saved_by_name', 'updated_by_id', 'updated_by_name', 'created_at', 'updated_at'
+
+
+        // Add more fields if needed
+    ];
 }
 
 

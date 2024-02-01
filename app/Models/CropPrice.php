@@ -23,4 +23,9 @@ class CropPrice extends Model
 
         // Add more fields if needed
     ];
+
+    // public function CropDetails()
+    // {
+    //     return $this->hasOne(Crop::class, 'id');
+    // }
 }

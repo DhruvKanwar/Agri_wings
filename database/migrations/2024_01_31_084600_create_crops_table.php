@@ -16,6 +16,11 @@ class CreateCropsTable extends Migration
         Schema::create('crops', function (Blueprint $table) {
             $table->id();
             $table->string('crop_name');
+            $table->string('base_price')->nullable();
+            $table->string('saved_by_id');
+            $table->string('saved_by_name');
+            $table->string('updated_by_id')->nullable();
+            $table->string('updated_by_name')->nullable();
             $table->string('status')->default(1);
             $table->timestamps();
         });

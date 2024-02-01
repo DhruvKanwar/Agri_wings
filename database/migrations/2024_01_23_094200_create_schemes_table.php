@@ -15,11 +15,11 @@ class CreateSchemesTable extends Migration
     {
         Schema::create('schemes', function (Blueprint $table) {
             $table->id();
-            $table->string('type')->nullable();;
-            $table->string('applicability')->nullable();;
+            $table->string('type')->nullable();
             $table->string('scheme_code');
             $table->string('scheme_name');
             $table->string('crop_id');
+            $table->string('crop_name');
             $table->string('period_from');
             $table->string('period_to');
             $table->string('crop_base_price');

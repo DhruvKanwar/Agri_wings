@@ -39,6 +39,7 @@ class SchemeController extends Controller
             'scheme_code' => 'required|string|unique:schemes',
             'scheme_name' => 'required|string',
             'crop_id' => 'required|string',
+            'crop_name' => 'required|string',
             'period_from' => 'required|date',
             'period_to' => 'required|date|after_or_equal:period_from',
             'crop_base_price' => 'required|numeric',

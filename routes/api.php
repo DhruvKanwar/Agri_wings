@@ -97,7 +97,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('get_crop_price_list', [CropController::class, 'get_crop_price_list']);
     Route::get('get_crops', [CropController::class, 'get_crops']);
 
-
+    Route::post('get_crop_details', [CropController::class, 'get_crop_details']);
 
 
 

@@ -13,7 +13,7 @@ class Scheme extends Model
 
     protected $fillable = [
         'type',
-        'applicability',
+        'crop_name',
         'scheme_code',
         'scheme_name',
         'crop_id',
