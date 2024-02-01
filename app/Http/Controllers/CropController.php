@@ -67,9 +67,10 @@ class CropController extends Controller
             $data = $request->all();
             $crop_id = $data['crop_id'];
             // You can add any conditions or filters based on your requirements
-            $cropPrices = CropPrice::select('id', 'crop_id', 'crop_name', 'state', 'state_price')->where('crop_id', $crop_id)->get();
+            $cropPrices['availability'] = CropPrice::select('id', 'crop_id', 'crop_name', 'state', 'state_price')->where('crop_id', $crop_id)->get();
 
             $cropPrices['crop_details'] = Crop::select('crop_name', 'base_price')->where('id', $crop_id)->get();
+            return $cropPrices;
             return response()->json([
                 'msg' => 'Crop price Details fetched successfully',
                 'data' => $cropPrices,
