@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\CropPrice;
+use App\Models\RegionalClient;
 use Illuminate\Http\Request;
 use App\Models\Scheme;
 use Illuminate\Support\Facades\Validator;
@@ -16,7 +18,7 @@ class SchemeController extends Controller
         // Retrieve all schemes
         $schemes = Scheme::all();
 
-        return response()->json(['data' => $schemes]);
+        return response()->json(['status' => 'success', 'statuscode' => '200', 'data' => $schemes, 'msg' => 'Scheme List Fetched Successfully...']);
     }
 
     public function show($id)
@@ -37,8 +39,7 @@ class SchemeController extends Controller
         // Validate request data
         $rules = [
             'type' => 'required|string',
-            'scheme_code' => 'required|string|unique:schemes',
-            'scheme_name' => 'required|string',
+            // 'scheme_code' => 'required|string|unique:schemes',
             'crop_id' => 'required|string',
             'crop_name' => 'required|string',
             'period_from' => 'required|date',
@@ -50,7 +51,7 @@ class SchemeController extends Controller
             'client_id' => 'nullable|string',
         ];
 
-   
+
 
         // Validate the request data
         $validator = Validator::make($request->all(), $rules);
@@ -60,17 +61,13 @@ class SchemeController extends Controller
             return response()->json(['error' => $validator->errors()]);
         }
 
-        $data=$request->all();
+        $data = $request->all();
 
-        if(!empty($data['client_id']))
-        {
-            $check_scheme_exists = Scheme::where('client_id', $data['client_id'])->where('status',1)->get();
-
-        }else{
+        if (!empty($data['client_id'])) {
+            $check_scheme_exists = Scheme::where('client_id', $data['client_id'])->where('status', 1)->get();
+        } else {
             $check_scheme_exists = Scheme::where('type', $data['type'])->where('status', 1)->get();
-            $data['client_id']='';
-
-
+            $data['client_id'] = '';
         }
         foreach ($check_scheme_exists as $scheme) {
             $periodToDatabase = strtotime(date('Y-m-d', strtotime($scheme->period_to)));
@@ -80,7 +77,7 @@ class SchemeController extends Controller
             // var_dump($periodFromInput, $periodToDatabase);
             // Check if $data['period_from'] is greater than the 'period_to' from the database
             if ($periodFromInput < $periodToDatabase) {
-                return response()->json(['status'=>'error','data'=> "Scheme Id : ".$scheme->id,'statuscode'=>'400','msg' => 'Invalid Period From Date. It should be greater than the existing scheme Period To Date.']);
+                return response()->json(['status' => 'error', 'data' => "Scheme Id : " . $scheme->id, 'statuscode' => '400', 'msg' => 'Invalid Period From Date. It should be greater than the existing scheme Period To Date.']);
             }
         }
         // return $check_scheme_exists;
@@ -89,7 +86,76 @@ class SchemeController extends Controller
         $details = Auth::user();
         $data['saved_by_name'] = $details->name;
         $data['saved_by_id'] = $details->id;
-    
+
+        // type 1=> general scheme,2=>Client Scheme , 3=> Subvention Scheme, 4=> R & D,5=> Demo
+
+        if (!empty($data['client_id'])) {
+            $get_client_details = RegionalClient::where('id', $data['client_id'])->first();
+            $client_name = $get_client_details->regional_client_name;
+        }
+
+        if ($data['type'] == 1) {
+            if (!empty($data['client_id'])) {
+                $data['scheme_name'] = $data['crop_name'] . '-' . 'General Scheme'. '-' .$client_name;
+            } else {
+                $data['scheme_name'] = $data['crop_name'] . '-' . 'General Scheme';
+            }
+        }
+
+        if ($data['type'] == 2) {
+            if (!empty($data['client_id'])) {
+                $data['scheme_name'] = $data['crop_name'] . '-' . 'Client Scheme'. '-' .$client_name;
+            } else {
+                $data['scheme_name'] = $data['crop_name'] . '-' . 'Client Scheme';
+            }
+        }
+
+        if ($data['type'] == 3) {
+            if (!empty($data['client_id'])) {
+                $data['scheme_name'] = $data['crop_name'] . '-' . 'Subvention Scheme'. '-' .$client_name;
+            } else {
+                $data['scheme_name'] = $data['crop_name'] . '-' . 'Subvention Scheme';
+            }
+        }
+
+        if ($data['type'] == 4) {
+            if (!empty($data['client_id'])) {
+                $data['scheme_name'] = $data['crop_name'] . '-' . 'R & D Scheme'. '-' .$client_name;
+            } else {
+                $data['scheme_name'] = $data['crop_name'] . '-' . 'R & D Scheme';
+            }
+        }
+
+        if ($data['type'] == 5) {
+            if (!empty($data['client_id'])) {
+                $data['scheme_name'] = $data['crop_name'] . '-' . 'Demo Scheme'. '-' .$client_name;
+            } else {
+                $data['scheme_name'] = $data['crop_name'] . '-' . 'Demo Scheme';
+            }
+        }
+
+
+
+        // Query the database to get the latest farmer code for the state
+        $latestCode = Scheme::select('scheme_code')
+        ->orderBy('id', 'desc')
+        ->first();
+
+        // Generate the new farmer code
+        if (empty($latestCode)) {
+            $data['scheme_code'] ='Scheme-00001'; 
+        } else {
+            $parts = explode('-', $latestCode->scheme_code);
+            $lastNumber = end($parts);
+            $nextNumber = (int)$lastNumber + 1;
+            $formattedNextNumber = sprintf('%05d', $nextNumber);
+            $data['scheme_code'] = 'Scheme-' . $formattedNextNumber;
+
+        }
+
+
+
+
         $scheme = Scheme::create($data);
 
         return response()->json(['msg' => 'Scheme created successfully', 'status' => 'success', 'statuscode' => '201', 'data' => $scheme], 201);
@@ -102,8 +168,8 @@ class SchemeController extends Controller
             'id' => 'required|string',
             'status' => 'boolean',
         ]);
-           $data=$request->all();
-           $id=$data['id'];
+        $data = $request->all();
+        $id = $data['id'];
         $scheme = Scheme::find($id);
 
         if (!$scheme) {
