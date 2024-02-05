@@ -111,6 +111,7 @@ class CropController extends Controller
         try {
             // Create or update availability records
             $insertedRecords = [];
+            if (!empty($cropData['availability'])) {
             foreach ($cropData['availability'] as $availabilityData) {
                 $state = $availabilityData['state'];
                 $state_price = $availabilityData['state_price'];
@@ -183,6 +184,11 @@ class CropController extends Controller
                    
                 }
             }
+        }else{
+                $crop_base_price = Crop::where('id', $cropData['crop_id'])->update(['base_price' => $cropData['base_price']]);
+                $get_crop_insert_data = Crop::where('id', $cropData['crop_id'])->get();
+                $insertedRecords[] = $get_crop_insert_data;
+        }
 
             // Commit the transaction after processing all records
             DB::commit();
