@@ -361,7 +361,7 @@ class CropController extends Controller
                     }
 
 
-                    $insertedRecords[] = $insertedRecord;
+                    // $insertedRecords[] = $insertedRecord;
                 }
             }
 
@@ -370,7 +370,7 @@ class CropController extends Controller
 
             return response()->json([
                 'msg' => 'Crop data Updated successfully',
-                'data' => $insertedRecords,
+                // 'data' => $insertedRecords,
                 'statuscode' => '200',
                 'status' => 'success'
             ]);
