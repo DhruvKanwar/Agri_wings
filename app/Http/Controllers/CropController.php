@@ -161,16 +161,16 @@ class CropController extends Controller
                         $crop_base_price = Crop::where('id', $cropData['crop_id'])->update(['base_price' => $cropData['base_price']]);
                         $insertedRecords[] = $insertedRecord;
                     }else{
-                        $cropinsertData = [
-                            'crop_id' => $cropData['crop_id'],
-                            'crop_name' => $cropData['crop_name'],
-                            'state' => $state,
-                            'state_price' => "",
-                            'saved_by_name' => $details->name,
-                            'saved_by_id' => $details->id,
-                        ];
+                        // $cropinsertData = [
+                        //     'crop_id' => $cropData['crop_id'],
+                        //     'crop_name' => $cropData['crop_name'],
+                        //     'state' => $state,
+                        //     'state_price' => "",
+                        //     'saved_by_name' => $details->name,
+                        //     'saved_by_id' => $details->id,
+                        // ];
 
-                        $insertedRecord = CropPrice::create($cropinsertData);
+                        // $insertedRecord = CropPrice::create($cropinsertData);
                         $crop_base_price = Crop::where('id', $cropData['crop_id'])->update(['base_price' => $cropData['base_price']]);
                         $get_crop_insert_data=Crop::where('id', $cropData['crop_id'])->get();
                         $insertedRecords[] = $get_crop_insert_data;

@@ -27,6 +27,7 @@ class CreateSchemesTable extends Migration
             $table->string('min_acreage')->nullable();
             $table->string('max_acreage')->nullable();
             $table->string('client_id');
+            $table->string('remarks')->nullable();
             $table->string('status')->default(1);
             $table->string('saved_by_id');
             $table->string('saved_by_name');

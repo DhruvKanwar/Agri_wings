@@ -25,6 +25,7 @@ class Scheme extends Model
         'max_acreage',
         'client_id',
         'status',
+        'remarks',
         'saved_by_id',
         'saved_by_name',
         'updated_by_id',
