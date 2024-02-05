@@ -167,6 +167,7 @@ class SchemeController extends Controller
         $validatedData = $request->validate([
             'id' => 'required|string',
             'status' => 'boolean',
+            'remarks' => 'string|nullable'
         ]);
         $data = $request->all();
         $id = $data['id'];
@@ -177,6 +178,7 @@ class SchemeController extends Controller
         }
 
         $updated_data['status'] = 0;
+        $updated_data['remarks'] =$data['remarks'];
         $scheme->delete();
 
         // Update the scheme
