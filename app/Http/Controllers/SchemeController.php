@@ -96,41 +96,41 @@ class SchemeController extends Controller
 
         if ($data['type'] == 1) {
             if (!empty($data['client_id'])) {
-                $data['scheme_name'] = $data['crop_name'] . '-' . 'General Scheme'. '-' .$client_name;
+                $data['scheme_name'] = $data['crop_name'] . '-' . 'General'. '-' .$client_name;
             } else {
-                $data['scheme_name'] = $data['crop_name'] . '-' . 'General Scheme';
+                $data['scheme_name'] = $data['crop_name'] . '-' . 'General';
             }
         }
 
         if ($data['type'] == 2) {
             if (!empty($data['client_id'])) {
-                $data['scheme_name'] = $data['crop_name'] . '-' . 'Client Scheme'. '-' .$client_name;
+                $data['scheme_name'] = $data['crop_name'] . '-' . 'Client'. '-' .$client_name;
             } else {
-                $data['scheme_name'] = $data['crop_name'] . '-' . 'Client Scheme';
+                $data['scheme_name'] = $data['crop_name'] . '-' . 'Client';
             }
         }
 
         if ($data['type'] == 3) {
             if (!empty($data['client_id'])) {
-                $data['scheme_name'] = $data['crop_name'] . '-' . 'Subvention Scheme'. '-' .$client_name;
+                $data['scheme_name'] = $data['crop_name'] . '-' . 'Subvention'. '-' .$client_name;
             } else {
-                $data['scheme_name'] = $data['crop_name'] . '-' . 'Subvention Scheme';
+                $data['scheme_name'] = $data['crop_name'] . '-' . 'Subvention';
             }
         }
 
         if ($data['type'] == 4) {
             if (!empty($data['client_id'])) {
-                $data['scheme_name'] = $data['crop_name'] . '-' . 'R & D Scheme'. '-' .$client_name;
+                $data['scheme_name'] = $data['crop_name'] . '-' . 'R & D'. '-' .$client_name;
             } else {
-                $data['scheme_name'] = $data['crop_name'] . '-' . 'R & D Scheme';
+                $data['scheme_name'] = $data['crop_name'] . '-' . 'R & D';
             }
         }
 
         if ($data['type'] == 5) {
             if (!empty($data['client_id'])) {
-                $data['scheme_name'] = $data['crop_name'] . '-' . 'Demo Scheme'. '-' .$client_name;
+                $data['scheme_name'] = $data['crop_name'] . '-' . 'Demo'. '-' .$client_name;
             } else {
-                $data['scheme_name'] = $data['crop_name'] . '-' . 'Demo Scheme';
+                $data['scheme_name'] = $data['crop_name'] . '-' . 'Demo';
             }
         }
 
