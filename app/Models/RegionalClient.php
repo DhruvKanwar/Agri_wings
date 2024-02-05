@@ -11,6 +11,8 @@ class RegionalClient extends Model
     use HasFactory;
     use SoftDeletes;
 
+    protected $table = 'regional_clients';
+
     protected $fillable = [
         'base_client_id',
         'regional_client_name',

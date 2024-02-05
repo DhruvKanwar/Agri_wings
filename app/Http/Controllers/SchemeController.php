@@ -9,6 +9,7 @@ use App\Models\Scheme;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
+use DB;
 
 
 class SchemeController extends Controller
@@ -69,14 +70,15 @@ class SchemeController extends Controller
             $check_scheme_exists = Scheme::where('type', $data['type'])->where('status', 1)->get();
             $data['client_id'] = '';
         }
+        // return [$check_scheme_exists];
         foreach ($check_scheme_exists as $scheme) {
             $periodToDatabase = strtotime(date('Y-m-d', strtotime($scheme->period_to)));
             $periodFromInput = strtotime(date('Y-m-d', strtotime($data['period_from'])));
-            // return [$data['period_from'], $scheme->period_to, $periodToDatabase, $periodFromInput];
+    //   return [$scheme->period_to, $data['period_from'], $periodToDatabase, $periodFromInput];
 
             // var_dump($periodFromInput, $periodToDatabase);
             // Check if $data['period_from'] is greater than the 'period_to' from the database
-            if ($periodFromInput < $periodToDatabase) {
+            if ($periodFromInput <= $periodToDatabase) {
                 return response()->json(['status' => 'error', 'data' => "Scheme Id : " . $scheme->id, 'statuscode' => '400', 'msg' => 'Invalid Period From Date. It should be greater than the existing scheme Period To Date.']);
             }
         }
@@ -89,8 +91,11 @@ class SchemeController extends Controller
 
         // type 1=> general scheme,2=>Client Scheme , 3=> Subvention Scheme, 4=> R & D,5=> Demo
 
+        // return $data['client_id'];
         if (!empty($data['client_id'])) {
-            $get_client_details = RegionalClient::where('id', $data['client_id'])->first();
+            $get_client_details = DB::table('regional_clients')->where('id', $data['client_id'])->first();
+            // $get_client_details = RegionalClient::where('id', $data['client_id'])->get();
+            // return $get_client_details;
             $client_name = $get_client_details->regional_client_name;
         }
 
