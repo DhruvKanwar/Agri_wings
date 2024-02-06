@@ -9,6 +9,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CropController;
 use App\Http\Controllers\FarmerController;
 use App\Http\Controllers\SchemeController;
+use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\VehicleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -98,6 +99,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('get_crops', [CropController::class, 'get_crops']);
 
     Route::post('get_crop_details', [CropController::class, 'get_crop_details']);
+
+    Route::get('fetch_orders', [ServiceController::class, 'fetch_orders']);
+    Route::post('submit_order_details', [ServiceController::class, 'submit_order_details']);
+    Route::post('apply_order_scheme', [ServiceController::class, 'apply_order_scheme']);
+
+
+
 
 
 

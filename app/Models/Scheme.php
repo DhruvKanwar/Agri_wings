@@ -10,7 +10,7 @@ class Scheme extends Model
 {
     use HasFactory;
     use SoftDeletes;
-
+    protected $table = 'schemes';
     protected $fillable = [
         'type',
         'crop_name',

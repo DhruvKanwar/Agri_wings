@@ -65,7 +65,7 @@ class SchemeController extends Controller
         $data = $request->all();
 
         if (!empty($data['client_id'])) {
-            $check_scheme_exists = Scheme::where('client_id', $data['client_id'])->where('status', 1)->get();
+            $check_scheme_exists = Scheme::where('type', $data['type'])->where('client_id', $data['client_id'])->where('status', 1)->get();
         } else {
             $check_scheme_exists = Scheme::where('type', $data['type'])->where('status', 1)->get();
             $data['client_id'] = '';
