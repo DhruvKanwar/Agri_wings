@@ -99,6 +99,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('get_crops', [CropController::class, 'get_crops']);
 
     Route::post('get_crop_details', [CropController::class, 'get_crop_details']);
+    Route::post('get_state_crop_details', [CropController::class, 'get_state_crop_details']);
+
+
+    Route::post('get_state_crop_details', [CropController::class, 'get_state_crop_details']);
+
 
     Route::get('fetch_orders', [ServiceController::class, 'fetch_orders']);
     Route::post('submit_order_details', [ServiceController::class, 'submit_order_details']);
