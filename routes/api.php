@@ -105,7 +105,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('get_state_crop_details', [CropController::class, 'get_state_crop_details']);
 
 
-    Route::get('fetch_orders', [ServiceController::class, 'fetch_orders']);
+    Route::get('fetch_order_list', [ServiceController::class, 'fetch_order_list']);
+    Route::get('fetch_single_order/{id}', [ServiceController::class, 'fetch_single_order']);
+
     Route::post('submit_order_details', [ServiceController::class, 'submit_order_details']);
     Route::post('apply_order_scheme', [ServiceController::class, 'apply_order_scheme']);
 

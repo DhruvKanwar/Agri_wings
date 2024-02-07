@@ -159,26 +159,38 @@ class ServiceController extends Controller
 
     }
 
-    public function fetch_orders()
+    public function fetch_order_list()
     {
-        DB::enableQueryLog();
+        // DB::enableQueryLog();
         // Fetch services with related information
-        $services = Services::with(['assetOperator', 'asset', 'batteries'])->get();
-        dd(DB::getQueryLog());
+        $services = Services::with(['assetOperator', 'asset'])->get();
+        // dd(DB::getQueryLog());
         // Transform the services to include battery IDs
-        $transformedServices = $services->map(function ($service) {
-            return [
-                'id' => $service->id,
-                'assetOperator' => $service->assetOperator,
-                'asset' => $service->asset,
-                'battery_ids' => $service->battery_ids,
-                'batteries' => $service->batteries->toArray(),
-                // Add other service details as needed
-            ];
-        });
+        // $transformedServices = $services->map(function ($service) {
+        //     return [
+                
+        //         'assetOperator' => $service->assetOperator,
+        //         'asset' => $service->asset,
+        //         // 'battery_ids' => $service->battery_ids,
+        //         // 'batteries' => $service->batteries->toArray(),
+        //         // Add other service details as needed
+        //     ];
+        // });
 
         // Return a JSON response
-        return response()->json(['services' => $transformedServices], 200);
+        return response()->json(['services' => $services], 200);
+    }
+
+    public function fetch_single_order($id)
+    {
+        // Retrieve a specific scheme by ID
+        $orders = Services::with(['assetOperator', 'asset'])->find($id);
+
+        if (!$orders) {
+            return response()->json(['msg' => 'Scheme not found', 'status' => 'error', 'statuscode' => '404']);
+        }
+
+        return response()->json(['data' => $orders]);
     }
 
 // check it later
