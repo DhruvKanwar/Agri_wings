@@ -353,7 +353,9 @@ class CropController extends Controller
                     ]);
                 } else {
                     $details = Auth::user();
-                    if (isset($cropData['base_price'])) {
+                    $get_crop_base_price = Crop::where('id', $cropData['crop_id'])->first();
+
+                    if ($cropData['base_price'] != $get_crop_base_price->base_price) {
                         $crop_base_price_insert['base_price'] = $cropData['base_price'];
                         $crop_base_price = Crop::where('id', $cropData['crop_id'])->update(['base_price' => $crop_base_price_insert['base_price']]);
                         // start scheme logic
@@ -420,19 +422,32 @@ class CropController extends Controller
 
                         if ($insertedRecord) {
                             $schemes = Scheme::where('crop_id', $cropData['crop_id'])->get();
+                            // return $schemes;
 
                             if ($schemes->isNotEmpty()) {
                                 foreach ($schemes as $scheme) {
-                                    $updated_data = [
-                                        'status' => 0,
-                                        'remarks' => 'Crop Price has been Changed by ' . $details->name
-                                    ];
+                                    $get_state_name = CropPrice::where('id', $availabilityData['id'])->first();
+                                    //    print_r($scheme->client_id);
+                                    if (!empty($scheme->client_id)) {
+                                        $get_regional_client_state =  DB::table('regional_clients')->where('id', $scheme->client_id)->first();
+                                        if ($get_state_name->state == $get_regional_client_state->state) {
+                                            $updated_data = [
+                                                'status' => 0,
+                                                'remarks' => 'Crop Price has been Changed by ' . $details->name
+                                            ];
 
-                                    // Delete the scheme
-                                    $scheme->delete();
+                                            // // Delete the scheme
+                                            $scheme->where('client_id', $scheme->client_id)->delete();
 
-                                    // Update the scheme
-                                    $scheme->update($updated_data);
+                                            // // Update the scheme
+                                            $scheme->update($updated_data);
+                                        } else {
+                                            return [$get_state_name->state, $get_regional_client_state->state];
+                                        }
+                                        // return [$scheme->client_id, $get_state_name->state];
+                                        // $get_regional_client_state=RegionalClient::where('id', $scheme->client_id)->first();
+                                        // return $get_regional_client_state->state;
+                                    }
                                 }
                             }
                         }
