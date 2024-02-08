@@ -442,9 +442,7 @@ class CropController extends Controller
 
                                                 // // Update the scheme
                                                 $scheme->update($updated_data);
-                                            } else {
-                                                return [$get_state_name->state, $get_regional_client_state->state];
-                                            }
+                                            } 
                                             // return [$scheme->client_id, $get_state_name->state];
                                             // $get_regional_client_state=RegionalClient::where('id', $scheme->client_id)->first();
                                             // return $get_regional_client_state->state;
