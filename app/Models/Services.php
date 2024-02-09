@@ -31,14 +31,14 @@ class Services extends Model
         'total_payable_amount',
         'order_status',
         'order_date',
+        'delivery_date',
         'payment_status',
         'spray_status',
         'agriwings_discount',
         'client_discount',
         'added_amount',
-        'asset_id',
         'asset_operator_id',
-        'battery_ids'
+     
     ];
 
       public function assetOperator()

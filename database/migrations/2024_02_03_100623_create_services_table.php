@@ -20,7 +20,7 @@ class CreateServicesTable extends Migration
             $table->string('client_id',200)->nullable();
             $table->string('farmer_name',250);
             $table->string('farmer_id',100);
-            $table->string('spray_date',100);
+            $table->date('spray_date');
             $table->string('crop_name',200);
             $table->string('crop_id',100);
             $table->string('requested_acreage');
@@ -34,16 +34,15 @@ class CreateServicesTable extends Migration
             $table->string('total_amount');
             $table->string('refund_amount')->nullable();
             $table->string('total_payable_amount');
-            $table->string('order_date',100);
+            $table->date('order_date');
+            $table->date('delivery_date');
             $table->string('order_status',100)->default(1)->nullable();
             $table->string('payment_status',100)->nullable();
             $table->string('spray_status',100)->nullable();
             $table->string('agriwings_discount')->nullable();
             $table->string('client_discount')->nullable();
             $table->string('added_amount')->nullable();
-            $table->string('asset_id',100)->nullable();
-            $table->string('asset_operator_id',100)->nullable();
-            $table->string('battery_ids')->nullable();
+            $table->string('asset_operator_id',150)->nullable();
             $table->timestamps();
         });
     }
