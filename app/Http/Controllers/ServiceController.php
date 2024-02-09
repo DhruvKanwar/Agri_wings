@@ -65,6 +65,8 @@ class ServiceController extends Controller
                     $crop_base_price = $scheme->crop_base_price;
                     $client_discount[] = $data['requested_acreage'] * $scheme->discount_price;
 
+                }else{
+                    $agriwings_discount_price = $data['requested_acreage'] * $scheme->discount_price;
                 }
             }
         }
