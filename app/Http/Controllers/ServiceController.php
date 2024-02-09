@@ -46,6 +46,80 @@ class ServiceController extends Controller
 
         $data = $request->all();
 
+       $explode_scheme_ids=explode(',',$data['scheme_ids']);
+        $total_discount_price = 0;
+        $crop_base_price=0;
+        $total_discount=[];
+        $client_discount =[];
+        $agriwings_discount = 0;
+        $agriwings_discount_price=0;
+
+        foreach ($explode_scheme_ids as $scheme_id) {
+            $scheme = Scheme::find($scheme_id);
+
+            if ($scheme) {
+                $total_discount[]= $data['requested_acreage']* $scheme->discount_price;
+                // $total_discount = $total_discount_price+$scheme->discount_price;
+                if(!empty($scheme->client_id))
+                {
+                    $crop_base_price = $scheme->crop_base_price;
+                    $client_discount[] = $data['requested_acreage'] * $scheme->discount_price;
+
+                }
+            }
+        }
+        $total_discount_sum = array_sum($total_discount);
+        $total_client_discount  = array_sum($client_discount);
+
+        // return $total_client_discount;
+
+        if (empty($crop_base_price)) {
+            $scheme = Scheme::find($explode_scheme_ids[0]);
+            // return $scheme->client_id;
+            if (empty($scheme->client_id)) {
+                $crop_base_price = $scheme->crop_base_price;
+                $agriwings_discount_price = $data['requested_acreage'] * $scheme->discount_price;
+            }
+        }
+
+        if(isset($data['extra_discount']))
+        {
+            $total_discount_price= $total_discount_sum + (int)$data['extra_discount'];
+            $agriwings_discount = $agriwings_discount_price + (int)$data['extra_discount'];
+
+        }
+     
+
+   
+
+        $total_amount = $crop_base_price * $data['requested_acreage'];
+        // return [$data['total_discount'],$total_discount_price, $total_amount];
+        // return [$total_discount_price, $total_amount];
+        if((int)$data['total_discount'] != $total_discount_price || (int)$data['total_amount']!= $total_amount || $total_discount_price > $total_amount)
+        {
+            return response()->json(['msg' => 'Calculation of total discount or total amount not matching', 'status' => 'error', 'statuscode' => '200']);
+
+        }
+
+        $total_payable=$total_amount - $total_discount_price;
+
+        if((int)$data['total_payable_amount']!= $total_payable)
+        {
+            return response()->json(['msg' => 'Total Payable is not matching', 'status' => 'error', 'statuscode' => '200']);
+
+        }
+//    return [$agriwings_discount, $data['agriwings_discount']];
+        if ((int)$data['agriwings_discount'] != $agriwings_discount) {
+            return response()->json(['msg' => 'Agriwings Discount is not matching', 'status' => 'error', 'statuscode' => '200']);
+        }
+
+        if ((int)$data['client_discount'] != $total_client_discount) {
+            return response()->json(['msg' => 'Total Client Discount is not matching', 'status' => 'error', 'statuscode' => '200']);
+        }
+
+        // return [$total_discount_price,$total_amount];
+       
+
         // Query the database to get the latest farmer code for the state
         $latest_order_id= Services::select('order_id')
         ->orderBy('id', 'desc')
