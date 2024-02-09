@@ -98,7 +98,7 @@ class ServiceController extends Controller
         $requestedAcreage = $data['requested_acreage'];
 
         // Get current date
-        $currentDate = now()->format('d-m-Y');
+        $currentDate = now()->format('Y-m-d');
         // return $currentDate;
 
     //    if($orderType == 1)
@@ -121,19 +121,30 @@ class ServiceController extends Controller
     //    }else 
        if($orderType == 1)
        {
-            $applicableSchemes = Scheme::select('id','scheme_name','discount_price')->whereIn('type', [1, 2, 3])
-            ->where(function ($query) use ($clientId) {
-                $query->where('client_id', $clientId)
-                    ->orWhereNull('client_id')
-                    ->orWhere('client_id', ''); // Add this condition
-            })
-            ->where('crop_id', $cropId)
-            ->where('period_from', '<=', $currentDate)
-            ->where('period_to', '>=', $currentDate)
-            ->where('min_acreage', '<=', $requestedAcreage)
-            ->where('max_acreage', '>=', $requestedAcreage)
-            ->where('status', 1)
-            ->get();
+       
+            // $applicableSchemes = Scheme::select('id','scheme_name','discount_price')->whereIn('type', [2, 3])
+            // ->where('client_id',$clientId)
+            // ->where('crop_id', $cropId)
+            // ->where('period_from', '<=', $currentDate)
+            // ->where('period_to', '>=', $currentDate)
+            // ->where('min_acreage', '<=', $requestedAcreage)
+            // ->where('max_acreage', '>=', $requestedAcreage)
+            // ->where('status', 1)
+            // ->get();
+            // return $applicableSchemes;
+            $applicableSchemes = Scheme::select('id', 'scheme_name', 'discount_price')->whereIn('type', [1, 2, 3])
+                ->where(function ($query) use ($clientId) {
+                    $query->where('client_id', $clientId)
+                        ->orWhereNull('client_id')
+                        ->orWhere('client_id', ''); // Add this condition
+                })
+                ->where('crop_id', $cropId)
+                ->where('period_from', '<=', $currentDate)
+                ->where('period_to', '>=', $currentDate)
+                ->where('min_acreage', '<=', $requestedAcreage)
+                ->where('max_acreage', '>=', $requestedAcreage)
+                ->where('status', 1)
+                ->get();
        } else if ($orderType == 4 || $orderType == 5) {
             $applicableSchemes = Scheme::select('id','scheme_name','discount_price')->where('type', $orderType)
                 ->where('client_id', $clientId)

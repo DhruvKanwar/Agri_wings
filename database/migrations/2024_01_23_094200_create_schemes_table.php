@@ -20,8 +20,8 @@ class CreateSchemesTable extends Migration
             $table->string('scheme_name');
             $table->string('crop_id');
             $table->string('crop_name');
-            $table->string('period_from');
-            $table->string('period_to');
+            $table->date('period_from');
+            $table->date('period_to');
             $table->string('crop_base_price');
             $table->string('discount_price')->nullable();
             $table->string('min_acreage')->nullable();
