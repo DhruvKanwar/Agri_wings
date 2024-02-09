@@ -101,24 +101,25 @@ class ServiceController extends Controller
         $currentDate = now()->format('d-m-Y');
         // return $currentDate;
 
-       if($orderType == 1)
-       {
-        // return $currentDate;
+    //    if($orderType == 1)
+    //    {
+    //     // return $currentDate;
 
-            $applicableSchemes = Scheme::select('id','scheme_name','discount_price')->where('type', $orderType)
-                ->where('crop_id', $cropId)
-                ->where('period_from', '<=', $currentDate)
-                ->where('period_to', '>=', $currentDate)
-                ->where('min_acreage', '<=', $requestedAcreage)
-                ->where('max_acreage', '>=', $requestedAcreage)
-                ->where('status',1)
-                ->get();
+    //         $applicableSchemes = Scheme::select('id','scheme_name','discount_price')->where('type', $orderType)
+    //             ->where('crop_id', $cropId)
+    //             ->where('period_from', '<=', $currentDate)
+    //             ->where('period_to', '>=', $currentDate)
+    //             ->where('min_acreage', '<=', $requestedAcreage)
+    //             ->where('max_acreage', '>=', $requestedAcreage)
+    //             ->where('status',1)
+    //             ->get();
 
-                return $applicableSchemes;
+    //             return $applicableSchemes;
            
 
 
-       }else if($orderType == 2 || $orderType == 3 )
+    //    }else 
+       if($orderType == 1)
        {
             $applicableSchemes = Scheme::select('id','scheme_name','discount_price')->whereIn('type', [1, 2, 3])
             ->where(function ($query) use ($clientId) {
