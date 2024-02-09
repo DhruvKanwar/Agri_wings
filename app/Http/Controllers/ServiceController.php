@@ -217,8 +217,8 @@ class ServiceController extends Controller
                 ->where('crop_id', $cropId)
                 ->where('period_from', '<=', $currentDate)
                 ->where('period_to', '>=', $currentDate)
-                ->where('min_acreage', '<=', $requestedAcreage)
-                ->where('max_acreage', '>=', $requestedAcreage)
+                ->where('min_acreage', '<=', (int)$requestedAcreage)
+                ->where('max_acreage', '>=', (int)$requestedAcreage)
                 ->where('status', 1)
                 ->get();
        } else if ($orderType == 4 || $orderType == 5) {
@@ -227,8 +227,8 @@ class ServiceController extends Controller
                 ->where('crop_id', $cropId)
                 ->where('period_from', '<=', $currentDate)
                 ->where('period_to', '>=', $currentDate)
-                ->where('min_acreage', '<=', $requestedAcreage)
-                ->where('max_acreage', '>=', $requestedAcreage)
+                ->where('min_acreage', '<=', (int)$requestedAcreage)
+                ->where('max_acreage', '>=', (int)$requestedAcreage)
                 ->where('status', 1)
                 ->get();
        }else{
