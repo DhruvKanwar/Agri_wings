@@ -38,6 +38,8 @@ class Services extends Model
         'client_discount',
         'added_amount',
         'asset_operator_id',
+         'assigned_status',
+        'assigned_date',
         'asset_id',
         'battery_ids',
         'order_accepted',

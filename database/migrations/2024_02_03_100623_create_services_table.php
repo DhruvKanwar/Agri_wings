@@ -35,7 +35,7 @@ class CreateServicesTable extends Migration
             $table->string('refund_amount')->nullable();
             $table->string('total_payable_amount');
             $table->date('order_date');
-            $table->date('delivery_date');
+            $table->date('delivery_date')->nullable();
             $table->string('order_status',100)->default(1)->nullable();
             $table->string('payment_status',100)->nullable();
             $table->string('spray_status',100)->nullable();
@@ -43,6 +43,8 @@ class CreateServicesTable extends Migration
             $table->string('client_discount')->nullable();
             $table->string('added_amount')->nullable();
             $table->string('asset_operator_id',150)->nullable();
+            $table->string('assigned_status')->default(0);
+            $table->date('assigned_date')->nullable();
             $table->string('asset_id', 150)->nullable();
             $table->string('battery_ids', 150)->nullable();
             $table->string('order_accepted', 150)->nullable()->default(0);
