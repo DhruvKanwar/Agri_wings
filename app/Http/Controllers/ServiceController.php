@@ -237,7 +237,7 @@ class ServiceController extends Controller
         // return $applicableSchemes;
         if (isset($applicableSchemes) && count($applicableSchemes) == 0)
        {
-            return response()->json(['msg' => 'No schemes are available', 'statuscode' => '400', 'status' => 'error','data'=>""]);
+            return response()->json(['msg' => 'No schemes are available', 'statuscode' => '400', 'status' => 'error','data'=>[]]);
 
        }else{
             return response()->json(['msg' => 'Applicable schemes found', 'statuscode' => '200', 'status' => 'success', 'data' => $applicableSchemes]);
