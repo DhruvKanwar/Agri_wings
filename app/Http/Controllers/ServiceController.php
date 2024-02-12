@@ -30,7 +30,7 @@ class ServiceController extends Controller
             'total_discount' => 'required|string',
             'extra_discount' => 'nullable|string',
             'remarks' => 'nullable|string',
-            'amount_received' => 'nullable|string',
+            'amount_received' => 'nullable',
             'total_amount' => 'required|string',
             'total_payable_amount' => 'required|string',
             'agriwings_discount' => 'nullable|string',
