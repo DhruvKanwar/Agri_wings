@@ -266,7 +266,7 @@ class ServiceController extends Controller
         // });
 
         // Return a JSON response
-        return response()->json(['services' => $services], 200);
+        return response()->json(['data' => $services,'msg'=>'Service List Fetched Successfully','statuscode'=>'200','status'=>'success'], 200);
     }
 
     public function fetch_single_order($id)
