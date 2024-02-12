@@ -208,7 +208,7 @@ class ServiceController extends Controller
             // ->where('status', 1)
             // ->get();
             // return $applicableSchemes;
-            $applicableSchemes = Scheme::select('id', 'scheme_name', 'discount_price')->whereIn('type', [1, 2, 3])
+            $applicableSchemes = Scheme::select('id', 'type', 'scheme_name', 'discount_price')->whereIn('type', [1, 2, 3])
                 ->where(function ($query) use ($clientId) {
                     $query->where('client_id', $clientId)
                         ->orWhereNull('client_id')
@@ -222,7 +222,7 @@ class ServiceController extends Controller
                 ->where('status', 1)
                 ->get();
        } else if ($orderType == 4 || $orderType == 5) {
-            $applicableSchemes = Scheme::select('id','scheme_name','discount_price')->where('type', $orderType)
+            $applicableSchemes = Scheme::select('id', 'type','scheme_name','discount_price')->where('type', $orderType)
                 ->where('client_id', $clientId)
                 ->where('crop_id', $cropId)
                 ->where('period_from', '<=', $currentDate)
