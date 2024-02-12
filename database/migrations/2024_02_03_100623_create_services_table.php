@@ -43,6 +43,10 @@ class CreateServicesTable extends Migration
             $table->string('client_discount')->nullable();
             $table->string('added_amount')->nullable();
             $table->string('asset_operator_id',150)->nullable();
+            $table->string('asset_id', 150)->nullable();
+            $table->string('battery_ids', 150)->nullable();
+            $table->string('order_accepted', 150)->nullable()->default(0);
+            $table->string('order_details_id', 150)->nullable();
             $table->timestamps();
         });
     }
