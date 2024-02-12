@@ -21,6 +21,9 @@ class CreateAssetDetailsTable extends Migration
             $table->string('uin');
             $table->string('capacity')->nullable();
             $table->string('mfg_year');
+            $table->string('battery_ids')->nullable();
+            $table->string('assigned_status')->default(0);
+            $table->date('assigned_date')->nullable();
             $table->string('status')->default(1);
             $table->string('saved_by_id');
             $table->string('saved_by_name');

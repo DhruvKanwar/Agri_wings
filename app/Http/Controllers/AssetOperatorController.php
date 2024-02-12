@@ -35,6 +35,7 @@ class AssetOperatorController extends Controller
             'user_id' => 'nullable|string|max:255',
             'user_password' => 'nullable|string|max:255',
             'vehicle_id' => 'nullable|string|max:255',
+            'asset_id' => 'nullable|string|max:255',
         ];
 
         // Validate the request data
@@ -48,7 +49,23 @@ class AssetOperatorController extends Controller
         // If validation passes, store the details
         $data = $validator->validated();
 
-        // return $data;
+
+
+        $check_asset_id = AssetOperator::where('asset_id',$data['asset_id'])->first();
+
+        if(!empty($check_asset_id))
+        {
+            if ($check_asset_id->assigned_status) {
+                $result_array = array(
+                    'status' => 'error',
+                    'statuscode' => '200',
+                    'msg' => 'Asset already Assigned',
+                    'data' => $check_asset_id
+                );
+                return response()->json($result_array, 200);
+            }
+        }
+       
 
         $check_registered_user = User::where('login_id', $data['user_id'])->first();
         if (empty($check_registered_user)) {
@@ -69,7 +86,7 @@ class AssetOperatorController extends Controller
                 'status' => 'error',
                 'statuscode' => '200',
                 'msg' => 'Login Id already Exists',
-                'userdata' => $check_registered_user
+                'data' => $check_registered_user
             );
             return response()->json($result_array, 200);
         }
@@ -83,8 +100,16 @@ class AssetOperatorController extends Controller
         $data['updated_by_name'] = "";
         $data['updated_by_id'] = "";
 
+        if(!empty($data['asset_id']))
+        {
+            $data['assigned_date'] = date('Y-m-d');
+            $data['assigned_status'] = 1;
+        }
+
 
         $operator_code = AssetOperator::select('code')->latest('code')->first();
+        // return $operator_code;
+
         $operator_code = json_decode(json_encode($operator_code), true);
 
         if (empty($operator_code) || $operator_code == null) {
@@ -161,10 +186,11 @@ class AssetOperatorController extends Controller
 
 
 
+
         $assetOperator = AssetOperator::create($data);
 
         // You can return a response or perform any other logic here
-        return response()->json(['msg' => 'Details stored successfully','status' =>'success','statuscode'=>'200', 'data' => $assetOperator]);
+        return response()->json(['msg' => 'Details stored successfully', 'status' => 'success', 'statuscode' => '200', 'data' => $assetOperator]);
     }
 
     public function edit_operator_details(Request $request)
@@ -197,9 +223,45 @@ class AssetOperatorController extends Controller
         $data = $request->all();
 
         // return $data;
-        $id=$data['id'];
+        $id = $data['id'];
+        $assign_flag = 0;
+        $remove_flag = 0;
+        if(!empty($data['asset_id']))
+        {
+        $check_asset_id = AssetOperator::where('asset_id', $data['asset_id'])->first();
+     
+   
+        if (!empty($check_asset_id)) {
+            // return $check_asset_id->id;
+            if ($check_asset_id->id != $id) {
+                $result_array = array(
+                    'status' => 'error',
+                    'statuscode' => '200',
+                    'msg' => 'Asset already Assigned',
+                    'data' => $check_asset_id
+                );
+                return response()->json($result_array, 200);
+            }
+        }else{
+         
+            $assign_flag = 1;
+        }
+    }else{
+            $remove_flag = 1;
+    }
 
+    $check_asset_operator=AssetOperator::where('id',$data['id'])->first();
 
+        if ($data['end_date'] != "" && $check_asset_operator->assigned_status == 1) {
+            $result_array = array(
+                'status' => 'error',
+                'statuscode' => '200',
+                'msg' => 'Asset already Assigned,User Block not possible',
+                'data' => $check_asset_operator
+            );
+            return response()->json($result_array, 200);
+        }
+   
         // remove user_id with saved user_id
 
         $details = Auth::user();
@@ -270,17 +332,26 @@ class AssetOperatorController extends Controller
 
 
 
-        if($data['end_date']!="")
-        {
-            $data['status']=0;
+        if ($data['end_date'] != "") {
+            $data['status'] = 0;
         }
+        if ($assign_flag) {
+            $data['assigned_date'] = date('Y-m-d');
+            $data['assigned_status'] = 1;
+        }
+        if($remove_flag)
+        {
+            $data['assigned_date']=null;
+            $data['assigned_status']=0;
+        }
+        // return [$remove_flag,$assign_flag];
         $assetOperator = AssetOperator::where('id', $data['id'])->update($data);
 
-        $get_operator = AssetOperator::where('id', $id)->get();
+        $get_operator = AssetOperator::where('id', $data['id'])->get();
 
 
         // You can return a response or perform any other logic here
-        return response()->json(['msg' => 'Details updated successfully','statuscode'=>'200','status'=>'success','data' => $get_operator]);
+        return response()->json(['msg' => 'Details updated successfully', 'statuscode' => '200', 'status' => 'success', 'data' => $get_operator]);
     }
 
     public function delete_operator(Request $request)
@@ -292,12 +363,12 @@ class AssetOperatorController extends Controller
 
             $id = $request->input('id');
             $end_date = $request->input('end_date');
-           
+
 
             $assetOperator = AssetOperator::find($id);
 
             if ($assetOperator) {
-                AssetOperator::where('id',$id)->update(['end_date'=>$end_date,'status'=>0]);
+                AssetOperator::where('id', $id)->update(['end_date' => $end_date, 'status' => 0]);
                 $assetOperator->delete();
                 return response()->json(['statuscode' => '200', 'status' => 'success',  'msg' => 'Record deleted successfully']);
             } else {
@@ -320,5 +391,4 @@ class AssetOperatorController extends Controller
             return ['status' => 'success', 'statuscode' => '200', 'msg' => 'Operators not found.'];
         }
     }
-
 }

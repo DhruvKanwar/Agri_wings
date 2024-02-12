@@ -19,6 +19,9 @@ class CreateBatteriesTable extends Migration
             $table->string('battery_type');
             $table->string('status')->default(1);
             $table->string('battery_id');
+            $table->string('battery_pair')->default(0);
+            $table->string('assigned_status')->default(0);
+            $table->date('assigned_date')->nullable();
             $table->string('saved_by_id');
             $table->string('saved_by_name');
             $table->string('updated_by_id')->nullable();

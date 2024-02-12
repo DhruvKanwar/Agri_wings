@@ -75,6 +75,7 @@ class BatteryController extends Controller
         // Get the authenticated user details
         $details = Auth::user();
 
+
         // Create an array with the request data and additional details
         $data = [
             'battery_id' => $nextAvailableSlot,
@@ -91,6 +92,18 @@ class BatteryController extends Controller
 
         // Save the model to the database
         $res = $battery->save();
+
+        if ($res) {
+            $explode_slot = explode('-', $nextAvailableSlot);
+
+            if ($explode_slot[1] == 'B') {
+                $battery_ids = [$explode_slot[0] . '-A', $explode_slot[0] . '-B'];
+                $update_battery_details = Battery::whereIn('battery_id', $battery_ids)->update(['battery_pair' => '1']);
+            }
+        }
+
+
+
 
         if ($res) {
             $result_array = [
@@ -142,7 +155,7 @@ class BatteryController extends Controller
         // Get the authenticated user details
         $details = Auth::user();
 
-      
+
 
         // $data['battery_code']= $request->input('battery_code');
         // $data['battery_type'] = $request->input('battery_type');
@@ -152,12 +165,50 @@ class BatteryController extends Controller
         // }
 
         $data['status'] = $request->input('status');
+        $data['battery_pair'] = 0;
         $data['updated_by_name'] = $details->name;
         $data['updated_by_id'] = $details->id;
+        $check_assigned_battery = Battery::where('battery_id', $request->input('battery_id'))->first();
+        
+        if (!(empty($check_assigned_battery))) {
+
+            if ($check_assigned_battery->assigned_status) {
+                $result_array = [
+                    'status' => 'error',
+                    'statuscode' => '200',
+                    'msg' => 'Record not been updated. Battery Already Assigned.',
+                ];
+                return response()->json($result_array, 200);
+            }
+        } else {
+            $result_array = [
+                'status' => 'error',
+                'statuscode' => '200',
+                'msg' => ' Battery Does not exists.',
+            ];
+            return response()->json($result_array, 200);
+        }
 
 
         // Update the existing Battery record
         $battery = Battery::where('battery_id', $request->input('battery_id'))->update($data);
+
+        if ($battery) {
+            $explode_slot = explode('-', $request->input('battery_id'));
+
+            if ($explode_slot[1] == 'B') {
+                $check_battery_exists = Battery::where('battery_id', $explode_slot[0] . '-A')->first();
+                if (!empty($check_battery_exists)) {
+                    $update_battery_details = Battery::where('battery_id', $explode_slot[0] . '-A')->update(['battery_pair' => '0']);
+                }
+            } else {
+                $check_battery_exists = Battery::where('battery_id', $explode_slot[0] . '-B')->first();
+                if (!empty($check_battery_exists)) {
+                    $update_battery_details = Battery::where('battery_id', $explode_slot[0] . '-B')->update(['battery_pair' => '0']);
+                }
+            }
+        }
+
 
         if ($battery) {
             $result_array = [
@@ -179,7 +230,7 @@ class BatteryController extends Controller
     public function get_all_batteries()
     {
         // Retrieve all batteries from the database
-        $batteries = Battery::where('status',1)->get();
+        $batteries = Battery::where('status', 1)->where('battery_pair', 1)->get();
 
         // Check if any batteries are found
         if ($batteries->isEmpty()) {
@@ -262,9 +313,4 @@ class BatteryController extends Controller
         // Return the response
         return response()->json($result_array, 200);
     }
-
-
-
-
-
 }

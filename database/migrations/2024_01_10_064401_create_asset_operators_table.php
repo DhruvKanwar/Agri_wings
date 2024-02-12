@@ -28,6 +28,9 @@ class CreateAssetOperatorsTable extends Migration
             $table->string('user_id')->nullable();
             $table->string('user_password')->nullable();
             $table->string('vehicle_id')->nullable();
+            $table->string('asset_id')->nullable();
+            $table->string('assigned_status')->default(0);
+            $table->date('assigned_date')->nullable();
             $table->string('status')->default(1);
             $table->string('saved_by_id');
             $table->string('saved_by_name');

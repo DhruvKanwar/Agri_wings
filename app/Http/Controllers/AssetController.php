@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AssetDetails;
+use App\Models\Battery;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -46,6 +47,8 @@ class AssetController extends Controller
             'asset_details.mfg_year' => 'required|numeric',
             'asset_details.model' => 'required|string|max:255',
             'asset_details.uin' => 'required|string|max:255',
+            'asset_details.battery_ids' => 'nullable|string|max:255',
+
         ]);
 
         if ($validator->fails()) {
@@ -70,6 +73,54 @@ class AssetController extends Controller
 
         $details = Auth::user();
 
+
+        if (!empty($data['asset_details']['battery_ids'])) {
+            $battery_ids = explode(',', $data['asset_details']['battery_ids']);
+            $errors = [];
+
+            // Iterate over each battery ID
+            foreach ($battery_ids as $battery_id) {
+                $battery = Battery::find($battery_id);
+                // return $battery->assigned_status;
+                // Check if battery exists
+                if (!$battery) {
+                    $errors[] = "Battery with ID $battery_id does not exist.";
+                } else {
+
+                    // Check if battery is already assigned
+                    if ($battery->assigned_status == 1) {
+                        // return $errors;
+                        $errors[] = "Battery with ID $battery_id is already assigned.";
+                    }
+
+                    if ($battery->battery_pair != 1) {
+                        // return $errors;
+                        $errors[] = "Battery with ID $battery_id is not paired.";
+                    }
+                }
+            }
+
+            // return "f";
+
+
+            if (!empty($errors)) {
+                // Send an API response with the errors
+                $response = [
+                    "status" => "error",
+                    "message" => implode(' ', $errors)
+                ];
+                return response()->json($response, 400);
+            }
+        }
+
+
+        $battery_exists = 0;
+
+        if (!empty($data['asset_details']['battery_ids'])) {
+            $data['asset_details']['assigned_date'] = date('Y-m-d');
+            $data['asset_details']['assigned_status'] = 1;
+            $battery_exists = 1;
+        }
 
         $data['asset_details']['saved_by_name'] = $details->name;
         $data['asset_details']['saved_by_id'] = $details->id;
@@ -96,6 +147,19 @@ class AssetController extends Controller
         }
 
         $AssetDetails = AssetDetails::create($data['asset_details']);
+
+        if ($AssetDetails) {
+            if ($battery_exists) {
+                $battery_ids = explode(',', $data['asset_details']['battery_ids']);
+
+                // Iterate over each battery ID
+                foreach ($battery_ids as $battery_id) {
+                    $update_battery = Battery::where('id', $battery_id)->update(['assigned_date' => date('Y-m-d'), 'assigned_status' => 1]);
+                }
+            }
+        }
+
+
 
 
         if ($AssetDetails) {
@@ -124,6 +188,7 @@ class AssetController extends Controller
             'asset_details.capacity' => 'numeric',
             'asset_details.mfg_year' => 'nullable|numeric',
             'asset_details.model' => 'nullable|string|max:255',
+            'asset_details.battery_ids' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
@@ -148,8 +213,114 @@ class AssetController extends Controller
             $response['msg'] = 'Asset not found.';
             return response()->json($response);
         }
+        $battery_exists = 0;
+        $battery_remove = 0;
+        $removed_batteries = "";
+        // start battery assign
+        // if (!empty($data['asset_details']['battery_ids']) && $data['asset_details']['battery_ids'] != $asset->battery_ids) {
+        //     $battery_ids = explode(',', $data['asset_details']['battery_ids']);
+        //     $errors = [];
 
-        $asset->update($data['asset_details']);
+        //     // Iterate over each battery ID
+        //     foreach ($battery_ids as $battery_id) {
+
+        //         $battery = Battery::find($battery_id);
+        //         // return $battery->assigned_status;
+        //         // Check if battery exists
+        //         if (!$battery) {
+        //             $errors[] = "Battery with ID $battery_id does not exist.";
+        //         } else {
+
+        //             // Check if battery is already assigned
+        //             if ($battery->assigned_status == 1) {
+        //                 // return $errors;
+        //                 $errors[] = "Battery with ID $battery_id is already assigned.";
+        //             }
+        //         }
+        //     }
+
+        //     // return "f";
+
+
+        //     if (!empty($errors)) {
+        //         // Send an API response with the errors
+        //         $response = [
+        //             "status" => "error",
+        //             "message" => implode(' ', $errors)
+        //         ];
+        //         return response()->json($response, 400);
+        //     }
+        // }
+
+        //  return [$data['asset_details']['battery_ids'],  $asset->battery_ids];
+
+        // if (!empty($data['asset_details']['battery_ids']) && $data['asset_details']['battery_ids'] != $asset->battery_ids) {
+        //     $data['asset_details']['assigned_date'] = date('Y-m-d');
+        //     $data['asset_details']['status'] = 1;
+        //     $battery_exists = 1;
+        // }
+        // end
+
+        // start
+        if (!empty($data['asset_details']['battery_ids']) && $data['asset_details']['battery_ids'] != $asset->battery_ids) {
+            $new_battery_ids = explode(',', $data['asset_details']['battery_ids']);
+            $existing_battery_ids = explode(',', $asset->battery_ids);
+
+            // Find new battery IDs that are not already assigned
+            $new_unassigned_battery_ids = array_diff($new_battery_ids, $existing_battery_ids);
+            // Find existing battery IDs that are no longer assigned
+            $removed_battery_ids = array_diff($existing_battery_ids, $new_battery_ids);
+
+            // return [$new_unassigned_battery_ids, $removed_battery_ids];
+
+            // Update assigned date and status if there are new unassigned battery IDs
+            if (!empty($new_unassigned_battery_ids)) {
+                // $data['battery_ids']= $data['asset_details']['battery_ids'];
+                $data['asset_details']['assigned_date'] = date('Y-m-d');
+                $data['asset_details']['assigned_status'] = 1;
+                $battery_exists = 1;
+            }
+
+            // Remove existing battery IDs if they are no longer assigned
+            if (!empty($removed_battery_ids)) {
+                // Update the asset's battery_ids
+                $removed_batteries = implode(',', $removed_battery_ids);
+                $battery_remove = 1;
+            }
+        }
+
+        // end
+
+        if(empty($data['asset_details']['battery_ids']))
+        {
+            $data['asset_details']['battery_ids']="";
+            $data['asset_details']['assigned_status'] = 0;
+            $data['asset_details']['assigned_date'] = null;
+
+
+        }
+
+        $AssetDetails =   $asset->update($data['asset_details']);
+
+        if ($AssetDetails) {
+            if ($battery_exists) {
+                $battery_ids = explode(',', $data['asset_details']['battery_ids']);
+
+                // Iterate over each battery ID
+                foreach ($battery_ids as $battery_id) {
+                    $update_battery = Battery::where('id', $battery_id)->update(['assigned_date' => date('Y-m-d'), 'assigned_status' => 1]);
+                }
+            }
+
+            if ($battery_remove) {
+                $battery_ids = explode(',', $removed_batteries);
+                // return $removed_batteries;
+                // Iterate over each battery ID
+                foreach ($battery_ids as $battery_id) {
+                    $update_battery = Battery::where('id', $battery_id)->update(['assigned_date' => null, 'assigned_status' => 0]);
+                }
+            }
+        }
 
         $response['success'] = true;
         $response['statuscode'] = '200';
@@ -161,11 +332,21 @@ class AssetController extends Controller
     {
         $data = $request->all();
         $asset_id = $data['id'];
+      $check_asset=  AssetDetails::where('id', $asset_id)->first();
 
+      if($check_asset->assigned_status)
+      {
+
+            $response['status'] = "error";
+            $response['statuscode'] = '200';
+            $response['data'] = $check_asset;
+            $response['msg'] = 'Asset Already Assigned. Please remove the Asset Operator';
+            return response()->json($response);
+      }
 
         AssetDetails::where('id', $asset_id)->update(['status' => 0]);
 
-        $response['success'] = true;
+        $response['status'] = "success";
         $response['statuscode'] = '200';
         $response['msg'] = 'Asset Deleted Successfully...';
         return response()->json($response);
