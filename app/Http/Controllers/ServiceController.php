@@ -137,7 +137,7 @@ class ServiceController extends Controller
             $formattedNextNumber = sprintf('%05d', $nextNumber);
             $data['order_id'] = 'Order-' . $formattedNextNumber;
         }
-        $data['order_date']= date('d-m-Y');
+        $data['order_date']= date('Y-m-d');
 
         $service = Services::create($data);
 
