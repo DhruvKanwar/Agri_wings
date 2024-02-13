@@ -68,19 +68,22 @@ class CropController extends Controller
 
         $data = $request->all();
         if (!empty($data['crop_id']) && !empty($data['state'])) {
-            $fetch_price = CropPrice::select('id', 'state', 'state_price')->where('crop_id', $data['crop_id'])->where('state', $data['state'])->first();
+            $fetch_price = CropPrice::select('state_price')->where('crop_id', $data['crop_id'])->where('state', $data['state'])->first();
             if (!empty($fetch_price)) {
+                $price=$fetch_price->state_price;
                 return response()->json([
                     'msg' => 'State prices fetched successfully',
-                    'data' => $fetch_price,
+                    'data' => $price,
                     'statuscode' => '200',
                     'status' => 'success'
                 ]);
             } else {
-                $fetch_price = Crop::select('id', 'base_price')->where('id', $data['crop_id'])->first();
+                $fetch_price = Crop::select('base_price')->where('id', $data['crop_id'])->first();
+                $price = $fetch_price->base_price;
+
                 return response()->json([
                     'msg' => 'State prices is empty so Base Price fetched successfully',
-                    'data' => $fetch_price,
+                    'data' => $price,
                     'statuscode' => '200',
                     'status' => 'success'
                 ]);
