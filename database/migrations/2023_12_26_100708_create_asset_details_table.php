@@ -19,7 +19,8 @@ class CreateAssetDetailsTable extends Migration
             $table->string('asset_id');
             $table->string('model');
             $table->string('uin');
-            $table->string('capacity')->nullable();
+            $table->string('asset_capacity')->nullable();
+            $table->string('asset_spray_capacity')->nullable();
             $table->string('mfg_year');
             $table->string('battery_ids')->nullable();
             $table->string('assigned_status')->default(0);
