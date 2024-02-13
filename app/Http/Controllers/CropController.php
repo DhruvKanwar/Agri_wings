@@ -403,7 +403,7 @@ class CropController extends Controller
                         $get_crop_name = Crop::where('id', $crop_new_data['crop_id'])->first();
                         $crop_new_data['crop_name'] = $get_crop_name->crop_name;
 
-                        $check_record_state = CropPrice::where('state', $availabilityData['state'])->first();
+                        $check_record_state = CropPrice::where('state', $availabilityData['state'])->where('crop_id', $cropData['crop_id'])->first();
                         if (!empty($check_record_state)) {
                             return response()->json([
                                 'msg' => 'Record Already exists',
