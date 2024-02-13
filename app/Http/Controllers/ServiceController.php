@@ -372,6 +372,8 @@ class ServiceController extends Controller
             $store_data['battery_ids'] = $get_asset_details->battery_ids;
             $store_data['assigned_date']=date('Y-m-d');
             $store_data['status'] = 2;
+            $store_data['assigned_status'] = 1;
+
 
 
             $service = Services::where('id',$id)->update($store_data);
