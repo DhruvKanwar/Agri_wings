@@ -44,6 +44,7 @@ class Services extends Model
         'battery_ids',
         'order_accepted',
         'order_details_id',
+        'cancel_remarks',
      
     ];
 

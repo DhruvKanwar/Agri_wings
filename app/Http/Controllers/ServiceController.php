@@ -287,8 +287,68 @@ class ServiceController extends Controller
         }
        
 
+    }
 
 
+    public function cancel_order(Request $request)
+    {
+        // Validation rules
+        $rules = [
+            'id' => 'required|exists:services,id',
+            'cancel_remarks' => 'required|string|max:255',
+        ];
+
+        // Custom error messages
+        $messages = [
+            'id.required' => 'The service ID is required.',
+            'id.exists' => 'The selected service does not exist.',
+            'cancel_remarks.required' => 'The cancel remarks are required.',
+            'cancel_remarks.string' => 'The cancel remarks must be a string.',
+            'cancel_remarks.max' => 'The cancel remarks may not be greater than :max characters.',
+        ];
+
+        // Validate the incoming request
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        // Check if the validation fails
+        if ($validator->fails()) {
+            return response()->json([
+                'msg' => 'Validation error',
+                'status' => 'error',
+                'statuscode' => '422',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        // Proceed with your logic if validation passes
+        $data = $request->all();
+        $id = $data['id'];
+        $cancelRemarks = $data['cancel_remarks'];
+
+        // Retrieve the service
+        $service = Services::where('id', $id)->first();
+
+        if (empty($service)) {
+            return response()->json([
+                'msg' => 'Service Does not exist',
+                'status' => 'error',
+                'statuscode' => '404',
+                'data' => []
+            ], 404);
+        }
+
+        // Update the service status and cancel remarks
+        $service->update([
+            'status' => 0,
+            'cancel_remarks' => $cancelRemarks
+        ]);
+
+        return response()->json([
+            'msg' => 'Service canceled successfully',
+            'status' => 'success',
+            'statuscode' => '200',
+            'data' => $service
+        ], 200);
     }
 
     public function submit_assigned_operator(Request $request)

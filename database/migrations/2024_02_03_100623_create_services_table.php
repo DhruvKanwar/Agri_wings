@@ -49,6 +49,7 @@ class CreateServicesTable extends Migration
             $table->string('battery_ids', 150)->nullable();
             $table->string('order_accepted', 150)->nullable()->default(0);
             $table->string('order_details_id', 150)->nullable();
+            $table->string('cancel_remarks')->nullable();
             $table->timestamps();
         });
     }
