@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AssetOperator;
 use App\Models\Scheme;
 use App\Models\Services;
 use Illuminate\Http\Request;
@@ -46,26 +47,24 @@ class ServiceController extends Controller
 
         $data = $request->all();
 
-       $explode_scheme_ids=explode(',',$data['scheme_ids']);
+        $explode_scheme_ids = explode(',', $data['scheme_ids']);
         $total_discount_price = 0;
-        $crop_base_price=0;
-        $total_discount=[];
-        $client_discount =[];
+        $crop_base_price = 0;
+        $total_discount = [];
+        $client_discount = [];
         $agriwings_discount = 0;
-        $agriwings_discount_price=0;
+        $agriwings_discount_price = 0;
 
         foreach ($explode_scheme_ids as $scheme_id) {
             $scheme = Scheme::find($scheme_id);
 
             if ($scheme) {
-                $total_discount[]= $data['requested_acreage']* $scheme->discount_price;
+                $total_discount[] = $data['requested_acreage'] * $scheme->discount_price;
                 // $total_discount = $total_discount_price+$scheme->discount_price;
-                if(!empty($scheme->client_id))
-                {
+                if (!empty($scheme->client_id)) {
                     $crop_base_price = $scheme->crop_base_price;
                     $client_discount[] = $data['requested_acreage'] * $scheme->discount_price;
-
-                }else{
+                } else {
                     $agriwings_discount_price = $data['requested_acreage'] * $scheme->discount_price;
                 }
             }
@@ -84,33 +83,27 @@ class ServiceController extends Controller
             }
         }
 
-        if(isset($data['extra_discount']))
-        {
-            $total_discount_price= $total_discount_sum + (int)$data['extra_discount'];
+        if (isset($data['extra_discount'])) {
+            $total_discount_price = $total_discount_sum + (int)$data['extra_discount'];
             $agriwings_discount = $agriwings_discount_price + (int)$data['extra_discount'];
-
         }
-     
 
-   
+
+
 
         $total_amount = $crop_base_price * $data['requested_acreage'];
         // return [$data['total_discount'],$total_discount_price, $total_amount];
         // return [$total_discount_price, $total_amount];
-        if((int)$data['total_discount'] != $total_discount_price || (int)$data['total_amount']!= $total_amount || $total_discount_price > $total_amount)
-        {
+        if ((int)$data['total_discount'] != $total_discount_price || (int)$data['total_amount'] != $total_amount || $total_discount_price > $total_amount) {
             return response()->json(['msg' => 'Calculation of total discount or total amount not matching', 'status' => 'error', 'statuscode' => '200']);
-
         }
 
-        $total_payable=$total_amount - $total_discount_price;
+        $total_payable = $total_amount - $total_discount_price;
 
-        if((int)$data['total_payable_amount']!= $total_payable)
-        {
+        if ((int)$data['total_payable_amount'] != $total_payable) {
             return response()->json(['msg' => 'Total Payable is not matching', 'status' => 'error', 'statuscode' => '200']);
-
         }
-//    return [$agriwings_discount, $data['agriwings_discount']];
+        //    return [$agriwings_discount, $data['agriwings_discount']];
         if ((int)$data['agriwings_discount'] != $agriwings_discount) {
             return response()->json(['msg' => 'Agriwings Discount is not matching', 'status' => 'error', 'statuscode' => '200']);
         }
@@ -120,12 +113,12 @@ class ServiceController extends Controller
         }
 
         // return [$total_discount_price,$total_amount];
-       
+
 
         // Query the database to get the latest farmer code for the state
-        $latest_order_id= Services::select('order_id')
-        ->orderBy('id', 'desc')
-        ->first();
+        $latest_order_id = Services::select('order_id')
+            ->orderBy('id', 'desc')
+            ->first();
 
         // Generate the new farmer code
         if (empty($latest_order_id)) {
@@ -137,11 +130,11 @@ class ServiceController extends Controller
             $formattedNextNumber = sprintf('%05d', $nextNumber);
             $data['order_id'] = 'Order-' . $formattedNextNumber;
         }
-        $data['order_date']= date('Y-m-d');
+        $data['order_date'] = date('Y-m-d');
 
         $service = Services::create($data);
 
-        return response()->json(['msg' => 'Service created successfully','status'=>'success','statuscode' => '200', 'data' => $service]);
+        return response()->json(['msg' => 'Service created successfully', 'status' => 'success', 'statuscode' => '200', 'data' => $service]);
     }
 
     public function apply_order_scheme(Request $request)
@@ -157,19 +150,18 @@ class ServiceController extends Controller
 
         // Check if validation fails
         if ($validator->fails()) {
-            return response()->json(['status'=>'error','data' => $validator->errors(),'statuscode'=>'400']);
+            return response()->json(['status' => 'error', 'data' => $validator->errors(), 'statuscode' => '400']);
         }
 
         $data = $request->all();
-  
+
 
         // Extract validated data
         $orderType = $data['order_type'];
-        if(!empty($data['client_id']))
-        {
+        if (!empty($data['client_id'])) {
             $clientId = $data['client_id'];
         }
-       
+
         $cropId = $data['crop_id'];
         $requestedAcreage = $data['requested_acreage'];
 
@@ -177,27 +169,26 @@ class ServiceController extends Controller
         $currentDate = now()->format('Y-m-d');
         // return $currentDate;
 
-    //    if($orderType == 1)
-    //    {
-    //     // return $currentDate;
+        //    if($orderType == 1)
+        //    {
+        //     // return $currentDate;
 
-    //         $applicableSchemes = Scheme::select('id','scheme_name','discount_price')->where('type', $orderType)
-    //             ->where('crop_id', $cropId)
-    //             ->where('period_from', '<=', $currentDate)
-    //             ->where('period_to', '>=', $currentDate)
-    //             ->where('min_acreage', '<=', $requestedAcreage)
-    //             ->where('max_acreage', '>=', $requestedAcreage)
-    //             ->where('status',1)
-    //             ->get();
+        //         $applicableSchemes = Scheme::select('id','scheme_name','discount_price')->where('type', $orderType)
+        //             ->where('crop_id', $cropId)
+        //             ->where('period_from', '<=', $currentDate)
+        //             ->where('period_to', '>=', $currentDate)
+        //             ->where('min_acreage', '<=', $requestedAcreage)
+        //             ->where('max_acreage', '>=', $requestedAcreage)
+        //             ->where('status',1)
+        //             ->get();
 
-    //             return $applicableSchemes;
-           
+        //             return $applicableSchemes;
 
 
-    //    }else 
-       if($orderType == 1)
-       {
-       
+
+        //    }else 
+        if ($orderType == 1) {
+
             // $applicableSchemes = Scheme::select('id','scheme_name','discount_price')->whereIn('type', [2, 3])
             // ->where('client_id',$clientId)
             // ->where('crop_id', $cropId)
@@ -221,8 +212,8 @@ class ServiceController extends Controller
                 ->where('max_acreage', '>=', (int)$requestedAcreage)
                 ->where('status', 1)
                 ->get();
-       } else if ($orderType == 4 || $orderType == 5) {
-            $applicableSchemes = Scheme::select('id', 'type','scheme_name','discount_price')->where('type', $orderType)
+        } else if ($orderType == 4 || $orderType == 5) {
+            $applicableSchemes = Scheme::select('id', 'type', 'scheme_name', 'discount_price')->where('type', $orderType)
                 ->where('client_id', $clientId)
                 ->where('crop_id', $cropId)
                 ->where('period_from', '<=', $currentDate)
@@ -231,20 +222,15 @@ class ServiceController extends Controller
                 ->where('max_acreage', '>=', (int)$requestedAcreage)
                 ->where('status', 1)
                 ->get();
-       }else{
-        return response()->json(['msg' => 'Applicable schemes not available', 'statuscode' => '200','status' => 'error']);
-       }
+        } else {
+            return response()->json(['msg' => 'Applicable schemes not available', 'statuscode' => '200', 'status' => 'error']);
+        }
         // return $applicableSchemes;
-        if (isset($applicableSchemes) && count($applicableSchemes) == 0)
-       {
-            return response()->json(['msg' => 'No schemes are available', 'statuscode' => '400', 'status' => 'error','data'=>[]]);
-
-       }else{
+        if (isset($applicableSchemes) && count($applicableSchemes) == 0) {
+            return response()->json(['msg' => 'No schemes are available', 'statuscode' => '400', 'status' => 'error', 'data' => []]);
+        } else {
             return response()->json(['msg' => 'Applicable schemes found', 'statuscode' => '200', 'status' => 'success', 'data' => $applicableSchemes]);
-
-       }
-       
-
+        }
     }
 
     public function fetch_order_list()
@@ -256,7 +242,7 @@ class ServiceController extends Controller
         // Transform the services to include battery IDs
         // $transformedServices = $services->map(function ($service) {
         //     return [
-                
+
         //         'assetOperator' => $service->assetOperator,
         //         'asset' => $service->asset,
         //         // 'battery_ids' => $service->battery_ids,
@@ -266,7 +252,7 @@ class ServiceController extends Controller
         // });
 
         // Return a JSON response
-        return response()->json(['data' => $services,'msg'=>'Service List Fetched Successfully','statuscode'=>'200','status'=>'success'], 200);
+        return response()->json(['data' => $services, 'msg' => 'Service List Fetched Successfully', 'statuscode' => '200', 'status' => 'success'], 200);
     }
 
     public function fetch_single_order($id)
@@ -281,7 +267,30 @@ class ServiceController extends Controller
         return response()->json(['data' => $orders]);
     }
 
-// check it later
+    public function fetch_assigned_details(Request $request)
+    {
+
+        $data=$request->all();
+        $id=$data['id'];
+        $check_service=Services::where('id',$id)->first();
+        if(empty($check_service))
+        {
+            return response()->json(['msg' => 'Service Does not exits', 'status' => 'success', 'statuscode' => '201', 'data' => []], 201);
+
+        }else{
+            // Retrieve asset details for a service
+            $service = Services::with('asset')->find($id);
+        
+            return $service;
+        }
+       
+
+
+
+    }
+
+
+    // check it later
     // public function storeOrUpdateAmountReceived(Request $request, $serviceId)
     // {
     //     // Retrieve the service

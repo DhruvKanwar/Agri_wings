@@ -85,6 +85,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('edit_battery_details', [BatteryController::class, 'edit_battery_details']);
     Route::get('get_all_batteries', [BatteryController::class, 'get_all_batteries']);
     Route::get('get_battery_by_id', [BatteryController::class, 'get_battery_by_id']);
+    Route::get('get_batteries_to_assign', [BatteryController::class, 'get_batteries_to_assign']);
     Route::post('submit_client_details', [ClientController::class, 'submit_client_details']);
     Route::get('get_all_clients_list', [ClientController::class, 'get_all_clients_list']);
     Route::get('get_all_base_clients', [ClientController::class, 'get_all_base_clients']);
@@ -110,6 +111,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('submit_order_details', [ServiceController::class, 'submit_order_details']);
     Route::post('apply_order_scheme', [ServiceController::class, 'apply_order_scheme']);
+    Route::post('fetch_assigned_details', [ServiceController::class, 'fetch_assigned_details']);
+
 
 
 

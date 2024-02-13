@@ -313,4 +313,41 @@ class BatteryController extends Controller
         // Return the response
         return response()->json($result_array, 200);
     }
+
+    public function get_batteries_to_assign()
+    {
+        // Retrieve all batteries from the database
+        $batteries = Battery::where('status', 1)->where('battery_pair', 1)->where('assigned_status', 0)->get();
+
+        // Check if any batteries are found
+        if ($batteries->isEmpty()) {
+            $result_array = [
+                'status' => 'success',
+                'statuscode' => '200',
+                'msg' => 'No batteries found.',
+                'batteries' => [],
+            ];
+        } else {
+            // Prepare the list of batteries
+            $batteryList = $batteries->map(function ($battery) {
+                return [
+                    'id' => $battery->id,
+                    'battery_code' => $battery->battery_code,
+                    'battery_type' => $battery->battery_type,
+                    'status' => $battery->status,
+                    'battery_id' => $battery->battery_id,
+                ];
+            });
+
+            $result_array = [
+                'status' => 'success',
+                'statuscode' => '200',
+                'msg' => 'List of all batteries.',
+                'batteries' => $batteryList,
+            ];
+        }
+
+        // Return the response
+        return response()->json($result_array, 200);
+    }
 }

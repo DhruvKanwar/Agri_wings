@@ -27,6 +27,7 @@ class AssetController extends Controller
             return [
                 'status' => 'error',
                 'statuscode' => '200',
+                'data'=>[],
                 'msg' => 'Assets not found.'
             ];
         }
