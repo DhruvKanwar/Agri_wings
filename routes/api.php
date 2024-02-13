@@ -113,6 +113,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('submit_order_details', [ServiceController::class, 'submit_order_details']);
     Route::post('apply_order_scheme', [ServiceController::class, 'apply_order_scheme']);
     Route::post('fetch_assigned_details', [ServiceController::class, 'fetch_assigned_details']);
+    Route::post('submit_assigned_operator', [ServiceController::class, 'submit_assigned_operator']);
+
 
 
 
