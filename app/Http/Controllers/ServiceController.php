@@ -280,8 +280,9 @@ class ServiceController extends Controller
         }else{
             // Retrieve asset details for a service
             $service = Services::with('asset')->find($id);
+            return response()->json(['msg' => 'Services Fetched successfully', 'status' => 'success', 'statuscode' => '201', 'data' => $service], 201);
         
-            return $service;
+            // return $service;
         }
        
 

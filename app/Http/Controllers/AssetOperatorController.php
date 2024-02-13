@@ -379,6 +379,19 @@ class AssetOperatorController extends Controller
         }
     }
 
+    public function fetch_operators_to_assign()
+    {
+        $asset_operators=AssetOperator::select('id','code','name')->where('assigned_status',0)->where('status',1)->get();
+
+        if (empty($asset_operators)) {
+            return response()->json(['msg' => 'Asset Operator Does not exits to assign', 'status' => 'success', 'statuscode' => '201', 'data' => []], 201);
+        } else {
+            // Retrieve asset details for a service
+            return response()->json(['msg' => 'Asset Operator List Fetched successfully', 'status' => 'success', 'statuscode' => '200', 'data' => $asset_operators], 201);
+
+        }
+    }
+
     public function get_all_operators()
     {
         $vehicle_list = AssetOperator::with('VehicleDetails', 'UserDetails')
