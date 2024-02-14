@@ -380,7 +380,7 @@ class AssetOperatorController extends Controller
 
             $assetOperator = AssetOperator::find($id);
 
-            $asset_id= $assetOperator->asset_i;
+            $asset_id= $assetOperator->asset_id;
             if ($assetOperator) {
                 if(!empty($asset_id))
                 {
