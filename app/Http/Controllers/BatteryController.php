@@ -317,7 +317,7 @@ class BatteryController extends Controller
     public function get_batteries_to_assign()
     {
         // Retrieve all batteries from the database
-        $batteries = Battery::where('status', 1)->where('battery_pair', 1)->where('assigned_status', 0)->get();
+        $batteries = Battery::where('status', 1)->where('battery_pair', 1)->get();
 
         // Check if any batteries are found
         if ($batteries->isEmpty()) {
@@ -334,6 +334,7 @@ class BatteryController extends Controller
                     'id' => $battery->id,
                     'battery_code' => $battery->battery_code,
                     'battery_type' => $battery->battery_type,
+                    'assign_status' => $battery->assign_status,
                     'status' => $battery->status,
                     'battery_id' => $battery->battery_id,
                 ];
