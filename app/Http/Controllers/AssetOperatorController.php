@@ -67,7 +67,13 @@ class AssetOperatorController extends Controller
                 return response()->json($result_array, 200);
             }
         }
-
+        $asset_id = $data['asset_id'];
+        if (!empty($asset_id)) {
+            $get_details = AssetDetails::where('id', $asset_id)->first();
+            if (empty($get_details->battery_ids)) {
+                return response()->json(['msg' => 'Battery not assigned to asset', 'status' => 'error', 'statuscode' => '200', 'data' => []]);
+            }
+        }
 
         $check_registered_user = User::where('login_id', $data['user_id'])->first();
         if (empty($check_registered_user)) {
@@ -102,7 +108,7 @@ class AssetOperatorController extends Controller
         $data['updated_by_name'] = "";
         $data['updated_by_id'] = "";
 
-      
+
 
 
         $operator_code = AssetOperator::select('code')->latest('code')->first();
@@ -183,14 +189,15 @@ class AssetOperatorController extends Controller
         }
 
 
-       $asset_id= $data['asset_id'];
+      
+
+
 
         $assetOperator = AssetOperator::create($data);
 
-        if($assetOperator)
-        {
+        if ($assetOperator) {
             if (!empty($asset_id)) {
-                AssetDetails::where('id',$asset_id)->update(['assigned_date'=>date('Y-m-d'), 'assigned_status'=>1]);
+                AssetDetails::where('id', $asset_id)->update(['assigned_date' => date('Y-m-d'), 'assigned_status' => 1]);
             }
         }
 
@@ -231,6 +238,9 @@ class AssetOperatorController extends Controller
         $id = $data['id'];
         $assign_flag = 0;
         $remove_flag = 0;
+        $asset_id = $data['asset_id'];
+       
+
         if (!empty($data['asset_id'])) {
             $check_asset_id = AssetOperator::where('asset_id', $data['asset_id'])->first();
 
@@ -252,6 +262,8 @@ class AssetOperatorController extends Controller
             }
         } else {
             $remove_flag = 1;
+            $check_asset_id = AssetOperator::where('id', $data['id'])->first();
+            $asset_id= $check_asset_id->asset_id;
         }
 
         $check_asset_operator = AssetOperator::where('id', $data['id'])->first();
@@ -340,17 +352,14 @@ class AssetOperatorController extends Controller
             $data['status'] = 0;
         }
 
-        $asset_id= $data['asset_id'];
-      
+       
+
         // return [$remove_flag,$assign_flag];
         $assetOperator = AssetOperator::where('id', $data['id'])->update($data);
 
-        if($assetOperator)
-        {
-            if(empty($asset_id))
-            {
+        if ($assetOperator) {
+            if (empty($asset_id)) {
                 AssetDetails::where('id', $asset_id)->update(['assigned_date' => null, 'assigned_status' => 0]);
-
             }
             if ($assign_flag) {
                 if (!empty($asset_id)) {
@@ -358,9 +367,7 @@ class AssetOperatorController extends Controller
                 }
             }
             if ($remove_flag) {
-                if (!empty($asset_id)) {
                     AssetDetails::where('id', $asset_id)->update(['assigned_date' => null, 'assigned_status' => 0]);
-                }
             }
         }
 
@@ -385,20 +392,18 @@ class AssetOperatorController extends Controller
 
             $assetOperator = AssetOperator::find($id);
 
-            $asset_id= $assetOperator->asset_id;
+            $asset_id = $assetOperator->asset_id;
             if ($assetOperator) {
-                if(!empty($asset_id))
-                {
-                    AssetOperator::where('id', $id)->update(['end_date' => $end_date, 'status' => 0,'asset_id'=>'']);
+                if (!empty($asset_id)) {
+                    AssetOperator::where('id', $id)->update(['end_date' => $end_date, 'status' => 0, 'asset_id' => '']);
                     $assetOperator->delete();
                     AssetDetails::where('id', $asset_id)->update(['assigned_date' => null, 'assigned_status' => 0]);
                     return response()->json(['statuscode' => '200', 'status' => 'success',  'msg' => 'Record deleted successfully']);
-                }else{
+                } else {
                     AssetOperator::where('id', $id)->update(['end_date' => $end_date, 'status' => 0]);
                     $assetOperator->delete();
                     return response()->json(['statuscode' => '200', 'status' => 'success',  'msg' => 'Record deleted successfully']);
                 }
-               
             } else {
                 return response()->json(['statuscode' => '200', 'status' => 'success',  'msg' => 'Record not found'], 404);
             }
@@ -463,12 +468,11 @@ class AssetOperatorController extends Controller
         $get_service_detail = Services::where('id', $id)->first();
         $asset_operator_id = $get_service_detail->asset_operator_id;
         $order_details_id = $get_service_detail->order_details_id;
-        if(!$get_service_detail->assigned_status)
-        {
+        if (!$get_service_detail->assigned_status) {
             return response()->json(['msg' => 'Order not assigned yet', 'status' => 'error', 'statuscode' => '200', 'data' => []], 201);
         }
         if (!$order_accepted) {
-           
+
 
             $update_service =  Services::where('id', $id)->update(['asset_operator_id' => null, 'assigned_status' => 0, 'assigned_date' => null, 'asset_id' => null, 'battery_ids' => null, 'order_accepted' => 0, 'order_status' => 1]);
 
@@ -476,14 +480,14 @@ class AssetOperatorController extends Controller
                 OrdersTimeline::where('id', $order_details_id)->update(['updated_by_id' => $details->id, 'updated_by' => $details->name]);
                 AssetOperator::where('id', $asset_operator_id)->update(['assigned_status' => 0]);
             }
-        }else{
-    
+        } else {
+
 
             $update_service =  Services::where('id', $id)->update(['order_accepted' => 1, 'order_status' => 3]);
 
             if ($update_service) {
-                OrdersTimeline::where('id', $order_details_id)->update(['aknowledged_created_by_id' => $details->id, 'aknowledged_created_by' => $details->name, 'aknowledged_date'=>date('Y-m-d')]);
-            } 
+                OrdersTimeline::where('id', $order_details_id)->update(['aknowledged_created_by_id' => $details->id, 'aknowledged_created_by' => $details->name, 'aknowledged_date' => date('Y-m-d')]);
+            }
         }
         // $details = Auth::user();
         // $id = $details->id;
