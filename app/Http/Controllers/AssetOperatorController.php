@@ -347,6 +347,11 @@ class AssetOperatorController extends Controller
 
         if($assetOperator)
         {
+            if(empty($asset_id))
+            {
+                AssetDetails::where('id', $asset_id)->update(['assigned_date' => null, 'assigned_status' => 0]);
+
+            }
             if ($assign_flag) {
                 if (!empty($asset_id)) {
                     AssetDetails::where('id', $asset_id)->update(['assigned_date' => date('Y-m-d'), 'assigned_status' => 1]);
