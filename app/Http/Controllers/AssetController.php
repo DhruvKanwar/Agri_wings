@@ -282,6 +282,7 @@ class AssetController extends Controller
                 $battery_exists = 1;
             }
 
+            
             // Remove existing battery IDs if they are no longer assigned
             if (!empty($removed_battery_ids)) {
                 // Update the asset's battery_ids
@@ -291,6 +292,11 @@ class AssetController extends Controller
         }
 
         // end
+
+            if (empty($data['asset_details']['battery_ids']) && !empty($asset->battery_ids)) {
+            $removed_batteries= $asset->battery_ids;
+            $battery_remove = 1;
+            }
 
         if(empty($data['asset_details']['battery_ids']))
         {
