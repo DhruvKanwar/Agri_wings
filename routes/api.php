@@ -75,9 +75,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('test_upload', [AssetController::class, 'test_upload']);
     Route::get('get_all_operators', [AssetOperatorController::class, 'get_all_operators']);
     Route::get('fetch_operators_to_assign', [AssetOperatorController::class, 'fetch_operators_to_assign']);
+    Route::get('get_operator_assigned_services', [AssetOperatorController::class, 'get_operator_assigned_services']);
+    Route::get('get_operator_accepted_services', [AssetOperatorController::class, 'get_operator_accepted_services']);
     Route::post('submit_operator_details', [AssetOperatorController::class, 'submit_operator_details']);
     Route::post('edit_operator_details', [AssetOperatorController::class, 'edit_operator_details']);
     Route::post('delete_operator', [AssetOperatorController::class, 'delete_operator']);
+    Route::post('submit_operator_order_request', [AssetOperatorController::class, 'submit_operator_order_request']);
     Route::post('submit_vehicle_details', [VehicleController::class, 'submit_vehicle_details']);
     Route::post('edit_vehicle_details', [VehicleController::class, 'edit_vehicle_details']);
     Route::get('fetch_vehicle_list', [VehicleController::class, 'fetch_vehicle_list']);

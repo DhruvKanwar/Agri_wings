@@ -1,0 +1,61 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateServicesTimelineTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('services_timeline', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('created_by_id')->nullable();
+            $table->string('created_by')->nullable();
+            $table->unsignedBigInteger('updated_by_id')->nullable();
+            $table->string('updated_by')->nullable();
+            $table->date('order_date')->nullable();
+            $table->unsignedBigInteger('assign_created_by_id')->nullable();
+            $table->string('assign_created_by')->nullable();
+            $table->date('assign_date')->nullable();
+            $table->unsignedBigInteger('aknowledged_created_by_id')->nullable();
+            $table->string('aknowledged_created_by')->nullable();
+            $table->date('aknowledged_date')->nullable();
+            $table->unsignedBigInteger('spray_started_created_by_id')->nullable();
+            $table->string('spray_started_created_by')->nullable();
+            $table->date('spray_started_date')->nullable();
+            $table->text('noc_image')->nullable();  // Change to text data type
+            $table->text('payment_proof_image')->nullable();  // Change to text data type
+            $table->text('signature_string')->nullable();  // Change to text data type
+            $table->text('farmer_image')->nullable();  // Change to text data type
+            $table->unsignedBigInteger('chemical_id')->nullable();
+            $table->unsignedDecimal('fresh_water', 8, 2)->nullable();
+            $table->boolean('farmer_available')->nullable();
+            $table->unsignedBigInteger('payment_received_created_by_id')->nullable();
+            $table->string('payment_received_created_by')->nullable();
+            $table->date('payment_received_date')->nullable();
+            $table->unsignedBigInteger('payment_delivered_created_by_id')->nullable();
+            $table->string('payment_delivered_created_by')->nullable();
+            $table->date('payment_delivered_date')->nullable();
+            $table->unsignedBigInteger('payment_cancel_created_by_id')->nullable();
+            $table->string('payment_cancel_created_by')->nullable();
+            $table->date('payment_cancel_date')->nullable();
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('services_timeline');
+    }
+}

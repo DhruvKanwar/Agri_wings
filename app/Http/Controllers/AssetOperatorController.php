@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\AssetOperator;
+use App\Models\OrdersTimeline;
+use App\Models\Services;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
@@ -51,10 +53,9 @@ class AssetOperatorController extends Controller
 
 
 
-        $check_asset_id = AssetOperator::where('asset_id',$data['asset_id'])->first();
+        $check_asset_id = AssetOperator::where('asset_id', $data['asset_id'])->first();
 
-        if(!empty($check_asset_id))
-        {
+        if (!empty($check_asset_id)) {
             if ($check_asset_id->assigned_status) {
                 $result_array = array(
                     'status' => 'error',
@@ -65,7 +66,7 @@ class AssetOperatorController extends Controller
                 return response()->json($result_array, 200);
             }
         }
-       
+
 
         $check_registered_user = User::where('login_id', $data['user_id'])->first();
         if (empty($check_registered_user)) {
@@ -100,8 +101,7 @@ class AssetOperatorController extends Controller
         $data['updated_by_name'] = "";
         $data['updated_by_id'] = "";
 
-        if(!empty($data['asset_id']))
-        {
+        if (!empty($data['asset_id'])) {
             $data['assigned_date'] = date('Y-m-d');
             $data['assigned_status'] = 1;
         }
@@ -226,31 +226,30 @@ class AssetOperatorController extends Controller
         $id = $data['id'];
         $assign_flag = 0;
         $remove_flag = 0;
-        if(!empty($data['asset_id']))
-        {
-        $check_asset_id = AssetOperator::where('asset_id', $data['asset_id'])->first();
-     
-   
-        if (!empty($check_asset_id)) {
-            // return $check_asset_id->id;
-            if ($check_asset_id->id != $id) {
-                $result_array = array(
-                    'status' => 'error',
-                    'statuscode' => '200',
-                    'msg' => 'Asset already Assigned',
-                    'data' => $check_asset_id
-                );
-                return response()->json($result_array, 200);
-            }
-        }else{
-         
-            $assign_flag = 1;
-        }
-    }else{
-            $remove_flag = 1;
-    }
+        if (!empty($data['asset_id'])) {
+            $check_asset_id = AssetOperator::where('asset_id', $data['asset_id'])->first();
 
-    $check_asset_operator=AssetOperator::where('id',$data['id'])->first();
+
+            if (!empty($check_asset_id)) {
+                // return $check_asset_id->id;
+                if ($check_asset_id->id != $id) {
+                    $result_array = array(
+                        'status' => 'error',
+                        'statuscode' => '200',
+                        'msg' => 'Asset already Assigned',
+                        'data' => $check_asset_id
+                    );
+                    return response()->json($result_array, 200);
+                }
+            } else {
+
+                $assign_flag = 1;
+            }
+        } else {
+            $remove_flag = 1;
+        }
+
+        $check_asset_operator = AssetOperator::where('id', $data['id'])->first();
 
         if ($data['end_date'] != "" && $check_asset_operator->assigned_status == 1) {
             $result_array = array(
@@ -261,7 +260,7 @@ class AssetOperatorController extends Controller
             );
             return response()->json($result_array, 200);
         }
-   
+
         // remove user_id with saved user_id
 
         $details = Auth::user();
@@ -339,10 +338,9 @@ class AssetOperatorController extends Controller
             $data['assigned_date'] = date('Y-m-d');
             $data['assigned_status'] = 1;
         }
-        if($remove_flag)
-        {
-            $data['assigned_date']=null;
-            $data['assigned_status']=0;
+        if ($remove_flag) {
+            $data['assigned_date'] = null;
+            $data['assigned_status'] = 0;
         }
         // return [$remove_flag,$assign_flag];
         $assetOperator = AssetOperator::where('id', $data['id'])->update($data);
@@ -381,14 +379,13 @@ class AssetOperatorController extends Controller
 
     public function fetch_operators_to_assign()
     {
-        $asset_operators=AssetOperator::select('id','code','name')->where('assigned_status',0)->where('status',1)->get();
+        $asset_operators = AssetOperator::select('id', 'code', 'name')->where('assigned_status', 0)->where('status', 1)->get();
 
         if (empty($asset_operators)) {
             return response()->json(['msg' => 'Asset Operator Does not exits to assign', 'status' => 'success', 'statuscode' => '201', 'data' => []], 201);
         } else {
             // Retrieve asset details for a service
             return response()->json(['msg' => 'Asset Operator List Fetched successfully', 'status' => 'success', 'statuscode' => '200', 'data' => $asset_operators], 201);
-
         }
     }
 
@@ -403,5 +400,67 @@ class AssetOperatorController extends Controller
         } else {
             return ['status' => 'success', 'statuscode' => '200', 'msg' => 'Operators not found.'];
         }
+    }
+
+    public function get_operator_assigned_services()
+    {
+        $details = Auth::user();
+        $id = $details->id;
+        $get_user_id = User::where('id', $id)->first();
+        $user_id = $get_user_id->login_id;
+        $fetch_operator_details = AssetOperator::where('user_id', $user_id)->first();
+        $fetch_assigned_orders = Services::with('crop')->where('asset_operator_id', $fetch_operator_details->id)->where('order_status', 2)->get();
+        return response()->json(['msg' => 'Assigned Order List Fetched successfully', 'status' => 'success', 'statuscode' => '200', 'data' => $fetch_assigned_orders], 201);
+    }
+
+    public function get_operator_accepted_services()
+    {
+        $details = Auth::user();
+        $id = $details->id;
+        $get_user_id = User::where('id', $id)->first();
+        $user_id = $get_user_id->login_id;
+        $fetch_operator_details = AssetOperator::where('user_id', $user_id)->first();
+        $fetch_assigned_orders = Services::with('crop')->where('asset_operator_id', $fetch_operator_details->id)->where('order_status', 3)->get();
+        return response()->json(['msg' => 'Assigned Order List Fetched successfully', 'status' => 'success', 'statuscode' => '200', 'data' => $fetch_assigned_orders], 201);
+    }
+
+    public function submit_operator_order_request(Request $request)
+    {
+        $data = $request->all();
+        $id = $data['id'];
+        $order_accepted = $data['order_accepted'];
+        $details = Auth::user();
+        $get_service_detail = Services::where('id', $id)->first();
+        $asset_operator_id = $get_service_detail->asset_operator_id;
+        $order_details_id = $get_service_detail->order_details_id;
+        if(!$get_service_detail->assigned_status)
+        {
+            return response()->json(['msg' => 'Order not assigned yet', 'status' => 'error', 'statuscode' => '200', 'data' => []], 201);
+        }
+        if (!$order_accepted) {
+           
+
+            $update_service =  Services::where('id', $id)->update(['asset_operator_id' => null, 'assigned_status' => 0, 'assigned_date' => null, 'asset_id' => null, 'battery_ids' => null, 'order_accepted' => 0, 'order_status' => 1]);
+
+            if ($update_service) {
+                OrdersTimeline::where('id', $order_details_id)->update(['updated_by_id' => $details->id, 'updated_by' => $details->name]);
+                AssetOperator::where('id', $asset_operator_id)->update(['assigned_status' => 0]);
+            }
+        }else{
+    
+
+            $update_service =  Services::where('id', $id)->update(['order_accepted' => 1, 'order_status' => 3]);
+
+            if ($update_service) {
+                OrdersTimeline::where('id', $order_details_id)->update(['aknowledged_created_by_id' => $details->id, 'aknowledged_created_by' => $details->name, 'aknowledged_date'=>date('Y-m-d')]);
+            } 
+        }
+        // $details = Auth::user();
+        // $id = $details->id;
+        // $get_user_id = User::where('id', $id)->first();
+        // $user_id = $get_user_id->login_id;
+        // $fetch_operator_details = AssetOperator::where('user_id', $user_id)->first();
+        // $fetch_assigned_orders = Services::with('crop')->where('asset_operator_id', $fetch_operator_details->id)->where('order_status', 2)->get();
+        return response()->json(['msg' => 'Request Updated Successfully', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
     }
 }

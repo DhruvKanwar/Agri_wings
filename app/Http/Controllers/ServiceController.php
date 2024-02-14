@@ -361,7 +361,7 @@ class ServiceController extends Controller
 
         // Update the service status and cancel remarks
         $service->update([
-            'status' => 0,
+            'order_status' => 0,
             'cancel_remarks' => $cancelRemarks
         ]);
 
