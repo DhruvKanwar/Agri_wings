@@ -33,6 +33,27 @@ class AssetController extends Controller
         }
     }
 
+    public function available_asset_list()
+    {
+
+        $asset_details = AssetDetails::where('status', 1)->where('assigned_status',1)->get();
+
+        if (!$asset_details->isEmpty()) {
+            return [
+                'data' => $asset_details,
+                'statuscode' => '200',
+                'msg' => 'Asset list fetched successfully.'
+            ];
+        } else {
+            return [
+                'status' => 'error',
+                'statuscode' => '200',
+                'data' => [],
+                'msg' => 'Assets not found.'
+            ];
+        }
+    }
+
     public function add_asset()
     {
 

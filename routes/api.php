@@ -71,6 +71,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('edit_asset', [AssetController::class, 'edit_asset']);
     Route::post('delete_asset', [AssetController::class, 'delete_asset']);
     Route::get('show_asset_list', [AssetController::class, 'show_asset_list']);
+    Route::get('available_asset_list', [AssetController::class, 'available_asset_list']);
+
 
     Route::post('test_upload', [AssetController::class, 'test_upload']);
     Route::get('get_all_operators', [AssetOperatorController::class, 'get_all_operators']);
