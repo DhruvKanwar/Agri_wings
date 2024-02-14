@@ -334,7 +334,7 @@ class BatteryController extends Controller
                     'id' => $battery->id,
                     'battery_code' => $battery->battery_code,
                     'battery_type' => $battery->battery_type,
-                    'assign_status' => $battery->assign_status,
+                    'assign_status' => $battery->assigned_status,
                     'status' => $battery->status,
                     'battery_id' => $battery->battery_id,
                 ];
