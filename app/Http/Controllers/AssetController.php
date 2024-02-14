@@ -139,8 +139,8 @@ class AssetController extends Controller
         $battery_exists = 0;
 
         if (!empty($data['asset_details']['battery_ids'])) {
-            $data['asset_details']['assigned_date'] = date('Y-m-d');
-            $data['asset_details']['assigned_status'] = 1;
+            // $data['asset_details']['assigned_date'] = date('Y-m-d');
+            // $data['asset_details']['assigned_status'] = 1;
             $battery_exists = 1;
         }
 
@@ -322,8 +322,8 @@ class AssetController extends Controller
         if(empty($data['asset_details']['battery_ids']))
         {
             $data['asset_details']['battery_ids']="";
-            $data['asset_details']['assigned_status'] = 0;
-            $data['asset_details']['assigned_date'] = null;
+            // $data['asset_details']['assigned_status'] = 0;
+            // $data['asset_details']['assigned_date'] = null;
 
 
         }
@@ -362,17 +362,22 @@ class AssetController extends Controller
         $asset_id = $data['id'];
       $check_asset=  AssetDetails::where('id', $asset_id)->first();
 
-      if($check_asset->assigned_status)
+      if(!empty($check_asset->battery_ids))
       {
+            $battery_ids = $check_asset->battery_ids;
+            AssetDetails::where('id', $asset_id)->update(['status' => 0,'battery_ids'=>'']);
+            $battery_ids = explode(',', $battery_ids);
+            // return $removed_batteries;
+            // Iterate over each battery ID
+            foreach ($battery_ids as $battery_id) {
+                $update_battery = Battery::where('id', $battery_id)->update(['assigned_date' => null, 'assigned_status' => 0]);
+            }
+       
+      }else{
+            AssetDetails::where('id', $asset_id)->update(['status' => 0]);
 
-            $response['status'] = "error";
-            $response['statuscode'] = '200';
-            $response['data'] = $check_asset;
-            $response['msg'] = 'Asset Already Assigned. Please remove the Asset Operator';
-            return response()->json($response);
       }
 
-        AssetDetails::where('id', $asset_id)->update(['status' => 0]);
 
         $response['status'] = "success";
         $response['statuscode'] = '200';

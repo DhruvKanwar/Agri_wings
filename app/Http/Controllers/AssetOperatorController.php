@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AssetDetails;
 use App\Models\AssetOperator;
 use App\Models\OrdersTimeline;
 use App\Models\Services;
@@ -101,10 +102,7 @@ class AssetOperatorController extends Controller
         $data['updated_by_name'] = "";
         $data['updated_by_id'] = "";
 
-        if (!empty($data['asset_id'])) {
-            $data['assigned_date'] = date('Y-m-d');
-            $data['assigned_status'] = 1;
-        }
+      
 
 
         $operator_code = AssetOperator::select('code')->latest('code')->first();
@@ -185,9 +183,16 @@ class AssetOperatorController extends Controller
         }
 
 
-
+       $asset_id= $data['asset_id'];
 
         $assetOperator = AssetOperator::create($data);
+
+        if($assetOperator)
+        {
+            if (!empty($asset_id)) {
+                AssetDetails::where('id',$asset_id)->update(['assigned_date'=>date('Y-m-d'), 'assigned_status'=>1]);
+            }
+        }
 
         // You can return a response or perform any other logic here
         return response()->json(['msg' => 'Details stored successfully', 'status' => 'success', 'statuscode' => '200', 'data' => $assetOperator]);
@@ -334,18 +339,28 @@ class AssetOperatorController extends Controller
         if ($data['end_date'] != "") {
             $data['status'] = 0;
         }
-        if ($assign_flag) {
-            $data['assigned_date'] = date('Y-m-d');
-            $data['assigned_status'] = 1;
-        }
-        if ($remove_flag) {
-            $data['assigned_date'] = null;
-            $data['assigned_status'] = 0;
-        }
+
+        $asset_id= $data['asset_id'];
+      
         // return [$remove_flag,$assign_flag];
         $assetOperator = AssetOperator::where('id', $data['id'])->update($data);
 
+        if($assetOperator)
+        {
+            if ($assign_flag) {
+                if (!empty($asset_id)) {
+                    AssetDetails::where('id', $asset_id)->update(['assigned_date' => date('Y-m-d'), 'assigned_status' => 1]);
+                }
+            }
+            if ($remove_flag) {
+                if (!empty($asset_id)) {
+                    AssetDetails::where('id', $asset_id)->update(['assigned_date' => null, 'assigned_status' => 0]);
+                }
+            }
+        }
+
         $get_operator = AssetOperator::where('id', $data['id'])->get();
+
 
 
         // You can return a response or perform any other logic here
@@ -365,10 +380,20 @@ class AssetOperatorController extends Controller
 
             $assetOperator = AssetOperator::find($id);
 
+            $asset_id= $assetOperator->asset_i;
             if ($assetOperator) {
-                AssetOperator::where('id', $id)->update(['end_date' => $end_date, 'status' => 0]);
-                $assetOperator->delete();
-                return response()->json(['statuscode' => '200', 'status' => 'success',  'msg' => 'Record deleted successfully']);
+                if(!empty($asset_id))
+                {
+                    AssetOperator::where('id', $id)->update(['end_date' => $end_date, 'status' => 0,'asset_id'=>'']);
+                    $assetOperator->delete();
+                    AssetDetails::where('id', $asset_id)->update(['assigned_date' => null, 'assigned_status' => 0]);
+                    return response()->json(['statuscode' => '200', 'status' => 'success',  'msg' => 'Record deleted successfully']);
+                }else{
+                    AssetOperator::where('id', $id)->update(['end_date' => $end_date, 'status' => 0]);
+                    $assetOperator->delete();
+                    return response()->json(['statuscode' => '200', 'status' => 'success',  'msg' => 'Record deleted successfully']);
+                }
+               
             } else {
                 return response()->json(['statuscode' => '200', 'status' => 'success',  'msg' => 'Record not found'], 404);
             }
