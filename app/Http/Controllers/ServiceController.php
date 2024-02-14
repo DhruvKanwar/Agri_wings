@@ -4,11 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\AssetDetails;
 use App\Models\AssetOperator;
+use App\Models\OrdersTimeline;
+use App\Models\RegionalClient;
 use App\Models\Scheme;
 use App\Models\Services;
+use Aws\Api\Service;
 use Illuminate\Http\Request;
 use DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 
 class ServiceController extends Controller
@@ -93,14 +97,13 @@ class ServiceController extends Controller
 
 
         $total_amount = $crop_base_price * $data['requested_acreage'];
-        // return [$data['total_discount'],$total_discount_price, $total_amount];
+        // return [$data['total_discount'],$total_discount_price, $data['total_amount'], $total_amount];
         // return [$total_discount_price, $total_amount];
         if ((int)$data['total_discount'] != $total_discount_price || (int)$data['total_amount'] != $total_amount || $total_discount_price > $total_amount) {
             return response()->json(['msg' => 'Calculation of total discount or total amount not matching', 'status' => 'error', 'statuscode' => '200']);
         }
 
         $total_payable = $total_amount - $total_discount_price;
-
         if ((int)$data['total_payable_amount'] != $total_payable) {
             return response()->json(['msg' => 'Total Payable is not matching', 'status' => 'error', 'statuscode' => '200']);
         }
@@ -108,6 +111,8 @@ class ServiceController extends Controller
         if ((int)$data['agriwings_discount'] != $agriwings_discount) {
             return response()->json(['msg' => 'Agriwings Discount is not matching', 'status' => 'error', 'statuscode' => '200']);
         }
+
+// return $total_client_discount;
 
         if ((int)$data['client_discount'] != $total_client_discount) {
             return response()->json(['msg' => 'Total Client Discount is not matching', 'status' => 'error', 'statuscode' => '200']);
@@ -133,7 +138,24 @@ class ServiceController extends Controller
         }
         $data['order_date'] = date('Y-m-d');
 
+       
+        // $data['order']
+
         $service = Services::create($data);
+
+        if($service)
+        {
+            $details = Auth::user();
+            $order_timeline['created_by_id'] = $details->id;
+            $order_timeline['created_by'] = $details->name;
+            $order_timeline['order_date'] =   date('Y-m-d');
+
+            $update_order_timeline = OrdersTimeline::create($order_timeline);
+            if($update_order_timeline)
+            {
+                Services::where('id',$service->id)->update(['order_details_id'=> $update_order_timeline->id]);
+            }
+        }
 
         return response()->json(['msg' => 'Service created successfully', 'status' => 'success', 'statuscode' => '200', 'data' => $service]);
     }
@@ -236,9 +258,9 @@ class ServiceController extends Controller
 
     public function fetch_order_list()
     {
-        // DB::enableQueryLog();
-        // Fetch services with related information
-        $services = Services::with(['assetOperator', 'asset'])->get();
+  
+
+        $services = Services::with(['assetOperator', 'asset', 'clientDetails', 'farmerDetails'])->get();
         // dd(DB::getQueryLog());
         // Transform the services to include battery IDs
         // $transformedServices = $services->map(function ($service) {
@@ -369,9 +391,13 @@ class ServiceController extends Controller
             $get_asset_details=AssetDetails::where('id', $store_data['asset_id'])->first();
             // return $get_asset_operator_details;
             $store_data['battery_ids'] = $get_asset_details->battery_ids;
-            $store_data['battery_ids'] = $get_asset_details->battery_ids;
+            if($get_asset_operator_details->asset_id!=1 || $get_asset_details->assigned_status != 1|| $get_asset_operator_details->assigned_status != 1)
+            {
+                return response()->json(['msg' => 'Service Cannot assigned, Allocation of Drone,Pilot or Battery is missing', 'status' => 'success', 'statuscode' => '201', 'data' => []], 201);
+
+            }
             $store_data['assigned_date']=date('Y-m-d');
-            $store_data['status'] = 2;
+            $store_data['order_status'] = 2;
             $store_data['assigned_status'] = 1;
 
 
@@ -380,10 +406,23 @@ class ServiceController extends Controller
 
             if($service)
             {
-                AssetOperator::where('id', $asset_operator_id)->update(['assigned_status'=>1]);
+              $assigned_operator_done=  AssetOperator::where('id', $asset_operator_id)->update(['assigned_status'=>1]);
+
+              if($assigned_operator_done)
+              {
+
+                    $details = Auth::user();
+                    $order_timeline['assign_created_by_id'] = $details->id;
+                    $order_timeline['assign_created_by'] = $details->name;
+                    $order_timeline['assign_date'] =   date('Y-m-d');
+
+                    $update_order_timeline = OrdersTimeline::where('id', $check_service->order_details_id)->update($order_timeline);
+                 
+              }
+
             }
 
-            return response()->json(['msg' => 'Services Updated successfully', 'status' => 'success', 'statuscode' => '201', 'data' => []], 201);
+            return response()->json(['msg' => 'AssetOperator Assigned Successfully', 'status' => 'success', 'statuscode' => '201', 'data' => []], 201);
 
             // return $service;
         }

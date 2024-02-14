@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\RegionalClient;
+
 
 class Services extends Model
 {
@@ -48,6 +50,25 @@ class Services extends Model
      
     ];
 
+    public function clientDetails()
+    {
+        return $this->belongsTo(RegionalClient::class, 'client_id')->withTrashed();;
+    }
+
+    // public function clientDetails()
+    // {
+    //     return $this->belongsTo('App\Models\RegionalClient', 'client_id', 'id');
+    //     // return $this->hasOne('App\Models\RegionalClient','id', 'client_id');
+
+    // }
+
+
+
+    public function farmerDetails()
+    {
+        return $this->belongsTo(FarmerDetails::class, 'farmer_id');
+    }
+
       public function assetOperator()
     {
         return $this->belongsTo(AssetOperator::class, 'asset_operator_id');
@@ -56,6 +77,11 @@ class Services extends Model
     public function asset()
     {
         return $this->belongsTo(AssetDetails::class, 'asset_id');
+    }
+
+    public function crop()
+    {
+        return $this->belongsTo(Crop::class, 'crop_id');
     }
 
     public function batteries()
