@@ -36,7 +36,7 @@ class AssetController extends Controller
     public function available_asset_list()
     {
 
-        $asset_details = AssetDetails::where('status', 1)->where('assigned_status',1)->get();
+        $asset_details = AssetDetails::where('status', 1)->where('battery_ids', '!=','')->get();
 
         if (!$asset_details->isEmpty()) {
             return [
