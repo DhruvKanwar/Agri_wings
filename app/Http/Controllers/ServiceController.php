@@ -305,7 +305,7 @@ class ServiceController extends Controller
         $orders = Services::with(['assetOperator', 'asset', 'asset', 'clientDetails', 'farmerDetails'])->find($id);
 
         if (!$orders) {
-            return response()->json(['msg' => 'Scheme not found', 'status' => 'error', 'statuscode' => '404']);
+            return response()->json(['msg' => 'Order not found', 'status' => 'error', 'statuscode' => '404']);
         }
 
         return response()->json(['data' => $orders]);
