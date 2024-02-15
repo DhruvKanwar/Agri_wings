@@ -25,11 +25,8 @@ class OrdersTimeline extends Model
         'spray_started_date',
         'noc_image',
         'payment_proof_image',
-        'signature_string',
+        'farmer_signature',
         'farmer_image',
-        'chemical_id',
-        'fresh_water',
-        'farmer_available',
         'payment_received_created_by_id',
         'payment_received_created_by',
         'payment_received_date',
@@ -38,7 +35,13 @@ class OrdersTimeline extends Model
         'payment_delivered_date',
         'payment_cancel_created_by_id',
         'payment_cancel_created_by',
-        'payment_cancel_date'
+        'payment_cancel_date',
+        'chemical_used_ids',
+        'farmer_available',
+        'fresh_water',
+        'refund_image',
+        'farmer_refund_signature'
+
     ];
 
     // Add any additional methods or relationships here if needed

@@ -510,4 +510,62 @@ class AssetOperatorController extends Controller
         // $fetch_assigned_orders = Services::with('crop')->where('asset_operator_id', $fetch_operator_details->id)->where('order_status', 2)->get();
         return response()->json(['msg' => 'Request Updated Successfully', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
     }
+
+    public function start_spray(Request $request)
+    {
+        $data=$request->all();
+        $validatedData = $request->validate([
+            'id' => 'required|numeric',
+            'chemical_used_ids' => 'required|string', // Assuming chemical_used_ids is a comma-separated string
+            'farmer_available' => 'required|boolean',
+            'fresh_water' => 'required|boolean',
+            'noc_image' => 'image|mimes:jpeg,png,jpg,gif',
+        ]);
+        // return $data;
+        $id=$data['id'];
+        $check_order_exists=Services::where('id',$id)->first();
+// return $check_order_exists;
+        if(empty($check_order_exists))
+        {
+            return response()->json(['msg' => 'Service Does not exists', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
+
+        }else{
+            $noc_image = $request->file('noc_image');
+            if (!empty($noc_image)) {
+                // Generate a random string for the filename
+                $randomString = Str::random(10); // Adjust the length as needed
+
+                // Concatenate the random string with the desired file extension
+                $customFilename = 'Noc_' . $randomString . '.' . $noc_image->getClientOriginalExtension();
+
+                // Specify the filename when storing the file in S3
+                $path = $noc_image->storeAs('aadhar', $customFilename, 's3');
+
+                // Optionally, you can generate a publicly accessible URL
+                $url = Storage::disk('s3')->url($path);
+                // print_r($url);
+                $data['noc_image'] = $customFilename;
+            }
+            $details = Auth::user();
+
+            $data['spray_started_created_by_id'] = $details->id;
+            $data['spray_started_created_by'] = $details->name;
+            $data['spray_started_date'] =   date('Y-m-d');
+
+            $update_services_done=Services::where('id',$id)->update(['spray_date' => date('Y-m-d'), 'spray_status'=>1, 'order_status'=>4]);
+            if($update_services_done)
+            {
+                $update_services = OrdersTimeline::where('id', $check_order_exists->order_details_id)->update($data);
+
+            }
+
+            if($update_services)
+            {
+                return response()->json(['msg' => 'Spray Started Successfully..', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
+
+            }
+
+        }
+
+    }
 }

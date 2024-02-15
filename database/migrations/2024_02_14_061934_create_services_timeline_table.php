@@ -31,11 +31,8 @@ class CreateServicesTimelineTable extends Migration
             $table->date('spray_started_date')->nullable();
             $table->text('noc_image')->nullable();  // Change to text data type
             $table->text('payment_proof_image')->nullable();  // Change to text data type
-            $table->text('signature_string')->nullable();  // Change to text data type
+            $table->text('farmer_signature')->nullable();  // Change to text data type
             $table->text('farmer_image')->nullable();  // Change to text data type
-            $table->unsignedBigInteger('chemical_id')->nullable();
-            $table->unsignedDecimal('fresh_water', 8, 2)->nullable();
-            $table->boolean('farmer_available')->nullable();
             $table->unsignedBigInteger('payment_received_created_by_id')->nullable();
             $table->string('payment_received_created_by')->nullable();
             $table->date('payment_received_date')->nullable();
@@ -45,6 +42,15 @@ class CreateServicesTimelineTable extends Migration
             $table->unsignedBigInteger('payment_cancel_created_by_id')->nullable();
             $table->string('payment_cancel_created_by')->nullable();
             $table->date('payment_cancel_date')->nullable();
+            $table->string('chemical_used_ids')->nullable();
+            $table->string('farmer_available')->nullable();
+            $table->string('fresh_water')->nullable();
+            $table->string('refund_image')->nullable();
+            $table->string('farmer_refund_signature')->nullable();
+
+
+
+
             $table->timestamps();
         });
     }
