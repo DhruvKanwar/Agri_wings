@@ -33,7 +33,7 @@ class ServiceController extends Controller
             'requested_acreage' => 'required|string',
             'sprayed_acreage' => 'nullable|string',
             'farm_location' => 'required|string',
-            'scheme_ids' => 'required|string|max:100',
+            'scheme_ids' => 'nullable|string|max:100',
             'total_discount' => 'required|string',
             'extra_discount' => 'nullable|string',
             'remarks' => 'nullable|string',
@@ -53,13 +53,16 @@ class ServiceController extends Controller
 
         $data = $request->all();
 
-        $explode_scheme_ids = explode(',', $data['scheme_ids']);
         $total_discount_price = 0;
         $crop_base_price = 0;
         $total_discount = [];
         $client_discount = [];
         $agriwings_discount = 0;
         $agriwings_discount_price = 0;
+
+        if(!empty($$data['scheme_ids']))
+        {
+        $explode_scheme_ids = explode(',', $data['scheme_ids']);
 
         foreach ($explode_scheme_ids as $scheme_id) {
             $scheme = Scheme::find($scheme_id);
@@ -77,6 +80,7 @@ class ServiceController extends Controller
         }
         $total_discount_sum = array_sum($total_discount);
         $total_client_discount  = array_sum($client_discount);
+    }
 
         // return $total_client_discount;
 
@@ -113,7 +117,7 @@ class ServiceController extends Controller
             return response()->json(['msg' => 'Agriwings Discount is not matching', 'status' => 'error', 'statuscode' => '200']);
         }
 
-// return $total_client_discount;
+        // return $total_client_discount;
 
         if ((int)$data['client_discount'] != $total_client_discount) {
             return response()->json(['msg' => 'Total Client Discount is not matching', 'status' => 'error', 'statuscode' => '200']);
@@ -139,22 +143,20 @@ class ServiceController extends Controller
         }
         $data['order_date'] = date('Y-m-d');
 
-       
+
         // $data['order']
 
         $service = Services::create($data);
 
-        if($service)
-        {
+        if ($service) {
             $details = Auth::user();
             $order_timeline['created_by_id'] = $details->id;
             $order_timeline['created_by'] = $details->name;
             $order_timeline['order_date'] =   date('Y-m-d');
 
             $update_order_timeline = OrdersTimeline::create($order_timeline);
-            if($update_order_timeline)
-            {
-                Services::where('id',$service->id)->update(['order_details_id'=> $update_order_timeline->id]);
+            if ($update_order_timeline) {
+                Services::where('id', $service->id)->update(['order_details_id' => $update_order_timeline->id]);
             }
         }
 
@@ -259,7 +261,7 @@ class ServiceController extends Controller
 
     public function fetch_order_list()
     {
-  
+
 
         $services = Services::with(['assetOperator', 'asset', 'clientDetails', 'farmerDetails'])->get();
         // dd(DB::getQueryLog());
@@ -294,22 +296,18 @@ class ServiceController extends Controller
     public function fetch_assigned_details(Request $request)
     {
 
-        $data=$request->all();
-        $id=$data['id'];
-        $check_service=Services::where('id',$id)->first();
-        if(empty($check_service))
-        {
+        $data = $request->all();
+        $id = $data['id'];
+        $check_service = Services::where('id', $id)->first();
+        if (empty($check_service)) {
             return response()->json(['msg' => 'Service Does not exits', 'status' => 'success', 'statuscode' => '201', 'data' => []], 201);
-
-        }else{
+        } else {
             // Retrieve asset details for a service
             $service = Services::with('asset')->find($id);
             return response()->json(['msg' => 'Services Fetched successfully', 'status' => 'success', 'statuscode' => '201', 'data' => $service], 201);
-        
+
             // return $service;
         }
-       
-
     }
 
 
@@ -379,55 +377,45 @@ class ServiceController extends Controller
 
         $data = $request->all();
         $id = $data['id'];
-        $asset_operator_id=$data['asset_operator_id'];
+        $asset_operator_id = $data['asset_operator_id'];
         $store_data['asset_operator_id'] = $asset_operator_id;
-   
+
         $check_service = Services::where('id', $id)->first();
         if (empty($check_service)) {
             return response()->json(['msg' => 'Service Does not exits', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
         } else {
             // Retrieve asset details for a service
-            $get_asset_operator_details=AssetOperator::where('id',$asset_operator_id)->first();
-            $store_data['asset_id']= $get_asset_operator_details->asset_id;
-            $get_asset_details=AssetDetails::where('id', $store_data['asset_id'])->first();
+            $get_asset_operator_details = AssetOperator::where('id', $asset_operator_id)->first();
+            $store_data['asset_id'] = $get_asset_operator_details->asset_id;
+            $get_asset_details = AssetDetails::where('id', $store_data['asset_id'])->first();
             // return $get_asset_operator_details;
             $store_data['battery_ids'] = $get_asset_details->battery_ids;
-            if($get_asset_details->assigned_status != 1)
-            {
+            if ($get_asset_details->assigned_status != 1) {
                 return response()->json(['msg' => 'Service Cannot assigned, Allocation Asset is missing', 'status' => 'success', 'statuscode' => '200', 'data' => []]);
-
             }
-         if(!empty($get_asset_details->battery_ids))
-         {
-                $battery_ids=explode(',', $get_asset_details->battery_ids);
+            if (!empty($get_asset_details->battery_ids)) {
+                $battery_ids = explode(',', $get_asset_details->battery_ids);
                 foreach ($battery_ids as $battery_id) {
                     $check_battery = Battery::where('id', $battery_id)->first();
-                    if($check_battery->assigned_status!=1)
-                    {
-                return response()->json(['msg' => 'Service Cannot assigned, Allocation Battery is missing to Asset', 'status' => 'success', 'statuscode' => '200', 'data' => $check_battery]);
-
+                    if ($check_battery->assigned_status != 1) {
+                        return response()->json(['msg' => 'Service Cannot assigned, Allocation Battery is missing to Asset', 'status' => 'success', 'statuscode' => '200', 'data' => $check_battery]);
                     }
-
                 }
-
-         }else{
+            } else {
                 return response()->json(['msg' => 'Service Cannot assigned, Battery ids missing in asset', 'status' => 'success', 'statuscode' => '200', 'data' => []]);
-
-         }
-            $store_data['assigned_date']=date('Y-m-d');
+            }
+            $store_data['assigned_date'] = date('Y-m-d');
             $store_data['order_status'] = 2;
             $store_data['assigned_status'] = 1;
 
 
 
-            $service = Services::where('id',$id)->update($store_data);
+            $service = Services::where('id', $id)->update($store_data);
 
-            if($service)
-            {
-              $assigned_operator_done=  AssetOperator::where('id', $asset_operator_id)->update(['assigned_status'=>1]);
+            if ($service) {
+                $assigned_operator_done =  AssetOperator::where('id', $asset_operator_id)->update(['assigned_status' => 1]);
 
-              if($assigned_operator_done)
-              {
+                if ($assigned_operator_done) {
 
                     $details = Auth::user();
                     $order_timeline['assign_created_by_id'] = $details->id;
@@ -435,9 +423,7 @@ class ServiceController extends Controller
                     $order_timeline['assign_date'] =   date('Y-m-d');
 
                     $update_order_timeline = OrdersTimeline::where('id', $check_service->order_details_id)->update($order_timeline);
-                 
-              }
-
+                }
             }
 
             return response()->json(['msg' => 'AssetOperator Assigned Successfully', 'status' => 'success', 'statuscode' => '201', 'data' => []], 201);
