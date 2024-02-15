@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\AssetDetails;
 use App\Models\AssetOperator;
 use App\Models\Battery;
+use App\Models\Crop;
+use App\Models\CropPrice;
 use App\Models\OrdersTimeline;
 use App\Models\RegionalClient;
 use App\Models\Scheme;
@@ -81,16 +83,29 @@ class ServiceController extends Controller
             $total_client_discount  = array_sum($client_discount);
         }else{
             $total_discount_sum=0;
+            $total_client_discount =0;
         }
 
         // return $total_client_discount;
 
-        if (empty($crop_base_price)) {
+        if (empty($crop_base_price) && $data['scheme_ids'] != '') {
             $scheme = Scheme::find($explode_scheme_ids[0]);
             // return $scheme->client_id;
             if (empty($scheme->client_id)) {
                 $crop_base_price = $scheme->crop_base_price;
                 $agriwings_discount_price = $data['requested_acreage'] * $scheme->discount_price;
+            }
+        }else{
+            $agriwings_discount_price=0;
+            $get_client_details=RegionalClient::where('id',$data['client_id'])->first();
+            // return $get_client_details;
+            $client_state= $get_client_details->state;
+            $fetch_price = CropPrice::select('state_price')->where('crop_id', $data['crop_id'])->where('state', $client_state)->first();
+            if (!empty($fetch_price)) {
+                $crop_base_price = $fetch_price->state_price;
+            } else {
+                $fetch_price = Crop::select('base_price')->where('id', $data['crop_id'])->first();
+                $crop_base_price = $fetch_price->base_price;
             }
         }
 
