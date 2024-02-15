@@ -315,7 +315,7 @@ class ServiceController extends Controller
 
             }
         } else {
-            return $applicableSchemes;
+            // return $applicableSchemes;
             return response()->json(['msg' => 'Applicable schemes found', 'statuscode' => '200', 'status' => 'success', 'data' => $applicableSchemes]);
         }
     }
