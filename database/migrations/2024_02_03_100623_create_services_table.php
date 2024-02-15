@@ -26,7 +26,7 @@ class CreateServicesTable extends Migration
             $table->string('requested_acreage');
             $table->string('sprayed_acreage')->nullable();
             $table->string('farm_location');
-            $table->string('scheme_ids',200);
+            $table->string('scheme_ids',200)->nullable();
             $table->string('total_discount');
             $table->string('extra_discount')->nullable();;
             $table->string('remarks')->nullable();

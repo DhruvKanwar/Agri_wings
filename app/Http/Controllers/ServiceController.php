@@ -118,13 +118,15 @@ class ServiceController extends Controller
 
 
         $total_amount = $crop_base_price * $data['requested_acreage'];
-        // return [$data['total_discount'],$total_discount_price, $data['total_amount'], $total_amount];
+        // return [$data['total_discount'],$total_discount_price, $data['total_amount'], $total_amount,$total_payable];
         // return [$total_discount_price, $total_amount];
         if ((int)$data['total_discount'] != $total_discount_price || (int)$data['total_amount'] != $total_amount || $total_discount_price > $total_amount) {
             return response()->json(['msg' => 'Calculation of total discount or total amount not matching', 'status' => 'error', 'statuscode' => '200']);
         }
 
         $total_payable = $total_amount - $total_discount_price;
+        // return [$data['total_discount'], $total_discount_price, $data['total_amount'], $total_amount, $total_payable];
+
         if ((int)$data['total_payable_amount'] != $total_payable) {
             return response()->json(['msg' => 'Total Payable is not matching', 'status' => 'error', 'statuscode' => '200']);
         }
