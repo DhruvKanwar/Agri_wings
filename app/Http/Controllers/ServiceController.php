@@ -60,27 +60,28 @@ class ServiceController extends Controller
         $agriwings_discount = 0;
         $agriwings_discount_price = 0;
 
-        if(!empty($$data['scheme_ids']))
-        {
-        $explode_scheme_ids = explode(',', $data['scheme_ids']);
+        if (!empty($data['scheme_ids'])) {
+            $explode_scheme_ids = explode(',', $data['scheme_ids']);
 
-        foreach ($explode_scheme_ids as $scheme_id) {
-            $scheme = Scheme::find($scheme_id);
+            foreach ($explode_scheme_ids as $scheme_id) {
+                $scheme = Scheme::find($scheme_id);
 
-            if ($scheme) {
-                $total_discount[] = $data['requested_acreage'] * $scheme->discount_price;
-                // $total_discount = $total_discount_price+$scheme->discount_price;
-                if (!empty($scheme->client_id)) {
-                    $crop_base_price = $scheme->crop_base_price;
-                    $client_discount[] = $data['requested_acreage'] * $scheme->discount_price;
-                } else {
-                    $agriwings_discount_price = $data['requested_acreage'] * $scheme->discount_price;
+                if ($scheme) {
+                    $total_discount[] = $data['requested_acreage'] * $scheme->discount_price;
+                    // $total_discount = $total_discount_price+$scheme->discount_price;
+                    if (!empty($scheme->client_id)) {
+                        $crop_base_price = $scheme->crop_base_price;
+                        $client_discount[] = $data['requested_acreage'] * $scheme->discount_price;
+                    } else {
+                        $agriwings_discount_price = $data['requested_acreage'] * $scheme->discount_price;
+                    }
                 }
             }
+            $total_discount_sum = array_sum($total_discount);
+            $total_client_discount  = array_sum($client_discount);
+        }else{
+            $total_discount_sum=0;
         }
-        $total_discount_sum = array_sum($total_discount);
-        $total_client_discount  = array_sum($client_discount);
-    }
 
         // return $total_client_discount;
 
