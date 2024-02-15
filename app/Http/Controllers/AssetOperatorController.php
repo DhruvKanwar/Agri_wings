@@ -443,9 +443,17 @@ class AssetOperatorController extends Controller
         $id = $details->id;
         $get_user_id = User::where('id', $id)->first();
         $user_id = $get_user_id->login_id;
-        $fetch_operator_details = AssetOperator::where('user_id', $user_id)->first();
-        $fetch_assigned_orders = Services::with('crop')->where('asset_operator_id', $fetch_operator_details->id)->where('order_status', 2)->get();
-        return response()->json(['msg' => 'Assigned Order List Fetched successfully', 'status' => 'success', 'statuscode' => '200', 'data' => $fetch_assigned_orders], 201);
+     
+        if(!empty($user_id))
+        {
+            $fetch_operator_details = AssetOperator::where('user_id', $user_id)->first();
+            // return [$fetch_operator_details, $get_user_id];
+            $fetch_assigned_orders = Services::with('crop')->where('asset_operator_id', $fetch_operator_details->id)->where('order_status', 2)->get();
+            return response()->json(['msg' => 'Assigned Order List Fetched successfully', 'status' => 'success', 'statuscode' => '200', 'data' => $fetch_assigned_orders], 201);
+        }else{
+            return response()->json(['msg' => 'You are not valid user for fetching this details', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
+        }
+   
     }
 
     public function get_operator_accepted_services()
@@ -454,9 +462,13 @@ class AssetOperatorController extends Controller
         $id = $details->id;
         $get_user_id = User::where('id', $id)->first();
         $user_id = $get_user_id->login_id;
+        if (!empty($user_id)) {
         $fetch_operator_details = AssetOperator::where('user_id', $user_id)->first();
         $fetch_assigned_orders = Services::with('crop')->where('asset_operator_id', $fetch_operator_details->id)->where('order_status', 3)->get();
         return response()->json(['msg' => 'Assigned Order List Fetched successfully', 'status' => 'success', 'statuscode' => '200', 'data' => $fetch_assigned_orders], 201);
+        } else {
+            return response()->json(['msg' => 'You are not valid user for fetching this details', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
+        }
     }
 
     public function submit_operator_order_request(Request $request)

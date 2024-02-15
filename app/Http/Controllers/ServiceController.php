@@ -208,6 +208,7 @@ class ServiceController extends Controller
 
         $cropId = $data['crop_id'];
         $requestedAcreage = $data['requested_acreage'];
+        $crop_price="";
 
         // Get current date
         $currentDate = now()->format('Y-m-d');
@@ -243,7 +244,8 @@ class ServiceController extends Controller
             // ->where('status', 1)
             // ->get();
             // return $applicableSchemes;
-            $applicableSchemes = Scheme::select('id', 'type','crop_base_price','scheme_name', 'discount_price')->whereIn('type', [1, 2, 3])
+         
+            $applicableSchemes = Scheme::select('id', 'type','scheme_name', 'discount_price')->whereIn('type', [1, 2, 3])
                 ->where(function ($query) use ($clientId) {
                     $query->where('client_id', $clientId)
                         ->orWhereNull('client_id')
@@ -256,6 +258,7 @@ class ServiceController extends Controller
                 ->where('max_acreage', '>=', (int)$requestedAcreage)
                 ->where('status', 1)
                 ->get();
+
         } else if ($orderType == 4 || $orderType == 5) {
             $applicableSchemes = Scheme::select('id', 'type', 'crop_base_price', 'scheme_name', 'discount_price')->where('type', $orderType)
                 ->where('client_id', $clientId)
@@ -266,8 +269,33 @@ class ServiceController extends Controller
                 ->where('max_acreage', '>=', (int)$requestedAcreage)
                 ->where('status', 1)
                 ->get();
+                // return $applicableSchemes;
         } else {
             return response()->json(['msg' => 'Applicable schemes not available', 'statuscode' => '200', 'status' => 'error']);
+        }
+        if (!empty($clientId) && $orderType == 1) {
+            $get_client_details = RegionalClient::where('id', $clientId)->first();
+            // return $get_client_details;
+            $client_state = $get_client_details->state;
+            $fetch_price = CropPrice::select('state_price')->where('crop_id', $data['crop_id'])->where('state', $client_state)->first();
+            if (!empty($fetch_price) && $fetch_price['state_price']!="") {
+               
+                $crop_base_price['crop_price'] = $fetch_price->state_price;
+            } else {
+                $fetch_price = Crop::select('base_price')->where('id', $data['crop_id'])->first();
+                $crop_base_price['crop_price'] = $fetch_price->base_price;
+            }
+
+            $applicableSchemes['crop_price']   = $crop_base_price['crop_price'];
+        } else if ($orderType == 4 || $orderType == 5) {
+            if (count($applicableSchemes) != 0) {
+            
+                $applicableSchemes['crop_price'] = $applicableSchemes[0]->crop_base_price;
+
+            }else{
+                return response()->json(['msg' => 'No schemes are available for the given type.Please create Scheme', 'statuscode' => '200', 'status' => 'success', 'data' => []]);
+
+            }
         }
         // return $applicableSchemes;
         if (isset($applicableSchemes) && count($applicableSchemes) == 0) {
@@ -277,11 +305,11 @@ class ServiceController extends Controller
                 // return $get_client_details;
                 $client_state = $get_client_details->state;
                 $fetch_price = CropPrice::select('state_price')->where('crop_id', $data['crop_id'])->where('state', $client_state)->first();
-                if (!empty($fetch_price)) {
-                    $crop_base_price['crop_base_price'] = $fetch_price->state_price;
+                if (!empty($fetch_price) && !empty($fetch_price['state_price'])) {
+                    $crop_base_price['crop_price'] = $fetch_price->state_price;
                 } else {
                     $fetch_price = Crop::select('base_price')->where('id', $data['crop_id'])->first();
-                    $crop_base_price['crop_base_price'] = $fetch_price->base_price;
+                    $crop_base_price['crop_price'] = $fetch_price->base_price;
                 }
                 return response()->json(['msg' => 'No schemes are available,Price Fetched Successfully', 'statuscode' => '200', 'status' => 'success', 'data' => $crop_base_price]);
 
