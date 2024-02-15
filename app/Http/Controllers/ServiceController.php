@@ -302,7 +302,7 @@ class ServiceController extends Controller
     public function fetch_single_order($id)
     {
         // Retrieve a specific scheme by ID
-        $orders = Services::with(['assetOperator', 'asset'])->find($id);
+        $orders = Services::with(['assetOperator', 'asset', 'asset', 'clientDetails', 'farmerDetails'])->find($id);
 
         if (!$orders) {
             return response()->json(['msg' => 'Scheme not found', 'status' => 'error', 'statuscode' => '404']);
