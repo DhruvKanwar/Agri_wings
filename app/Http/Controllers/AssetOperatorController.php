@@ -414,7 +414,7 @@ class AssetOperatorController extends Controller
 
     public function fetch_operators_to_assign()
     {
-        $asset_operators = AssetOperator::select('id', 'code', 'name')->where('assigned_status', 0)->where('status', 1)->get();
+        $asset_operators = AssetOperator::select('id', 'code', 'name')->where('asset_id','!=','' )->where('status', 1)->get();
 
         if (empty($asset_operators)) {
             return response()->json(['msg' => 'Asset Operator Does not exits to assign', 'status' => 'success', 'statuscode' => '201', 'data' => []], 201);
