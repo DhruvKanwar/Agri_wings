@@ -64,6 +64,7 @@ class ServiceController extends Controller
 
         if ($data['scheme_ids']!='') {
             $explode_scheme_ids = explode(',', $data['scheme_ids']);
+            // return $explode_scheme_ids;
 
             foreach ($explode_scheme_ids as $scheme_id) {
                 $scheme = Scheme::find($scheme_id);
@@ -72,14 +73,17 @@ class ServiceController extends Controller
                     $total_discount[] = $data['requested_acreage'] * $scheme->discount_price;
                     // $total_discount = $total_discount_price+$scheme->discount_price;
                     if (!empty($scheme->client_id)) {
-                        $crop_base_price = $scheme->crop_base_price;
+                        // $crop_base_price = $scheme->crop_base_price;
                         $client_discount[] = $data['requested_acreage'] * $scheme->discount_price;
                     } else {
                         $agriwings_discount_price = $data['requested_acreage'] * $scheme->discount_price;
                     }
                 }
             }
+            // return $total_discount;
             $total_discount_sum = array_sum($total_discount);
+            // return $total_discount_sum;
+            $total_discount_price= $total_discount_sum;
             $total_client_discount  = array_sum($client_discount);
         }else{
             $total_discount_sum=0;
@@ -88,37 +92,52 @@ class ServiceController extends Controller
 
         // return $total_client_discount;
 
-        if (empty($crop_base_price) && $data['scheme_ids'] != '') {
+        if ($data['scheme_ids'] != '') {
             $scheme = Scheme::find($explode_scheme_ids[0]);
-            // return $scheme->client_id;
             if (empty($scheme->client_id)) {
-                $crop_base_price = $scheme->crop_base_price;
+                // $crop_base_price = $scheme->crop_base_price;
                 $agriwings_discount_price = $data['requested_acreage'] * $scheme->discount_price;
+                // return $agriwings_discount_price;
+
             }
         }else{
             $agriwings_discount_price=0;
-            $get_client_details=RegionalClient::where('id',$data['client_id'])->first();
+        }
+
+                // return [$agriwings_discount_price,$data['agriwings_discount']];
+
+        if(!empty($data['client_id']) && $data['order_type']==1)
+        {
+            $get_client_details = RegionalClient::where('id', $data['client_id'])->first();
             // return $get_client_details;
-            $client_state= $get_client_details->state;
+            $client_state = $get_client_details->state;
             $fetch_price = CropPrice::select('state_price')->where('crop_id', $data['crop_id'])->where('state', $client_state)->first();
+        //    return $client_state;
             if (!empty($fetch_price)) {
                 $crop_base_price = $fetch_price->state_price;
             } else {
                 $fetch_price = Crop::select('base_price')->where('id', $data['crop_id'])->first();
                 $crop_base_price = $fetch_price->base_price;
             }
+        }elseif ($data['order_type'] == 4 || $data['order_type'] == 5){
+        
+            $scheme = Scheme::find($explode_scheme_ids[0]);
+            // return $scheme;
+            $crop_base_price = $scheme->crop_base_price;
         }
+        
 
         if (isset($data['extra_discount'])) {
             $total_discount_price = $total_discount_sum + (int)$data['extra_discount'];
             $agriwings_discount = $agriwings_discount_price + (int)$data['extra_discount'];
+        }else{
+            $agriwings_discount = $agriwings_discount_price;
         }
 
-
-
+      
 
         $total_amount = $crop_base_price * $data['requested_acreage'];
-        // return [$data['total_discount'],$total_discount_price, $data['total_amount'], $total_amount,$total_payable];
+        // return [$data['total_discount'],$total_discount_price, $data['total_amount'], $total_amount,$crop_base_price, $data['order_type']];
         // return [$total_discount_price, $total_amount];
         if ((int)$data['total_discount'] != $total_discount_price || (int)$data['total_amount'] != $total_amount || $total_discount_price > $total_amount) {
             return response()->json(['msg' => 'Calculation of total discount or total amount not matching', 'status' => 'error', 'statuscode' => '200']);
