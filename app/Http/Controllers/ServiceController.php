@@ -245,7 +245,7 @@ class ServiceController extends Controller
             // ->get();
             // return $applicableSchemes;
          
-            $applicableSchemes = Scheme::select('id', 'type','scheme_name', 'discount_price')->whereIn('type', [1, 2, 3])
+            $applicableSchemes['schemes'] = Scheme::select('id', 'type','scheme_name', 'discount_price')->whereIn('type', [1, 2, 3])
                 ->where(function ($query) use ($clientId) {
                     $query->where('client_id', $clientId)
                         ->orWhereNull('client_id')
@@ -260,7 +260,7 @@ class ServiceController extends Controller
                 ->get();
 
         } else if ($orderType == 4 || $orderType == 5) {
-            $applicableSchemes = Scheme::select('id', 'type', 'crop_base_price', 'scheme_name', 'discount_price')->where('type', $orderType)
+            $applicableSchemes['schemes'] = Scheme::select('id', 'type', 'crop_base_price', 'scheme_name', 'discount_price')->where('type', $orderType)
                 ->where('client_id', $clientId)
                 ->where('crop_id', $cropId)
                 ->where('period_from', '<=', $currentDate)
@@ -285,7 +285,7 @@ class ServiceController extends Controller
                 $fetch_price = Crop::select('base_price')->where('id', $data['crop_id'])->first();
                 $crop_base_price['crop_price'] = $fetch_price->base_price;
             }
-
+// return $applicableSchemes;
             $applicableSchemes['crop_price']   = $crop_base_price['crop_price'];
         } else if ($orderType == 4 || $orderType == 5) {
             if (count($applicableSchemes) != 0) {
@@ -315,6 +315,7 @@ class ServiceController extends Controller
 
             }
         } else {
+            return $applicableSchemes;
             return response()->json(['msg' => 'Applicable schemes found', 'statuscode' => '200', 'status' => 'success', 'data' => $applicableSchemes]);
         }
     }
