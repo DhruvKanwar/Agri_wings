@@ -130,7 +130,7 @@ class AssetOperatorController extends Controller
         $data['code'] = $next_operator_code;
 
 
-        $data['user_id'] = $user->id;
+        // $data['user_id'] = $user->id;
         $data['vehicle_id'] = $data['vehicle_id'];
 
         $rpc_img = $request->file('rpc_img');
