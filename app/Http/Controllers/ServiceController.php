@@ -60,7 +60,7 @@ class ServiceController extends Controller
         $agriwings_discount = 0;
         $agriwings_discount_price = 0;
 
-        if (!empty($data['scheme_ids'])) {
+        if ($data['scheme_ids']!='') {
             $explode_scheme_ids = explode(',', $data['scheme_ids']);
 
             foreach ($explode_scheme_ids as $scheme_id) {
