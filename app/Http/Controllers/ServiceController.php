@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AssetDetails;
 use App\Models\AssetOperator;
+use App\Models\Battery;
 use App\Models\OrdersTimeline;
 use App\Models\RegionalClient;
 use App\Models\Scheme;
@@ -383,7 +384,7 @@ class ServiceController extends Controller
    
         $check_service = Services::where('id', $id)->first();
         if (empty($check_service)) {
-            return response()->json(['msg' => 'Service Does not exits', 'status' => 'success', 'statuscode' => '201', 'data' => []], 201);
+            return response()->json(['msg' => 'Service Does not exits', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
         } else {
             // Retrieve asset details for a service
             $get_asset_operator_details=AssetOperator::where('id',$asset_operator_id)->first();
@@ -391,11 +392,28 @@ class ServiceController extends Controller
             $get_asset_details=AssetDetails::where('id', $store_data['asset_id'])->first();
             // return $get_asset_operator_details;
             $store_data['battery_ids'] = $get_asset_details->battery_ids;
-            if($get_asset_operator_details->asset_id!=1 || $get_asset_details->assigned_status != 1)
+            if($get_asset_details->assigned_status != 1)
             {
-                return response()->json(['msg' => 'Service Cannot assigned, Allocation of Drone,Pilot or Battery is missing', 'status' => 'success', 'statuscode' => '201', 'data' => []], 201);
+                return response()->json(['msg' => 'Service Cannot assigned, Allocation Asset is missing', 'status' => 'success', 'statuscode' => '200', 'data' => []]);
 
             }
+         if(!empty($get_asset_details->battery_ids))
+         {
+                $battery_ids=explode(',', $get_asset_details->battery_ids);
+                foreach ($battery_ids as $battery_id) {
+                    $check_battery = Battery::where('id', $battery_id)->first();
+                    if($check_battery->assigned_status!=1)
+                    {
+                return response()->json(['msg' => 'Service Cannot assigned, Allocation Battery is missing to Asset', 'status' => 'success', 'statuscode' => '200', 'data' => $check_battery]);
+
+                    }
+
+                }
+
+         }else{
+                return response()->json(['msg' => 'Service Cannot assigned, Battery ids missing in asset', 'status' => 'success', 'statuscode' => '200', 'data' => []]);
+
+         }
             $store_data['assigned_date']=date('Y-m-d');
             $store_data['order_status'] = 2;
             $store_data['assigned_status'] = 1;
