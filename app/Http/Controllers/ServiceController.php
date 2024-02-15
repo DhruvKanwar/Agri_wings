@@ -391,7 +391,7 @@ class ServiceController extends Controller
             $get_asset_details=AssetDetails::where('id', $store_data['asset_id'])->first();
             // return $get_asset_operator_details;
             $store_data['battery_ids'] = $get_asset_details->battery_ids;
-            if($get_asset_operator_details->asset_id!=1 || $get_asset_details->assigned_status != 1|| $get_asset_operator_details->assigned_status != 1)
+            if($get_asset_operator_details->asset_id!=1 || $get_asset_details->assigned_status != 1)
             {
                 return response()->json(['msg' => 'Service Cannot assigned, Allocation of Drone,Pilot or Battery is missing', 'status' => 'success', 'statuscode' => '201', 'data' => []], 201);
 
