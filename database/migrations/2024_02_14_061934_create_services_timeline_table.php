@@ -36,12 +36,12 @@ class CreateServicesTimelineTable extends Migration
             $table->unsignedBigInteger('payment_received_created_by_id')->nullable();
             $table->string('payment_received_created_by')->nullable();
             $table->date('payment_received_date')->nullable();
-            $table->unsignedBigInteger('payment_delivered_created_by_id')->nullable();
-            $table->string('payment_delivered_created_by')->nullable();
-            $table->date('payment_delivered_date')->nullable();
-            $table->unsignedBigInteger('payment_cancel_created_by_id')->nullable();
-            $table->string('payment_cancel_created_by')->nullable();
-            $table->date('payment_cancel_date')->nullable();
+            $table->unsignedBigInteger('delivered_created_by_id')->nullable();
+            $table->string('delivered_created_by')->nullable();
+            $table->date('delivered_date')->nullable();
+            $table->unsignedBigInteger('cancel_created_by_id')->nullable();
+            $table->string('cancel_created_by')->nullable();
+            $table->date('cancel_date')->nullable();
             $table->string('chemical_used_ids')->nullable();
             $table->string('farmer_available')->nullable();
             $table->string('fresh_water')->nullable();

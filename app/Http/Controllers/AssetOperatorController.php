@@ -590,7 +590,7 @@ class AssetOperatorController extends Controller
                 $scheme_ids_array = [];
 
                 $orderType = $check_order_exists->order_type;
-                if ($orderType == 1) {    
+                if ($orderType == 1) {
                     $applicableSchemes = Scheme::select('id', 'type', 'client_id', 'scheme_name', 'discount_price')->whereIn('type', [1, 2, 3])
                         ->where(function ($query) use ($clientId) {
                             $query->where('client_id', $clientId)
@@ -609,7 +609,7 @@ class AssetOperatorController extends Controller
 
                     // start logic
 
-             
+
                     // return $applicableSchemes;
                     if (count($applicableSchemes) != 0) {
                         // $explode_scheme_ids = explode(',', $data['scheme_ids']);
@@ -662,8 +662,8 @@ class AssetOperatorController extends Controller
                     //     // end logic
                 }
 
-                    // check_again
-                    elseif ($orderType == 4 || $orderType == 5) {
+                // check_again
+                elseif ($orderType == 4 || $orderType == 5) {
 
                     $applicableSchemes = Scheme::select('id', 'type', 'crop_base_price', 'scheme_name', 'discount_price')->where('type', $orderType)
                         ->where('client_id', $clientId)
@@ -711,18 +711,17 @@ class AssetOperatorController extends Controller
                         $total_discount_sum = 0;
                         $total_client_discount = 0;
                     }
+                }
 
-                    }
-
-                    // return "DS";
+                // return "DS";
 
 
-                    if (isset($data['extra_discount'])) {
-                        $total_discount_price = $total_discount_sum + (int)$data['extra_discount'];
-                        $agriwings_discount = $agriwings_discount_price + (int)$data['extra_discount'];
-                    } else {
-                        $agriwings_discount = $agriwings_discount_price;
-                    }
+                if (isset($data['extra_discount'])) {
+                    $total_discount_price = $total_discount_sum + (int)$data['extra_discount'];
+                    $agriwings_discount = $agriwings_discount_price + (int)$data['extra_discount'];
+                } else {
+                    $agriwings_discount = $agriwings_discount_price;
+                }
                 // start new
 
 
@@ -830,9 +829,89 @@ class AssetOperatorController extends Controller
                 $update_services = OrdersTimeline::where('id', $check_order_exists->order_details_id)->update($timeline_data);
             }
 
+            $orders = Services::with(['assetOperator', 'asset', 'clientDetails', 'farmerDetails', 'farmLocation', 'orderTimeline'])->find($id);
+
             if ($update_services) {
-                return response()->json(['msg' => 'Spray Started Successfully..', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
+                return response()->json(['msg' => 'Spray Completed Successfully..', 'status' => 'success', 'statuscode' => '200', 'data' => $orders], 201);
             }
+        }
+    }
+
+    public function mark_spray_successful(Request $request)
+    {
+        $data = $request->all();
+
+        // return $data;
+        $id = $data['id'];
+        $check_order_exists = Services::where('id', $id)->first();
+        // $currentDate = now()->format('Y-m-d');
+         
+        if (empty($check_order_exists) || $check_order_exists->order_status!=5) {
+            return response()->json(['msg' => 'Service Does not exists or not in the spray complete status', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
+        } else {
+            $amountReceivedString = $data['amount_received'];
+            $amountReceivedArray = json_decode($amountReceivedString, true);
+            $amount_receive_array = [];
+            foreach ($amountReceivedArray as $amount_received) {
+                $amount_receive_array[] = $amount_received['amount'];
+            }
+            $amount_receive_sum = array_sum($amount_receive_array);
+
+            // return [$check_order_exists->total_payable_amount,$amount_receive_sum];
+            if ($amount_receive_sum !=  $check_order_exists->total_payable_amount) {
+                return response()->json(['msg' => 'Amount Received Sum is not equal to the total payable amount', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
+
+            }
+
+            $details = Auth::user();
+            $timeline_data['payment_received_created_by_id'] = $details->id;
+            $timeline_data['payment_received_created_by'] = $details->name;
+            $timeline_data['payment_received_date'] = date('Y-m-d');
+            $timeline_data['delivered_created_by_id'] = $details->id;
+            $timeline_data['delivered_created_by'] = $details->name;
+            $timeline_data['delivered_date'] = date('Y-m-d');
+            if (!empty($data['farmer_refund_signature'])) {
+                $timeline_data['farmer_refund_signature'] = $data['farmer_refund_signature'];
+            }
+
+            $refund_image = $request->file('refund_image');
+            if (!empty($refund_image)) {
+                // Generate a random string for the filename
+                $randomString = Str::random(10); // Adjust the length as needed
+
+                // Concatenate the random string with the desired file extension
+                $customFilename = 'Refund_img_' . $randomString . '.' . $refund_image->getClientOriginalExtension();
+
+                // Specify the filename when storing the file in S3
+                $path = $refund_image->storeAs('refund_img_', $customFilename, 's3');
+
+                // Optionally, you can generate a publicly accessible URL
+                $url = Storage::disk('s3')->url($path);
+                // print_r($url);
+                $timeline_data['refund_image'] = $customFilename;
+            }
+            $get_services_details = Services::find($id);
+
+          
+
+
+
+            $done_services =   Services::where('id', $id)->update(['amount_received' => $data['amount_received'], 'order_status'=>6,
+                'payment_status'=>  1,'delivery_date'=>date('Y-m-d')]);
+
+            if ($done_services) {
+                $get_services_details = Services::find($id);
+                $update_time_line = OrdersTimeline::where('id', $get_services_details->order_details_id)->update($timeline_data);
+            }
+
+            if ($update_time_line) {
+                return response()->json(['msg' => 'Spray Makred Successful..', 'status' => 'success', 'statuscode' => '200', 'data' => $get_services_details], 201);
+            }
+
+
+            // refund_image
+            //farmer_refund_signature
+
         }
     }
 }
