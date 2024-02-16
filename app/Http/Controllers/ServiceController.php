@@ -312,7 +312,7 @@ class ServiceController extends Controller
                 $applicableSchemes['crop_price'] = $applicableSchemes[0]->crop_base_price;
 
             }else{
-                $applicableSchemes['crop_price']='';
+                $applicableSchemes['crop_price']=''; 
                 return response()->json(['msg' => 'No schemes are available for the given type.Please create Scheme', 'statuscode' => '200', 'status' => 'success', 'data' => $applicableSchemes]);
 
             }
