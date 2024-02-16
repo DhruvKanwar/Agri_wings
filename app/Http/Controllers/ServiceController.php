@@ -309,7 +309,7 @@ class ServiceController extends Controller
         } else if ($orderType == 4 || $orderType == 5) {
             if (count($applicableSchemes['schemes']) != 0) {
             
-                $applicableSchemes['crop_price'] = $applicableSchemes[0]->crop_base_price;
+                $applicableSchemes['crop_price'] = $applicableSchemes['schemes'][0]->crop_base_price;
 
             }else{
                 $applicableSchemes['crop_price']=''; 
