@@ -62,7 +62,7 @@ class ServiceController extends Controller
         $agriwings_discount = 0;
         $agriwings_discount_price = 0;
 
-        if ($data['scheme_ids']!='') {
+        if ($data['scheme_ids'] != '') {
             $explode_scheme_ids = explode(',', $data['scheme_ids']);
             // return $explode_scheme_ids;
 
@@ -83,11 +83,11 @@ class ServiceController extends Controller
             // return $total_discount;
             $total_discount_sum = array_sum($total_discount);
             // return $total_discount_sum;
-            $total_discount_price= $total_discount_sum;
+            $total_discount_price = $total_discount_sum;
             $total_client_discount  = array_sum($client_discount);
-        }else{
-            $total_discount_sum=0;
-            $total_client_discount =0;
+        } else {
+            $total_discount_sum = 0;
+            $total_client_discount = 0;
         }
 
         // return $total_client_discount;
@@ -104,37 +104,36 @@ class ServiceController extends Controller
         //     $agriwings_discount_price=0;
         // }
 
-                // return [$agriwings_discount_price,$data['agriwings_discount']];
+        // return [$agriwings_discount_price,$data['agriwings_discount']];
 
-        if(!empty($data['client_id']) && $data['order_type']==1)
-        {
+        if (!empty($data['client_id']) && $data['order_type'] == 1) {
             $get_client_details = RegionalClient::where('id', $data['client_id'])->first();
             // return $get_client_details;
             $client_state = $get_client_details->state;
             $fetch_price = CropPrice::select('state_price')->where('crop_id', $data['crop_id'])->where('state', $client_state)->first();
-        //    return $client_state;
+            //    return $client_state;
             if (!empty($fetch_price)) {
                 $crop_base_price = $fetch_price->state_price;
             } else {
                 $fetch_price = Crop::select('base_price')->where('id', $data['crop_id'])->first();
                 $crop_base_price = $fetch_price->base_price;
             }
-        }elseif ($data['order_type'] == 4 || $data['order_type'] == 5){
-        
+        } elseif ($data['order_type'] == 4 || $data['order_type'] == 5) {
+
             $scheme = Scheme::find($explode_scheme_ids[0]);
             // return $scheme;
             $crop_base_price = $scheme->crop_base_price;
         }
-        
+
 
         if (isset($data['extra_discount'])) {
             $total_discount_price = $total_discount_sum + (int)$data['extra_discount'];
             $agriwings_discount = $agriwings_discount_price + (int)$data['extra_discount'];
-        }else{
+        } else {
             $agriwings_discount = $agriwings_discount_price;
         }
 
-      
+
 
         $total_amount = $crop_base_price * $data['requested_acreage'];
         // return [$data['total_discount'],$total_discount_price, $data['total_amount'], $total_amount,$crop_base_price, $data['order_type']];
@@ -149,7 +148,7 @@ class ServiceController extends Controller
         if ((int)$data['total_payable_amount'] != $total_payable) {
             return response()->json(['msg' => 'Total Payable is not matching', 'status' => 'error', 'statuscode' => '200']);
         }
-        //    return [$agriwings_discount, $data['agriwings_discount']];
+        //    return [$agriwings_discount, $data['agriwings_discount']];    
         if ((int)$data['agriwings_discount'] != $agriwings_discount) {
             return response()->json(['msg' => 'Agriwings Discount is not matching', 'status' => 'error', 'statuscode' => '200']);
         }
@@ -227,7 +226,7 @@ class ServiceController extends Controller
 
         $cropId = $data['crop_id'];
         $requestedAcreage = $data['requested_acreage'];
-        $crop_price="";
+        $crop_price = "";
 
         // Get current date
         $currentDate = now()->format('Y-m-d');
@@ -263,8 +262,8 @@ class ServiceController extends Controller
             // ->where('status', 1)
             // ->get();
             // return $applicableSchemes;
-         
-            $applicableSchemes['schemes'] = Scheme::select('id', 'type','scheme_name', 'discount_price')->whereIn('type', [1, 2, 3])
+
+            $applicableSchemes['schemes'] = Scheme::select('id', 'type', 'scheme_name', 'discount_price')->whereIn('type', [1, 2, 3])
                 ->where(function ($query) use ($clientId) {
                     $query->where('client_id', $clientId)
                         ->orWhereNull('client_id')
@@ -277,7 +276,6 @@ class ServiceController extends Controller
                 ->where('max_acreage', '>=', (int)$requestedAcreage)
                 ->where('status', 1)
                 ->get();
-
         } else if ($orderType == 4 || $orderType == 5) {
             $applicableSchemes['schemes'] = Scheme::select('id', 'type', 'crop_base_price', 'scheme_name', 'discount_price')->where('type', $orderType)
                 ->where('client_id', $clientId)
@@ -288,7 +286,7 @@ class ServiceController extends Controller
                 ->where('max_acreage', '>=', (int)$requestedAcreage)
                 ->where('status', 1)
                 ->get();
-                // return $applicableSchemes;
+            // return $applicableSchemes;
         } else {
             return response()->json(['msg' => 'Applicable schemes not available', 'statuscode' => '200', 'status' => 'error']);
         }
@@ -297,30 +295,27 @@ class ServiceController extends Controller
             // return $get_client_details;
             $client_state = $get_client_details->state;
             $fetch_price = CropPrice::select('state_price')->where('crop_id', $data['crop_id'])->where('state', $client_state)->first();
-            if (!empty($fetch_price) && $fetch_price['state_price']!="") {
-               
+            if (!empty($fetch_price) && $fetch_price['state_price'] != "") {
+
                 $crop_base_price['crop_price'] = $fetch_price->state_price;
             } else {
                 $fetch_price = Crop::select('base_price')->where('id', $data['crop_id'])->first();
                 $crop_base_price['crop_price'] = $fetch_price->base_price;
             }
-// return $applicableSchemes;
+            // return $applicableSchemes;
             $applicableSchemes['crop_price']   = $crop_base_price['crop_price'];
         } else if ($orderType == 4 || $orderType == 5) {
             if (count($applicableSchemes['schemes']) != 0) {
-            
+
                 $applicableSchemes['crop_price'] = $applicableSchemes['schemes'][0]->crop_base_price;
-
-            }else{
-                $applicableSchemes['crop_price']=''; 
+            } else {
+                $applicableSchemes['crop_price'] = '';
                 return response()->json(['msg' => 'No schemes are available for the given type.Please create Scheme', 'statuscode' => '200', 'status' => 'success', 'data' => $applicableSchemes]);
-
             }
         }
         // return $applicableSchemes;
         if (isset($applicableSchemes) && count($applicableSchemes) == 0) {
-            if(!empty($clientId))
-            {
+            if (!empty($clientId)) {
                 $get_client_details = RegionalClient::where('id', $clientId)->first();
                 // return $get_client_details;
                 $client_state = $get_client_details->state;
@@ -332,7 +327,6 @@ class ServiceController extends Controller
                     $crop_base_price['crop_price'] = $fetch_price->base_price;
                 }
                 return response()->json(['msg' => 'No schemes are available,Price Fetched Successfully', 'statuscode' => '200', 'status' => 'success', 'data' => $crop_base_price]);
-
             }
         } else {
             // return $applicableSchemes;
@@ -440,17 +434,28 @@ class ServiceController extends Controller
         }
 
         // Update the service status and cancel remarks
-        $service->update([
+        $update_service =   $service->update([
             'order_status' => 0,
             'cancel_remarks' => $cancelRemarks
         ]);
 
-        return response()->json([
-            'msg' => 'Service canceled successfully',
-            'status' => 'success',
-            'statuscode' => '200',
-            'data' => $service
-        ], 200);
+        if ($update_service) {
+
+            $details = Auth::user();
+            $timeline_data['cancel_created_by_id'] = $details->id;
+            $timeline_data['cancel_created_by'] = $details->name;
+            $timeline_data['cancel_date'] = date('Y-m-d');
+
+            $update_timeline = OrdersTimeline::where('id', $service->order_details_id)->update($timeline_data);
+        }
+        if ($update_timeline) {
+            return response()->json([
+                'msg' => 'Service canceled successfully',
+                'status' => 'success',
+                'statuscode' => '200',
+                'data' => $service
+            ], 200);
+        }
     }
 
     public function submit_assigned_operator(Request $request)
