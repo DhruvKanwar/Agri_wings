@@ -4,7 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\AssetDetails;
 use App\Models\AssetOperator;
+use App\Models\Crop;
+use App\Models\CropPrice;
 use App\Models\OrdersTimeline;
+use App\Models\RegionalClient;
+use App\Models\Scheme;
 use App\Models\Services;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -189,7 +193,7 @@ class AssetOperatorController extends Controller
         }
 
 
-      
+
 
 
 
@@ -239,7 +243,7 @@ class AssetOperatorController extends Controller
         $assign_flag = 0;
         $remove_flag = 0;
         $asset_id = $data['asset_id'];
-       
+
 
         if (!empty($data['asset_id'])) {
             $check_asset_id = AssetOperator::where('asset_id', $data['asset_id'])->first();
@@ -263,7 +267,7 @@ class AssetOperatorController extends Controller
         } else {
             $remove_flag = 1;
             $check_asset_id = AssetOperator::where('id', $data['id'])->first();
-            $asset_id= $check_asset_id->asset_id;
+            $asset_id = $check_asset_id->asset_id;
         }
 
         $check_asset_operator = AssetOperator::where('id', $data['id'])->first();
@@ -352,7 +356,7 @@ class AssetOperatorController extends Controller
             $data['status'] = 0;
         }
 
-       
+
 
         // return [$remove_flag,$assign_flag];
         $assetOperator = AssetOperator::where('id', $data['id'])->update($data);
@@ -367,7 +371,7 @@ class AssetOperatorController extends Controller
                 }
             }
             if ($remove_flag) {
-                    AssetDetails::where('id', $asset_id)->update(['assigned_date' => null, 'assigned_status' => 0]);
+                AssetDetails::where('id', $asset_id)->update(['assigned_date' => null, 'assigned_status' => 0]);
             }
         }
 
@@ -414,7 +418,7 @@ class AssetOperatorController extends Controller
 
     public function fetch_operators_to_assign()
     {
-        $asset_operators = AssetOperator::select('id', 'code', 'name')->where('asset_id','!=','' )->where('status', 1)->get();
+        $asset_operators = AssetOperator::select('id', 'code', 'name')->where('asset_id', '!=', '')->where('status', 1)->get();
 
         if (empty($asset_operators)) {
             return response()->json(['msg' => 'Asset Operator Does not exits to assign', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
@@ -511,7 +515,7 @@ class AssetOperatorController extends Controller
 
     public function start_spray(Request $request)
     {
-        $data=$request->all();
+        $data = $request->all();
         $validatedData = $request->validate([
             'id' => 'required|numeric',
             'chemical_used_ids' => 'required|string', // Assuming chemical_used_ids is a comma-separated string
@@ -520,14 +524,12 @@ class AssetOperatorController extends Controller
             'noc_image' => 'image|mimes:jpeg,png,jpg,gif',
         ]);
         // return $data;
-        $id=$data['id'];
-        $check_order_exists=Services::where('id',$id)->first();
-// return $check_order_exists;
-        if(empty($check_order_exists))
-        {
+        $id = $data['id'];
+        $check_order_exists = Services::where('id', $id)->first();
+        // return $check_order_exists;
+        if (empty($check_order_exists)) {
             return response()->json(['msg' => 'Service Does not exists', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
-
-        }else{
+        } else {
             $noc_image = $request->file('noc_image');
             if (!empty($noc_image)) {
                 // Generate a random string for the filename
@@ -537,7 +539,7 @@ class AssetOperatorController extends Controller
                 $customFilename = 'Noc_' . $randomString . '.' . $noc_image->getClientOriginalExtension();
 
                 // Specify the filename when storing the file in S3
-                $path = $noc_image->storeAs('aadhar', $customFilename, 's3');
+                $path = $noc_image->storeAs('noc_image', $customFilename, 's3');
 
                 // Optionally, you can generate a publicly accessible URL
                 $url = Storage::disk('s3')->url($path);
@@ -550,20 +552,287 @@ class AssetOperatorController extends Controller
             $data['spray_started_created_by'] = $details->name;
             $data['spray_started_date'] =   date('Y-m-d');
 
-            $update_services_done=Services::where('id',$id)->update(['spray_date' => date('Y-m-d'), 'spray_status'=>1, 'order_status'=>4]);
-            if($update_services_done)
-            {
+            $update_services_done = Services::where('id', $id)->update(['spray_date' => date('Y-m-d'), 'spray_status' => 1, 'order_status' => 4]);
+            if ($update_services_done) {
                 $update_services = OrdersTimeline::where('id', $check_order_exists->order_details_id)->update($data);
-
             }
 
-            if($update_services)
-            {
+            if ($update_services) {
                 return response()->json(['msg' => 'Spray Started Successfully..', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
+            }
+        }
+    }
 
+    public function complete_spray(Request $request)
+    {
+        $data = $request->all();
+
+        // return $data;
+        $id = $data['id'];
+        $check_order_exists = Services::where('id', $id)->first();
+        $currentDate = now()->format('Y-m-d');
+
+        if (empty($check_order_exists)) {
+            return response()->json(['msg' => 'Service Does not exists', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
+        } else {
+            if ($check_order_exists->requested_acreage != $data['sprayed_acreage']) {
+                $clientId = $check_order_exists->client_id;
+                $requestedAcreage = $data['sprayed_acreage'];
+                $cropId   = $check_order_exists->crop_id;
+                $total_discount_price = 0;
+                $crop_base_price = 0;
+                $total_discount = [];
+                $client_discount = [];
+                $agriwings_discount_price = 0;
+                $agriwings_discount_price = 0;
+                $total_amount = 0;
+                $total_payable = 0;
+                $scheme_ids_array = [];
+
+                $orderType = $check_order_exists->order_type;
+                if ($orderType == 1) {    
+                    $applicableSchemes = Scheme::select('id', 'type', 'client_id', 'scheme_name', 'discount_price')->whereIn('type', [1, 2, 3])
+                        ->where(function ($query) use ($clientId) {
+                            $query->where('client_id', $clientId)
+                                ->orWhereNull('client_id')
+                                ->orWhere('client_id', ''); // Add this condition
+                        })
+                        ->where('crop_id', $cropId)
+                        ->where('period_from', '<=', $currentDate)
+                        ->where('period_to', '>=', $currentDate)
+                        ->where('min_acreage', '<=', (int)$requestedAcreage)
+                        ->where('max_acreage', '>=', (int)$requestedAcreage)
+                        ->where('status', 1)
+                        ->get();
+
+                    // return $applicableSchemes;
+
+                    // start logic
+
+             
+                    // return $applicableSchemes;
+                    if (count($applicableSchemes) != 0) {
+                        // $explode_scheme_ids = explode(',', $data['scheme_ids']);
+                        // return $explode_scheme_ids;
+
+
+                        foreach ($applicableSchemes as $scheme) {
+                            // $scheme = Scheme::find($scheme_id);
+
+                            if ($scheme) {
+                                $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
+                                // $total_discount = $total_discount_price+$scheme->discount_price;
+                                // return $scheme;
+                                $scheme_ids_array[]  = $scheme->id;
+
+                                if (!empty($scheme->client_id)) {
+                                    // $crop_base_price = $scheme->crop_base_price;
+                                    $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
+                                } else {
+                                    $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
+                                }
+                            }
+                        }
+                        $total_discount_sum = array_sum($total_discount);
+                        // return $total_discount;
+                        $total_discount_price = $total_discount_sum;
+                        $total_client_discount  = array_sum($client_discount);
+                    } else {
+                        $total_discount_sum = 0;
+                        $total_client_discount = 0;
+                    }
+                    // return $scheme_ids_array;
+
+
+                    if (!empty($check_order_exists->client_id) && $orderType == 1) {
+                        $get_client_details = RegionalClient::where('id', $check_order_exists->client_id)->first();
+                        // return $get_client_details;
+                        $client_state = $get_client_details->state;
+                        $fetch_price = CropPrice::select('state_price')->where('crop_id', $check_order_exists->crop_id)->where('state', $client_state)->first();
+                        //    return $client_state;
+                        if (!empty($fetch_price)) {
+                            $crop_base_price = $fetch_price->state_price;
+                        } else {
+                            $fetch_price = Crop::select('base_price')->where('id', $check_order_exists->crop_id)->first();
+                            $crop_base_price = $fetch_price->base_price;
+                        }
+                    }
+
+                    // $total_amount = $crop_base_price * $data['requested_acreage'];
+                    //     // end logic
+                }
+
+                    // check_again
+                    elseif ($orderType == 4 || $orderType == 5) {
+
+                    $applicableSchemes = Scheme::select('id', 'type', 'crop_base_price', 'scheme_name', 'discount_price')->where('type', $orderType)
+                        ->where('client_id', $clientId)
+                        ->where('crop_id', $cropId)
+                        ->where('period_from', '<=', $currentDate)
+                        ->where('period_to', '>=', $currentDate)
+                        ->where('min_acreage', '<=', (int)$requestedAcreage)
+                        ->where('max_acreage', '>=', (int)$requestedAcreage)
+                        ->where('status', 1)
+                        ->get();
+
+                    // return $applicableSchemes;
+
+
+                    if (count($applicableSchemes) != 0) {
+                        // $explode_scheme_ids = explode(',', $data['scheme_ids']);
+                        // return $explode_scheme_ids;
+
+
+                        foreach ($applicableSchemes as $scheme) {
+                            // $scheme = Scheme::find($scheme_id);
+
+                            if ($scheme) {
+                                // return $scheme->discount_price;
+
+                                $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
+                                // $total_discount = $total_discount_price+$scheme->discount_price;
+                                // return $total_discount;
+                                $scheme_ids_array[]  = $scheme->id;
+                                $crop_base_price = $scheme->crop_base_price;
+
+                                if (!empty($scheme->client_id)) {
+                                    // $crop_base_price = $scheme->crop_base_price;
+                                    $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
+                                } else {
+                                    $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
+                                }
+                            }
+                        }
+                        $total_discount_sum = array_sum($total_discount);
+                        // return $total_discount;
+                        $total_discount_price = $total_discount_sum;
+                        $total_client_discount  = array_sum($client_discount);
+                    } else {
+                        $total_discount_sum = 0;
+                        $total_client_discount = 0;
+                    }
+
+                    }
+
+                    // return "DS";
+
+
+                    if (isset($data['extra_discount'])) {
+                        $total_discount_price = $total_discount_sum + (int)$data['extra_discount'];
+                        $agriwings_discount = $agriwings_discount_price + (int)$data['extra_discount'];
+                    } else {
+                        $agriwings_discount = $agriwings_discount_price;
+                    }
+                // start new
+
+
+                if (!empty($check_order_exists->extra_discount)) {
+                    $total_discount_price = $total_discount_price + $check_order_exists->extra_discount;
+                    $agriwings_discount_price = $agriwings_discount_price + $check_order_exists->extra_discount;
+                }
+                $total_amount = $crop_base_price * $data['sprayed_acreage'];
+                $total_payable = $total_amount - $total_discount_price;
+                // return [$total_amount, $total_discount_price];
+
+                if ($total_discount_price > $total_amount) {
+                    return response()->json(['msg' => 'Scheme Discount Price is increasing the Total Amount', 'status' => 'error', 'statuscode' => '200', 'data' => []], 201);
+                }
+
+                if ($total_payable > $total_amount) {
+                    return response()->json(['msg' => 'Scheme Discount Price is increasing the Total Amount', 'status' => 'error', 'statuscode' => '200', 'data' => []], 201);
+                }
+                $scheme_ids = implode(',', $scheme_ids_array);
+
+                $data['scheme_ids'] = $scheme_ids;
+                $data['total_discount'] = $total_discount_price;
+                $data['agriwings_discount'] = $agriwings_discount_price;
+                $data['client_discount'] = $total_client_discount;
+                $data['total_amount'] = $total_amount;
+                $data['total_payable_amount'] = $total_payable;
+
+
+
+
+
+                $amountReceivedString = $check_order_exists->amount_received;
+                $amountReceivedArray = json_decode($amountReceivedString, true);
+                $amount_receive_array = [];
+                foreach ($amountReceivedArray as $amount_received) {
+                    $amount_receive_array[] = $amount_received['amount'];
+                }
+                $amount_receive_sum = array_sum($amount_receive_array);
+                // return $amount_receive_sum;
+
+                if ($amount_receive_sum == 0) {
+                    $data['added_amount'] = 0;
+                    $data['refund_amount'] = 0;
+                }
+                // return $amount_receive_sum;
+
+                if ($amount_receive_sum > $total_payable) {
+                    $data['refund_amount'] = $amount_receive_sum - $total_payable;
+                    $data['added_amount'] = 0;
+                }
+
+                if ($amount_receive_sum < $total_payable) {
+                    $data['added_amount'] = $total_payable - $amount_receive_sum;
+                    $data['refund_amount'] = 0;
+                }
+
+                // end new
+            } else {
+                $data['added_amount'] = 0;
+                $data['refund_amount'] = 0;
+            }
+            // end
+
+
+            // return [$data['added_amount'], $data['refund_amount'], $total_payable];
+            // return [$crop_base_price, $total_discount_price, $agriwings_discount_price, $total_client_discount, $total_amount, $total_payable];
+
+            $farmer_image = $request->file('farmer_image');
+            if (!empty($farmer_image)) {
+                // Generate a random string for the filename
+                $randomString = Str::random(10); // Adjust the length as needed
+
+                // Concatenate the random string with the desired file extension
+                $customFilename = 'Farmer_img_' . $randomString . '.' . $farmer_image->getClientOriginalExtension();
+
+                // Specify the filename when storing the file in S3
+                $path = $farmer_image->storeAs('farmer_img_', $customFilename, 's3');
+
+                // Optionally, you can generate a publicly accessible URL
+                $url = Storage::disk('s3')->url($path);
+                // print_r($url);
+                $data['farmer_image'] = $customFilename;
+            }
+            $details = Auth::user();
+
+            $timeline_data['farmer_image'] = $data['farmer_image'];
+            $timeline_data['farmer_signature'] = $data['farmer_signature'];
+            $timeline_data['updated_by'] = $details->name;
+            $timeline_data['updated_by_id'] =  $details->id;
+
+
+            unset($data['farmer_image']);
+            unset($data['farmer_signature']);
+
+            $data['order_status'] = 5;
+            $data['spray_status'] = 2;
+            $data['spray_date'] = date('Y-m-d');
+
+            // $data['spray_started_created_by_id'] = $details->id;
+            // $data['spray_started_created_by'] = $details->name;
+            // $data['spray_started_date'] =   date('Y-m-d');
+
+            $update_services_done = Services::where('id', $id)->update($data);
+            if ($update_services_done) {
+                $update_services = OrdersTimeline::where('id', $check_order_exists->order_details_id)->update($timeline_data);
             }
 
+            if ($update_services) {
+                return response()->json(['msg' => 'Spray Started Successfully..', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
+            }
         }
-
     }
 }

@@ -84,6 +84,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('delete_operator', [AssetOperatorController::class, 'delete_operator']);
     Route::post('submit_operator_order_request', [AssetOperatorController::class, 'submit_operator_order_request']);
     Route::post('start_spray', [AssetOperatorController::class, 'start_spray']);
+    Route::post('complete_spray', [AssetOperatorController::class, 'complete_spray']);
     Route::post('submit_vehicle_details', [VehicleController::class, 'submit_vehicle_details']);
     Route::post('edit_vehicle_details', [VehicleController::class, 'edit_vehicle_details']);
     Route::get('fetch_vehicle_list', [VehicleController::class, 'fetch_vehicle_list']);
