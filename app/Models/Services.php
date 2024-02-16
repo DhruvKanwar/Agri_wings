@@ -84,6 +84,11 @@ class Services extends Model
         return $this->belongsTo(Crop::class, 'crop_id');
     }
 
+    public function farmLocation()
+    {
+        return $this->belongsTo(FarmDetails::class, 'farm_location');
+    }
+
     public function batteries()
     {
         return $this->hasMany(Battery::class, 'battery_id');
