@@ -92,17 +92,17 @@ class ServiceController extends Controller
 
         // return $total_client_discount;
 
-        if ($data['scheme_ids'] != '') {
-            $scheme = Scheme::find($explode_scheme_ids[0]);
-            if (empty($scheme->client_id)) {
-                // $crop_base_price = $scheme->crop_base_price;
-                $agriwings_discount_price = $data['requested_acreage'] * $scheme->discount_price;
-                // return $agriwings_discount_price;
+        // if ($data['scheme_ids'] != '') {
+        //     $scheme = Scheme::find($explode_scheme_ids[0]);
+        //     if (empty($scheme->client_id)) {
+        //         // $crop_base_price = $scheme->crop_base_price;
+        //         $agriwings_discount_price = $data['requested_acreage'] * $scheme->discount_price;
+        //         // return $agriwings_discount_price;
 
-            }
-        }else{
-            $agriwings_discount_price=0;
-        }
+        //     }
+        // }else{
+        //     $agriwings_discount_price=0;
+        // }
 
                 // return [$agriwings_discount_price,$data['agriwings_discount']];
 
@@ -307,7 +307,7 @@ class ServiceController extends Controller
 // return $applicableSchemes;
             $applicableSchemes['crop_price']   = $crop_base_price['crop_price'];
         } else if ($orderType == 4 || $orderType == 5) {
-            if (count($applicableSchemes) != 0) {
+            if (count($applicableSchemes['schemes']) != 0) {
             
                 $applicableSchemes['crop_price'] = $applicableSchemes[0]->crop_base_price;
 
