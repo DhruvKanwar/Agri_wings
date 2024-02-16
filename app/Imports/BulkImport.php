@@ -2,6 +2,7 @@
 
 namespace App\Imports;
 
+use App\Models\Chemical;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Models\LocationData;
@@ -45,6 +46,16 @@ class BulkImport implements ToModel, WithHeadingRow
             //         'for_company'  => $row['for_company']
             //     ]);
             // }
+        }else{
+            if (!empty($row['chemical'])) {
+            return new Chemical([
+                'chemical_name' => $row['chemical'],
+                'status' => 1,
+
+            ]);
+            }
         }
     }
+
+   
 }

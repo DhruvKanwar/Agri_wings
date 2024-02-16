@@ -5,6 +5,7 @@ use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssetOperatorController;
 use App\Http\Controllers\BatteryController;
+use App\Http\Controllers\ChemicalController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CropController;
 use App\Http\Controllers\FarmerController;
@@ -125,7 +126,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('cancel_order', [ServiceController::class, 'cancel_order']);
 
 
+    Route::post('import_chemical', [ChemicalController::class, 'import_chemical']);
 
+    Route::get('get_chemical_list', [ChemicalController::class, 'get_chemical_list']);
 
 
 
