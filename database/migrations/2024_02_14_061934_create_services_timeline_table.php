@@ -46,7 +46,7 @@ class CreateServicesTimelineTable extends Migration
             $table->string('farmer_available')->nullable();
             $table->string('fresh_water')->nullable();
             $table->string('refund_image')->nullable();
-            $table->string('farmer_refund_signature')->nullable();
+            $table->text('farmer_refund_signature')->nullable();
 
 
 

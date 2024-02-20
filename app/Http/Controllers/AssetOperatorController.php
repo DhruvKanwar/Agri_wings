@@ -828,15 +828,21 @@ class AssetOperatorController extends Controller
             // $data['spray_started_date'] =   date('Y-m-d');
 
             $update_services_done = Services::where('id', $id)->update($data);
+            // return $update_services_done;
+            $update_services="";
+
             if ($update_services_done) {
+                // return $check_order_exists->id;
                 $update_services = OrdersTimeline::where('id', $check_order_exists->order_details_id)->update($timeline_data);
+             
+                $orders = Services::with(['assetOperator', 'asset', 'clientDetails', 'farmerDetails', 'farmLocation', 'orderTimeline'])->find($id);
+
+                if ($update_services) {
+                    return response()->json(['msg' => 'Spray Completed Successfully..', 'status' => 'success', 'statuscode' => '200', 'data' => $orders], 201);
+                }
             }
 
-            $orders = Services::with(['assetOperator', 'asset', 'clientDetails', 'farmerDetails', 'farmLocation', 'orderTimeline'])->find($id);
-
-            if ($update_services) {
-                return response()->json(['msg' => 'Spray Completed Successfully..', 'status' => 'success', 'statuscode' => '200', 'data' => $orders], 201);
-            }
+          
         }
     }
 
@@ -852,13 +858,34 @@ class AssetOperatorController extends Controller
         if (empty($check_order_exists) || $check_order_exists->order_status!=5) {
             return response()->json(['msg' => 'Service Does not exists or not in the spray complete status', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
         } else {
+            // return $data['amount_received'];
             $amountReceivedString = $data['amount_received'];
             $amountReceivedArray = json_decode($amountReceivedString, true);
             $amount_receive_array = [];
+            $refund_amount_array =[];
             foreach ($amountReceivedArray as $amount_received) {
-                $amount_receive_array[] = $amount_received['amount'];
+                // return $amount_received;
+                if($amount_received['mode'] == 1 || $amount_received['mode'] == 2 )
+                {
+                    $amount_receive_array[] = $amount_received['amount'];
+                  
+
+                }else  if($amount_received['mode'] == 3 || $amount_received['mode'] == 4 ){
+
+                    $refund_amount_array[] = $amount_received['amount'];
+
+                }
             }
+         
             $amount_receive_sum = array_sum($amount_receive_array);
+
+            if(!empty($refund_amount_array))
+            {
+                $refund_amount_sum = array_sum($refund_amount_array);
+                $amount_receive_sum = $amount_receive_sum - $refund_amount_sum;
+            }
+               
+
 
             // return [$check_order_exists->total_payable_amount,$amount_receive_sum];
             if ($amount_receive_sum !=  $check_order_exists->total_payable_amount) {
@@ -897,7 +924,7 @@ class AssetOperatorController extends Controller
 
           
 
-
+// return $timeline_data;
 
             $done_services =   Services::where('id', $id)->update(['amount_received' => $data['amount_received'], 'order_status'=>6,
                 'payment_status'=>  1,'delivery_date'=>date('Y-m-d')]);

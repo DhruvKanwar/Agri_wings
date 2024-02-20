@@ -138,24 +138,24 @@ class ServiceController extends Controller
         $total_amount = $crop_base_price * $data['requested_acreage'];
         // return [$data['total_discount'],$total_discount_price, $data['total_amount'], $total_amount,$crop_base_price, $data['order_type']];
         // return [$total_discount_price, $total_amount];
-        if ((int)$data['total_discount'] != $total_discount_price || (int)$data['total_amount'] != $total_amount || $total_discount_price > $total_amount) {
+        if ((int)$data['total_discount'] != (int)$total_discount_price || (int)$data['total_amount'] != (int)$total_amount || (int)$total_discount_price > (int)$total_amount) {
             return response()->json(['msg' => 'Calculation of total discount or total amount not matching', 'status' => 'error', 'statuscode' => '200']);
         }
 
         $total_payable = $total_amount - $total_discount_price;
         // return [$data['total_discount'], $total_discount_price, $data['total_amount'], $total_amount, $total_payable];
 
-        if ((int)$data['total_payable_amount'] != $total_payable) {
+        if ((int)$data['total_payable_amount'] != (int)$total_payable) {
             return response()->json(['msg' => 'Total Payable is not matching', 'status' => 'error', 'statuscode' => '200']);
         }
         //    return [$agriwings_discount, $data['agriwings_discount']];    
-        if ((int)$data['agriwings_discount'] != $agriwings_discount) {
+        if ((int)$data['agriwings_discount'] != (int)$agriwings_discount) {
             return response()->json(['msg' => 'Agriwings Discount is not matching', 'status' => 'error', 'statuscode' => '200']);
         }
 
         // return $total_client_discount;
 
-        if ((int)$data['client_discount'] != $total_client_discount) {
+        if ((int)$data['client_discount'] != (int)$total_client_discount) {
             return response()->json(['msg' => 'Total Client Discount is not matching', 'status' => 'error', 'statuscode' => '200']);
         }
 
