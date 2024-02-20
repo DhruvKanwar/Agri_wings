@@ -141,7 +141,7 @@ class ServiceController extends Controller
 
         // return [gettype($data['total_discount']),gettype($total_discount_price), gettype($data['total_amount']), gettype($total_amount),gettype($crop_base_price), gettype($data['order_type'])];
         // return [$total_discount_price, $total_amount];
-        if ($data['total_discount'] != strval(number_format($total_discount_price, 3)) || $data['total_amount'] != strval(number_format($total_amount, 3)) || strval(number_format($total_discount_price, 3)) > strval(number_format($total_amount, 3))) {
+        if ( number_format($data['total_discount'], 3) != strval(number_format($total_discount_price, 3)) || number_format($data['total_amount'], 3) != strval(number_format($total_amount, 3)) || strval(number_format($total_discount_price, 3)) > strval(number_format($total_amount, 3))) {
             return response()->json(['msg' => 'Calculation of total discount or total amount not matching', 'status' => 'error', 'statuscode' => '200']);
         }
 
@@ -149,17 +149,17 @@ class ServiceController extends Controller
         // return [$data['total_discount'], $total_discount_price, $data['total_amount'], $total_amount, $total_payable];
 
         // return [$data['total_payable_amount'], $total_payable];
-        if ($data['total_payable_amount'] != strval(number_format($total_payable, 3))) {
+        if ( number_format($data['total_payable_amount'], 3)  != strval(number_format($total_payable, 3))) {
             return response()->json(['msg' => 'Total Payable is not matching', 'status' => 'error', 'statuscode' => '200']);
         }
         //    return [$agriwings_discount, $data['agriwings_discount']];    
-        if ($data['agriwings_discount'] != strval(number_format($agriwings_discount, 3))) {
+        if (number_format($data['agriwings_discount'], 3) != strval(number_format($agriwings_discount, 3))) {
             return response()->json(['msg' => 'Agriwings Discount is not matching', 'status' => 'error', 'statuscode' => '200']);
         }
 
         // return $total_client_discount;
 
-        if ($data['client_discount'] != strval(number_format($total_client_discount, 3))) {
+        if (number_format($data['client_discount'], 3) != strval(number_format($total_client_discount, 3))) {
             return response()->json(['msg' => 'Total Client Discount is not matching', 'status' => 'error', 'statuscode' => '200']);
         }
 
