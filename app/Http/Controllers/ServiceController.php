@@ -127,8 +127,8 @@ class ServiceController extends Controller
 
 
         if (isset($data['extra_discount'])) {
-            $total_discount_price = $total_discount_sum + (int)$data['extra_discount'];
-            $agriwings_discount = $agriwings_discount_price + (int)$data['extra_discount'];
+            $total_discount_price = $total_discount_sum + $data['extra_discount'];
+            $agriwings_discount = $agriwings_discount_price + $data['extra_discount'];
         } else {
             $agriwings_discount = $agriwings_discount_price;
         }
@@ -145,6 +145,7 @@ class ServiceController extends Controller
         $total_payable = (int)$total_amount - (int)$total_discount_price;
         // return [$data['total_discount'], $total_discount_price, $data['total_amount'], $total_amount, $total_payable];
 
+        // return [$data['total_payable_amount'], $total_payable];
         if ((int)$data['total_payable_amount'] != (int)$total_payable) {
             return response()->json(['msg' => 'Total Payable is not matching', 'status' => 'error', 'statuscode' => '200']);
         }
