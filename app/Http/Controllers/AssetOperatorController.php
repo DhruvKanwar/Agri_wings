@@ -13,6 +13,7 @@ use App\Models\Services;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
+use App\Models\Vehicle;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -200,6 +201,7 @@ class AssetOperatorController extends Controller
         $assetOperator = AssetOperator::create($data);
 
         if ($assetOperator) {
+            $update_vehicle = Vehicle::where('id', $data['vehicle_id'])->update(['operator_id' => $assetOperator->id]);
             if (!empty($asset_id)) {
                 AssetDetails::where('id', $asset_id)->update(['assigned_date' => date('Y-m-d'), 'assigned_status' => 1]);
             }
@@ -362,6 +364,7 @@ class AssetOperatorController extends Controller
         $assetOperator = AssetOperator::where('id', $data['id'])->update($data);
 
         if ($assetOperator) {
+            $update_vehicle=Vehicle::where('id',$data['vehicle_id'])->update(['operator_id'=> $data['id']]);
             if (empty($asset_id)) {
                 AssetDetails::where('id', $asset_id)->update(['assigned_date' => null, 'assigned_status' => 0]);
             }
