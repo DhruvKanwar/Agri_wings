@@ -862,6 +862,32 @@ class AssetOperatorController extends Controller
             return response()->json(['msg' => 'Service Does not exists or not in the spray complete status', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
         } else {
             // return $data['amount_received'];
+
+            $details = Auth::user();
+            $timeline_data['payment_received_created_by_id'] = $details->id;
+            $timeline_data['payment_received_created_by'] = $details->name;
+            $timeline_data['payment_received_date'] = date('Y-m-d');
+            $timeline_data['delivered_created_by_id'] = $details->id;
+            $timeline_data['delivered_created_by'] = $details->name;
+            $timeline_data['delivered_date'] = date('Y-m-d');
+
+            if($check_order_exists->type == 4 || $check_order_exists->type == 5 )
+            {
+                $done_services =   Services::where('id', $id)->update([
+                     'order_status' => 6,
+                    'payment_status' =>  1, 'delivery_date' => date('Y-m-d')
+                ]);
+
+                if ($done_services) {
+                    $get_services_details = Services::find($id);
+                    $update_time_line = OrdersTimeline::where('id', $get_services_details->order_details_id)->update($timeline_data);
+                }
+
+                if ($update_time_line) {
+                    return response()->json(['msg' => 'Spray Makred Successful..', 'status' => 'success', 'statuscode' => '200', 'data' => $get_services_details], 201);
+                }
+            }
+
             $amountReceivedString = $data['amount_received'];
             $amountReceivedArray = json_decode($amountReceivedString, true);
             $amount_receive_array = [];
@@ -896,13 +922,7 @@ class AssetOperatorController extends Controller
 
             }
 
-            $details = Auth::user();
-            $timeline_data['payment_received_created_by_id'] = $details->id;
-            $timeline_data['payment_received_created_by'] = $details->name;
-            $timeline_data['payment_received_date'] = date('Y-m-d');
-            $timeline_data['delivered_created_by_id'] = $details->id;
-            $timeline_data['delivered_created_by'] = $details->name;
-            $timeline_data['delivered_date'] = date('Y-m-d');
+          
             if (!empty($data['farmer_refund_signature'])) {
                 $timeline_data['farmer_refund_signature'] = $data['farmer_refund_signature'];
             }

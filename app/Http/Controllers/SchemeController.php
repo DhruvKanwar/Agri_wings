@@ -47,8 +47,8 @@ class SchemeController extends Controller
             'period_to' => 'required|date|after_or_equal:period_from',
             'crop_base_price' => 'required|numeric',
             'discount_price' => 'nullable|numeric',
-            'min_acreage' => 'nullable|integer',
-            'max_acreage' => 'nullable|integer|gte:min_acreage',
+            'min_acreage' => 'required',
+            'max_acreage' => 'required',
             'client_id' => 'nullable|string',
         ];
 
