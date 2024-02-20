@@ -135,7 +135,7 @@ class ServiceController extends Controller
 
 
 
-        $total_amount = $crop_base_price * $data['requested_acreage'];
+        $total_amount = (int)$crop_base_price * $data['requested_acreage'];
         // return [$data['total_discount'],$total_discount_price, $data['total_amount'], $total_amount,$crop_base_price, $data['order_type']];
         // return [$total_discount_price, $total_amount];
         if ((int)$data['total_discount'] != (int)$total_discount_price || (int)$data['total_amount'] != (int)$total_amount || (int)$total_discount_price > (int)$total_amount) {
