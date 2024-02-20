@@ -871,7 +871,7 @@ class AssetOperatorController extends Controller
             $timeline_data['delivered_created_by'] = $details->name;
             $timeline_data['delivered_date'] = date('Y-m-d');
 
-            if($check_order_exists->type == 4 || $check_order_exists->type == 5 )
+            if($check_order_exists->order_type == 4 || $check_order_exists->order_type == 5 )
             {
                 $done_services =   Services::where('id', $id)->update([
                      'order_status' => 6,
