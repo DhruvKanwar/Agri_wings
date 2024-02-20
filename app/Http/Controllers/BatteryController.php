@@ -165,6 +165,9 @@ class BatteryController extends Controller
         // }
 
         $data['status'] = $request->input('status');
+        $data['battery_code'] = $request->input('battery_code');
+        $data['battery_type'] = $request->input('battery_type');
+
         $data['battery_pair'] = 0;
         $data['updated_by_name'] = $details->name;
         $data['updated_by_id'] = $details->id;
