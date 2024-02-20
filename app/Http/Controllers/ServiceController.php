@@ -138,10 +138,10 @@ class ServiceController extends Controller
 
         $total_amount = $crop_base_price * $data['requested_acreage'];
         // return [$data['total_discount'], $total_discount_price, $data['total_amount'], $total_amount, $crop_base_price, $data['order_type']];
-
+// return [number_format($data['total_discount'], 3),gettype(number_format($data['total_discount'], 3)), strval(number_format($total_discount_price, 3)),gettype(strval(number_format($total_discount_price, 3)))];
         // return [gettype($data['total_discount']),gettype($total_discount_price), gettype($data['total_amount']), gettype($total_amount),gettype($crop_base_price), gettype($data['order_type'])];
         // return [$total_discount_price, $total_amount];
-        if ( number_format($data['total_discount'], 3) != strval(number_format($total_discount_price, 3)) || number_format($data['total_amount'], 3) != strval(number_format($total_amount, 3)) || strval(number_format($total_discount_price, 3)) > strval(number_format($total_amount, 3))) {
+        if ( number_format($data['total_discount'], 3) != strval(number_format($total_discount_price, 3)) || number_format($data['total_amount'], 3) != strval(number_format($total_amount, 3))) {
             return response()->json(['msg' => 'Calculation of total discount or total amount not matching', 'status' => 'error', 'statuscode' => '200']);
         }
 
