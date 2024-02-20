@@ -28,8 +28,10 @@ class Vehicle extends Model
         'updated_at'
     ];
 
+  
+
     public function AssetOperatorDetail()
     {
-        return $this->hasOne('App\Models\AssetOperator', 'id', 'operator_id');
+        return $this->belongsTo(AssetOperator::class, 'operator_id');
     }
 }
