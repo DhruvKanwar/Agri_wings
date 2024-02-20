@@ -32,6 +32,6 @@ class Vehicle extends Model
 
     public function AssetOperatorDetail()
     {
-        return $this->belongsTo(AssetOperator::class, 'operator_id');
+        return $this->belongsTo(AssetOperator::class, 'id');
     }
 }
