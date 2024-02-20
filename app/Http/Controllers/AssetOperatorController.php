@@ -887,8 +887,8 @@ class AssetOperatorController extends Controller
                
 
 
-            // return [$check_order_exists->total_payable_amount,$amount_receive_sum];
-            if ($amount_receive_sum !=  $check_order_exists->total_payable_amount) {
+            // return [$check_order_exists->total_payable_amount,$amount_receive_sum, number_format($amount_receive_sum, 3)];
+            if (number_format($amount_receive_sum, 3) !=  $check_order_exists->total_payable_amount) {
                 return response()->json(['msg' => 'Amount Received Sum is not equal to the total payable amount', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
 
             }
