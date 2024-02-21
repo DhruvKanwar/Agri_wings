@@ -62,7 +62,7 @@ class BatteryController extends Controller
         $nextAvailableSlot = "{$inputId}-{$nextSlotLetter}";
 
         // Check if the battery_id already exists
-        $existingBattery = Battery::where('battery_id', $nextAvailableSlot)->first();
+        $existingBattery = Battery::where('battery_id', $nextAvailableSlot)->where('status', 1)->first();
 
         if ($existingBattery) {
             $result_array = [
