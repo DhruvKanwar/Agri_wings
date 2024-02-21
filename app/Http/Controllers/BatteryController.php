@@ -233,7 +233,7 @@ class BatteryController extends Controller
     public function get_all_batteries()
     {
         // Retrieve all batteries from the database
-        $batteries = Battery::where('status', 1)->get();
+        $batteries = Battery::get();
 
         // Check if any batteries are found
         if ($batteries->isEmpty()) {
