@@ -22,6 +22,7 @@ class CreateFarmDetailsTable extends Migration
             $table->string('district');
             $table->string('state');
             $table->string('pin_code');
+            $table->string('location_coordinates')->nullable();
             $table->text('address');
             $table->string('acerage');
             $table->string('saved_by_id');

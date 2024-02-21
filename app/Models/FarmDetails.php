@@ -18,6 +18,7 @@ class FarmDetails extends Model
         'address',
          'acerage',
           'pin_code',
+        'location_coordinates',
            'village',
             'district', 
             'state', 

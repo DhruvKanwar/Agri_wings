@@ -6,6 +6,7 @@ use App\Models\AssetDetails;
 use App\Models\AssetOperator;
 use App\Models\Crop;
 use App\Models\CropPrice;
+use App\Models\FarmDetails;
 use App\Models\OrdersTimeline;
 use App\Models\RegionalClient;
 use App\Models\Scheme;
@@ -558,7 +559,10 @@ class AssetOperatorController extends Controller
             $data['spray_started_date'] =   date('Y-m-d');
 
             $update_services_done = Services::where('id', $id)->update(['spray_date' => date('Y-m-d'), 'spray_status' => 1, 'order_status' => 4]);
+
             if ($update_services_done) {
+                $update_location_coordinates=FarmDetails::where('id', $check_order_exists->farm_location)->update(['location_coordinates',$data['location_coordinates']]);
+                unset($data['location_coordinates']);
                 $update_services = OrdersTimeline::where('id', $check_order_exists->order_details_id)->update($data);
             }
 
