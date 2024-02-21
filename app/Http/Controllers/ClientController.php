@@ -833,7 +833,7 @@ class ClientController extends Controller
 
     public function get_all_clients_list()
     {
-        $regional_client_data = RegionalClient::get();
+        $regional_client_data = RegionalClient::withTrashed()->get();
         if (!$regional_client_data->isEmpty()) {
             return [
                 'data' => $regional_client_data,
