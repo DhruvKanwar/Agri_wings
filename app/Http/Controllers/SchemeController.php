@@ -17,7 +17,7 @@ class SchemeController extends Controller
     public function get_scheme_list()
     {
         // Retrieve all schemes
-        $schemes = Scheme::withTrashed()->all();
+        $schemes = Scheme::withTrashed()->get();
 
         return response()->json(['status' => 'success', 'statuscode' => '200', 'data' => $schemes, 'msg' => 'Scheme List Fetched Successfully...']);
     }
