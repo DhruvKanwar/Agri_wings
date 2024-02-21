@@ -39,7 +39,7 @@ class BatteryController extends Controller
         $inputId = $request->input('battery_id');
 
         // Check the availability of slots for the given ID
-        $existingSlots = Battery::where('battery_id', 'like', "{$inputId}-%")->pluck('battery_id')->toArray();
+        $existingSlots = Battery::where('battery_id', 'like', "{$inputId}-%")->pluck('battery_id')->where('status',1)->toArray();
 
         // Check if both A and B slots are occupied for the input ID
         $isSlotAOccupied = in_array("{$inputId}-A", $existingSlots);
