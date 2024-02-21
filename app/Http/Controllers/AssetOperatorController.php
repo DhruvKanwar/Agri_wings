@@ -433,9 +433,8 @@ class AssetOperatorController extends Controller
 
     public function get_all_operators()
     {
-        $vehicle_list = AssetOperator::with('VehicleDetails', 'UserDetails')
-            ->where('status', 1)
-            ->get();
+        $vehicle_list = AssetOperator::with('VehicleDetails', 'UserDetails')->
+        withTrashed()->get();
 
         if (!$vehicle_list->isEmpty()) {
             return ['data' => $vehicle_list, 'statuscode' => '200', 'status' => 'success', 'msg' => 'Operators list fetched successfully.'];
