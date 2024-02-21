@@ -15,7 +15,6 @@ class VehicleController extends Controller
     public function fetch_vehicle_list()
     {
         $vehicle_list = Vehicle::with('AssetOperatorDetail')
-        ->where('status', 1)
         ->get();
 
         if (!$vehicle_list->isEmpty()) {
