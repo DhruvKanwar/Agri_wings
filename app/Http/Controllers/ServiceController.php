@@ -342,7 +342,7 @@ class ServiceController extends Controller
     {
 
 
-        $services = Services::with(['assetOperator', 'asset', 'clientDetails', 'farmerDetails', 'farmLocation'])->get();
+        $services = Services::with(['assetOperator', 'orderTimeline', 'asset', 'clientDetails', 'farmerDetails', 'farmLocation'])->get();
         // dd(DB::getQueryLog());
         // Transform the services to include battery IDs
         // $transformedServices = $services->map(function ($service) {
@@ -363,7 +363,7 @@ class ServiceController extends Controller
     public function fetch_single_order($id)
     {
         // Retrieve a specific scheme by ID
-        $orders = Services::with(['assetOperator', 'asset', 'clientDetails', 'farmerDetails', 'orderTimeline', 'farmLocation'])->find($id);
+        $orders = Services::with(['assetOperator', 'orderTimeline', 'asset', 'clientDetails', 'farmerDetails', 'orderTimeline', 'farmLocation'])->find($id);
 
         if (!$orders) {
             return response()->json(['msg' => 'Order not found', 'status' => 'error', 'statuscode' => '404']);
