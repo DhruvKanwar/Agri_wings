@@ -15,7 +15,7 @@ class AssetController extends Controller
     public function show_asset_list()
     {
 
-        $asset_details = AssetDetails::where('status', 1)->get();
+        $asset_details = AssetDetails::get();
 
         if (!$asset_details->isEmpty()) {
             return [
