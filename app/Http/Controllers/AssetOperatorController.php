@@ -527,7 +527,6 @@ class AssetOperatorController extends Controller
             'chemical_used_ids' => 'required|string', // Assuming chemical_used_ids is a comma-separated string
             'farmer_available' => 'required|boolean',
             'fresh_water' => 'required|boolean',
-            'noc_image' => 'image|mimes:jpeg,png,jpg,gif',
         ]);
         // return $data;
         $id = $data['id'];
