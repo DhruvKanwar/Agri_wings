@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BaseClient;
 use Illuminate\Http\Request;
 use App\Models\RegionalClient;
+use App\Models\Services;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -90,7 +91,7 @@ class ClientController extends Controller
         } else {
             $sign_img = "";
         }
-      
+
         if (!empty($sign_img)) {
             // Generate a random string for the filename
             $randomString = Str::random(10); // Adjust the length as needed
@@ -108,7 +109,7 @@ class ClientController extends Controller
             $base_client_data['sign_img'] = $customFilename;
         }
 
-        
+
         if (array_key_exists('logo_img', $base_client_data)) {
             $logo_img = $base_client_data['logo_img'];
         } else {
@@ -272,9 +273,9 @@ class ClientController extends Controller
 
         // start img
         if (array_key_exists('qr_code', $base_client_data)) {
-        $qr_code = $base_client_data['qr_code'];
-        }else{
-            $qr_code="";
+            $qr_code = $base_client_data['qr_code'];
+        } else {
+            $qr_code = "";
         }
         if (!empty($qr_code)) {
             // Generate a random string for the filename
@@ -320,7 +321,7 @@ class ClientController extends Controller
         } else {
             $logo_img = "";
         }
-     
+
         if (!empty($logo_img)) {
             // Generate a random string for the filename
             $randomString = Str::random(10); // Adjust the length as needed
@@ -385,17 +386,17 @@ class ClientController extends Controller
             return response()->json(['msg' => 'Base client not found', 'status' => 'error', 'statuscode' => '404']);
         }
 
-        $regional_client_gst=RegionalClient::where('gst_no',$regional_client_data['gst_no'])->exists();
-      
+        $regional_client_gst = RegionalClient::where('gst_no', $regional_client_data['gst_no'])->exists();
 
 
-            if ($regional_client_gst) {
-                $regional_client_existing =  DB::table('regional_clients')->where('gst_no', $regional_client_data['gst_no'])->first();
 
-                // GST number already exists for another client, return an error response
-                return response()->json(['msg' => 'GST number already exists in the database', 'data' => $regional_client_existing, 'status' => 'error', 'statuscode' => '400']);
-            }
-        
+        if ($regional_client_gst) {
+            $regional_client_existing =  DB::table('regional_clients')->where('gst_no', $regional_client_data['gst_no'])->first();
+
+            // GST number already exists for another client, return an error response
+            return response()->json(['msg' => 'GST number already exists in the database', 'data' => $regional_client_existing, 'status' => 'error', 'statuscode' => '400']);
+        }
+
 
 
 
@@ -407,8 +408,8 @@ class ClientController extends Controller
         $regional_client_data['saved_by_id'] = $details->id;
 
         $regional_client_data['regional_client_name'] = $base_client['client_name'] . '-' . $regional_client_data['state'];
-     
-        $store_regional_client=RegionalClient::create($regional_client_data);
+
+        $store_regional_client = RegionalClient::create($regional_client_data);
         $storedRegionalClientId = $store_regional_client->id;
 
 
@@ -450,7 +451,7 @@ class ClientController extends Controller
         // Check if the new pan_no already exists for other clients
         if (strtoupper($regional_client_data['gst_no']) != strtoupper($regional_client->gst_no)) {
             $gstExists = DB::table('regional_clients')->where('gst_no', $regional_client_data['gst_no'])->exists();
-          
+
 
             if ($gstExists) {
                 $regional_client_existing =  DB::table('regional_clients')->where('gst_no', $regional_client_data['gst_no'])->first();
@@ -466,6 +467,21 @@ class ClientController extends Controller
             if (
                 $regional_client_data['status'] == 0
             ) {
+                $check_services_table = Services::where('client_id', $regional_client_data['id'])
+                    ->whereIn('order_status', [1, 2, 3, 4, 5])
+                    ->first();
+
+
+
+                if (!empty($check_services_table)) {
+                    $result_array = array(
+                        'status' => 'error',
+                        'statuscode' => '200',
+                        'msg' => 'Order Already Assigned to this CLient. We can not make this Client Inactive',
+                        'data' => $check_services_table
+                    );
+                    return response()->json($result_array, 200);
+                }
                 // if ($regional_client->regionalClients()->exists()) {
                 //     $regional_client_datas = RegionalClient::where('id', $regional_client_data['id'])->get();
 
@@ -481,7 +497,7 @@ class ClientController extends Controller
             }
         }
 
-    
+
 
 
         $details = Auth::user();
@@ -869,7 +885,7 @@ class ClientController extends Controller
 
     public function get_base_client_details(Request $request)
     {
-        $data=$request->all();
+        $data = $request->all();
         $validator = Validator::make($request->all(), [
             'id' => 'required|string|max:255',
         ]);
@@ -878,14 +894,14 @@ class ClientController extends Controller
         if ($validator->fails()) {
             return response()->json(['msg' => $validator->errors(), 'statuscode' => '400', 'status' => 'error',], 422);
         }
-  
-        $id=$data['id'];
-        $base_clients_data = BaseClient::where('id',$id)->get();
+
+        $id = $data['id'];
+        $base_clients_data = BaseClient::where('id', $id)->get();
         if (!$base_clients_data->isEmpty()) {
             return [
                 'data' => $base_clients_data,
                 'statuscode' => '200',
-                'status'=>'success',
+                'status' => 'success',
                 'msg' => 'Base CLient Details fetched successfully.'
             ];
         } else {
