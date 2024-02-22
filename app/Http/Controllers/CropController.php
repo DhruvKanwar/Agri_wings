@@ -70,7 +70,7 @@ class CropController extends Controller
         if (!empty($data['crop_id']) && !empty($data['state'])) {
             $fetch_price = CropPrice::select('state_price')->where('crop_id', $data['crop_id'])->where('state', $data['state'])->first();
             if (!empty($fetch_price)) {
-                $price=$fetch_price->state_price;
+                $price = $fetch_price->state_price;
                 return response()->json([
                     'msg' => 'State prices fetched successfully',
                     'data' => $price,
@@ -366,25 +366,43 @@ class CropController extends Controller
                         if ($crop_base_price) {
 
                             $schemes = Scheme::where('crop_id', $cropData['crop_id'])->get();
-
                             if ($schemes->isNotEmpty()) {
                                 foreach ($schemes as $scheme) {
-                                    $updated_data = [
-                                        'status' => 0,
-                                        'remarks' => 'Crop Price has been Changed by ' . $details->name
-                                    ];
+                                    //   print_r($scheme->type);
+                                    $id = "";
+                                    if ($scheme->type != 4 && $scheme->type != 5) {
 
-                                    // Delete the scheme
-                                    $scheme->delete();
 
-                                    // Update the scheme
-                                    $scheme->update($updated_data);
+
+                                        // Delete the scheme
+                                        $id = $scheme->id;
+                                        $update_scheme = DB::table('schemes')
+                                            ->where('id', $id)
+                                            ->update([
+                                                'status' => 0,
+                                                'remarks' => 'Crop Price has been Changed by ' . $details->name
+                                            ]);
+
+                                        if ($update_scheme) {
+                                            //    DB::table('schemes')->where('id', $scheme->id)->delete();
+                                            $scheme->where('id', $scheme->id)->delete();
+                                        }
+
+
+                                        // $scheme->delete();
+
+                                        // Update the scheme
+                                        // $scheme->update($updated_data);
+                                    }
                                 }
                             }
                         }
 
                         // end scheme logic
                     }
+
+
+
                     if (isset($availabilityData['state_price'])) {
                         $cropinsertData['state_price'] = $availabilityData['state_price'];
                     }
@@ -432,23 +450,30 @@ class CropController extends Controller
                                     foreach ($schemes as $scheme) {
                                         $get_state_name = CropPrice::where('id', $availabilityData['id'])->first();
                                         //    print_r($scheme->client_id);
-                                        if (!empty($scheme->client_id)) {
-                                            $get_regional_client_state =  DB::table('regional_clients')->where('id', $scheme->client_id)->first();
-                                            if ($get_state_name->state == $get_regional_client_state->state) {
-                                                $updated_data = [
-                                                    'status' => 0,
-                                                    'remarks' => 'Crop Price has been Changed by ' . $details->name
-                                                ];
+                                        if ($scheme->type != 4 && $scheme->type != 5) {
+                                            if (!empty($scheme->client_id)) {
+                                                $get_regional_client_state =  DB::table('regional_clients')->where('id', $scheme->client_id)->first();
 
-                                                // // Delete the scheme
-                                                $scheme->where('client_id', $scheme->client_id)->delete();
+                                                if ($get_state_name->state == $get_regional_client_state->state) {
 
-                                                // // Update the scheme
-                                                $scheme->update($updated_data);
-                                            } 
-                                            // return [$scheme->client_id, $get_state_name->state];
-                                            // $get_regional_client_state=RegionalClient::where('id', $scheme->client_id)->first();
-                                            // return $get_regional_client_state->state;
+                                                    $update_scheme = DB::table('schemes')
+                                                        ->where('id', $scheme->id)
+                                                        ->update([
+                                                            'status' => 0,
+                                                            'remarks' => 'Crop Price has been Changed by ' . $details->name
+                                                        ]);
+
+                                                    if ($update_scheme) {
+                                                        $scheme->where('id', $scheme->id)->delete();
+                                                    }
+
+                                                    // // Update the scheme
+
+                                                }
+                                                // return [$scheme->client_id, $get_state_name->state];
+                                                // $get_regional_client_state=RegionalClient::where('id', $scheme->client_id)->first();
+                                                // return $get_regional_client_state->state;
+                                            }
                                         }
                                     }
                                 }
