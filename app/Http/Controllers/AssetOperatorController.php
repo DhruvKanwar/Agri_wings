@@ -273,17 +273,7 @@ class AssetOperatorController extends Controller
             $asset_id = $check_asset_id->asset_id;
         }
 
-        $check_asset_operator = AssetOperator::where('id', $data['id'])->first();
-
-        if ($data['end_date'] != "" && $check_asset_operator->assigned_status == 1) {
-            $result_array = array(
-                'status' => 'error',
-                'statuscode' => '200',
-                'msg' => 'Asset already Assigned,User Block not possible',
-                'data' => $check_asset_operator
-            );
-            return response()->json($result_array, 200);
-        }
+  
 
         // remove user_id with saved user_id
 
@@ -394,11 +384,44 @@ class AssetOperatorController extends Controller
                 'id' => 'required|exists:asset_operators,id',
             ]);
 
+            $data=$request->all();
             $id = $request->input('id');
             $end_date = $request->input('end_date');
 
 
             $assetOperator = AssetOperator::find($id);
+
+            // start
+
+            $check_asset_operator = AssetOperator::where('id', $data['id'])->first();
+
+            if ($data['end_date'] != "" && $check_asset_operator->assigned_status == 1) {
+                $result_array = array(
+                    'status' => 'error',
+                    'statuscode' => '200',
+                    'msg' => 'Asset already Assigned,User Block not possible',
+                    'data' => $check_asset_operator
+                );
+                return response()->json($result_array, 200);
+            }
+
+            $check_services_table = Services::where('asset_operator_id', $data['id'])
+                ->whereIn('order_status', [1, 2, 3, 4, 5])
+                ->first();
+
+
+
+            if ($data['end_date'] != "" && !empty($check_services_table)) {
+                $result_array = array(
+                    'status' => 'error',
+                    'statuscode' => '200',
+                    'msg' => 'Order Already Assigned to  this operator. We can not make this user Inactive',
+                    'data' => $check_services_table
+                );
+                return response()->json($result_array, 200);
+            }
+
+            // end
 
             $asset_id = $assetOperator->asset_id;
             if ($assetOperator) {
@@ -965,6 +988,8 @@ class AssetOperatorController extends Controller
             }
 
             if ($update_time_line) {
+                $fetch_services=Services::where('id',$id)->first();
+                AssetOperator::where('id',$fetch_services->asset_operator_id)->update(['assigned_status'=>0]);
                 return response()->json(['msg' => 'Spray Makred Successful..', 'status' => 'success', 'statuscode' => '200', 'data' => $get_services_details], 201);
             }
 

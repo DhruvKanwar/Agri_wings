@@ -71,7 +71,7 @@ class Services extends Model
 
       public function assetOperator()
     {
-        return $this->belongsTo(AssetOperator::class, 'asset_operator_id');
+        return $this->belongsTo(AssetOperator::class, 'asset_operator_id')->withTrashed();
     }
 
     public function asset()
