@@ -61,6 +61,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/get_all_users', [ApiUsersController::class, 'get_all_users']);
     Route::get('/roles_list', [ApiUsersController::class, 'roles_list']);
     Route::post('/create_user', [ApiUsersController::class, 'create_user']);
+    Route::post('/edit_user', [ApiUsersController::class, 'edit_user']);
+
 
 
 

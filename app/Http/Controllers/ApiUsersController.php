@@ -29,8 +29,8 @@ class ApiUsersController extends Controller
 
     public function roles_list()
     {
-       
-        $roles= Role::pluck('name')->toArray();
+
+        $roles = Role::pluck('name')->toArray();
 
         $result_array = array(
             'status' => 'success',
@@ -44,7 +44,7 @@ class ApiUsersController extends Controller
 
     public function create_user(Request $request)
     {
-      
+
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string',
@@ -64,8 +64,7 @@ class ApiUsersController extends Controller
         $user->text_password = $request->input('password');
 
 
-        if(!empty($request->input('role')))
-        {
+        if (!empty($request->input('role'))) {
             $user->role = $request->input('role');
         }
         if (!empty($request->input('client_id'))) {
@@ -82,7 +81,7 @@ class ApiUsersController extends Controller
         if (!empty($request->input('client_id'))) {
             $user->client_id = $request->input('client_id');
         }
- 
+
 
         $result_array = array(
             'status' => 'success',
@@ -97,28 +96,48 @@ class ApiUsersController extends Controller
     public function edit_user(Request $request)
     {
         // Find the user
-        $data=$request->all();
-        $id=$data['id'];
+        $data = $request->all();
+        $id = $data['id'];
         $user = User::find($id);
 
         if (!$user) {
             return response()->json(['status' => 'error', 'statuscode' => '404', 'msg' => 'User not found'], 404);
         }
 
-        // Validate incoming request
-        $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'role' => 'required|string', // Add validation for role
-            // Add more validation rules as needed
-        ]);
+        if ($user->text_password != $data['password']) {
+            $data['text_password'] = $data['password'];
+            $data['password'] = Hash::make($data['text_password']);
+        } else {
+            unset($data['password']);
+        }
 
-        // Update user details
-        $user->name = $request->input('name');
-        $user->email = $request->input('email');
-        $user->role = $request->input('role'); // Update role
-        // Update other user attributes as needed
-        $user->save();
+        if (
+            $user->role != $data['role']
+        ) {
+            // return   $data['role'] ;
+            $get_role = Role::where('name', $user->role)->first();
+
+            if (!empty($get_role)) {
+                $user->roles()->detach($get_role->id);
+            }
+
+            $user->assignRole($data['role']);
+            // $user->roles()->attach($get_role->id);
+        } else {
+            unset($data['role']);
+        }
+
+  
+        if (
+            $user->client_id == $data['client_id']
+        ) {
+            unset($data['client_id']);
+        }
+
+        User::where('id',$id)->update($data);
+
+
+        $user=User::find($id);
 
         $result_array = array(
             'status' => 'success',
