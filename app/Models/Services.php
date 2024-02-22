@@ -52,7 +52,7 @@ class Services extends Model
 
     public function clientDetails()
     {
-        return $this->belongsTo(RegionalClient::class, 'client_id')->withTrashed();;
+        return $this->belongsTo(RegionalClient::class, 'client_id')->withTrashed();
     }
 
     // public function clientDetails()
