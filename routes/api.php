@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\ApiUsersController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssetOperatorController;
 use App\Http\Controllers\BatteryController;
@@ -26,21 +27,21 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/operator_login', [AuthController::class, 'operator_login']);
 
 
-Route::group(['prefix' => 'users'], function () {
-    Route::get('/', [UserController::class, 'index']);
-    Route::post('/', [UserController::class, 'store']);
-    Route::get('/{id}', [UserController::class, 'show']);
-    Route::put('/{id}', [UserController::class, 'update']);
-    Route::delete('/{id}', [UserController::class, 'destroy']);
-});
+// Route::group(['prefix' => 'users'], function () {
+//     Route::get('/', [UserController::class, 'index']);
+//     Route::post('/', [UserController::class, 'store']);
+//     Route::get('/{id}', [UserController::class, 'show']);
+//     Route::put('/{id}', [UserController::class, 'update']);
+//     Route::delete('/{id}', [UserController::class, 'destroy']);
+// });
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/test', [AuthController::class, 'test']);
@@ -56,6 +57,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('update', [UserController::class, 'update']);
         Route::delete('/{id}', [UserController::class, 'destroy']);
     });
+
+    Route::get('/get_all_users', [ApiUsersController::class, 'get_all_users']);
+    Route::get('/roles_list', [ApiUsersController::class, 'roles_list']);
+    Route::post('/create_user', [ApiUsersController::class, 'create_user']);
+
+
 
     Route::any('/fetch-towns', [FarmerController::class, 'districtDetails']);
     Route::any('/check-mobile', [FarmerController::class, 'check_mobile_number']);

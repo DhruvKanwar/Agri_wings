@@ -26,7 +26,10 @@ class User extends Authenticatable
         'password',
         'login_id',
         'text_password',
-        'role'
+        'role',
+        'profile_image',
+        'status',
+        'client_id'
     ];
 
     /**
