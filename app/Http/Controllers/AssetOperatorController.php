@@ -90,11 +90,13 @@ class AssetOperatorController extends Controller
                 'login_id' => $data['user_id'],
                 'text_password' => $data['user_password'],
                 'password' => Hash::make($data['user_password']),
+                'role'=> 'operator'
             ]);
 
             // Assign the 'operator' role to the new user
-            $operatorRole = Role::where('name', 'operator')->first();
-            $user->assignRole($operatorRole);
+            // $operatorRole = Role::where('name', 'operator')->first();
+            // $user->assignRole($data['role']);
+            $user->assignRole('operator');
         } else {
             $result_array = array(
                 'status' => 'error',
