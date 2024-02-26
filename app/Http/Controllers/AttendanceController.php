@@ -7,6 +7,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+
+
 date_default_timezone_set('Asia/Kolkata');
 ini_set('max_execution_time', -1);
 
@@ -15,8 +18,8 @@ class AttendanceController extends Controller
     //
     public function clockIn(Request $request)
     {
-       
-    
+
+
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id',
             'user_name' => 'required|string',
@@ -25,14 +28,14 @@ class AttendanceController extends Controller
             'in' => 'required|date_format:H:i:s',
         ]);
 
-        $data=$request->all();
-     
+        $data = $request->all();
+
 
         if ($validator->fails()) {
             return response()->json([
                 'msg' => 'The given data was invalid.',
                 'data' => $validator->errors(),
-                'statuscode'=>'400'
+                'statuscode' => '400'
             ], 422);
         }
         $id = $data['user_id'];
@@ -55,7 +58,7 @@ class AttendanceController extends Controller
         $attendanceOperator->save();
 
         // Optionally, you can return a response indicating success
-        return response()->json(['msg' => 'Clock in details added successfully','status'=>'success','statuscode'=>'200'], 201);
+        return response()->json(['msg' => 'Clock in details added successfully', 'status' => 'success', 'statuscode' => '200'], 201);
     }
 
 
@@ -76,8 +79,8 @@ class AttendanceController extends Controller
 
         // Find the attendance record for the user and date
         $attendanceOperator = AttendanceOperator::where('user_id', $request->user_id)
-        ->where('date', Carbon::today()->toDateString())
-        ->first();
+            ->where('date', Carbon::today()->toDateString())
+            ->first();
 
         if (!$attendanceOperator) {
             return response()->json([
@@ -102,10 +105,10 @@ class AttendanceController extends Controller
         $attendanceOperator->save();
 
         return response()->json([
-                'msg' => 'Clock out details added successfully',
-                'status' => 'success',
-                'statuscode' => '200'
-            ], 200);
+            'msg' => 'Clock out details added successfully',
+            'status' => 'success',
+            'statuscode' => '200'
+        ], 200);
     }
 
 
@@ -146,5 +149,28 @@ class AttendanceController extends Controller
 
         return response()->json(['msg' => 'Automatic clock out completed successfully'], 200);
     }
+    public function fetch_operator_attendance()
+    {
+        $details = Auth::user();
+        $id=$details->id;
 
+        $fetch_data=AttendanceOperator::where('user_id',$id)->where('date',date('Y-m-d'))->get();
+      if(empty($fetch_data))
+      {
+            return response()->json([
+                'msg' => 'Attendance Details Not Found.',
+                'status' => 'success',
+                'statuscode' => '200',
+                'data' => []
+            ], 200);
+      }else{
+            return response()->json([
+                'msg' => 'Attendance Details Fetched Successfully..',
+                'status' => 'success',
+                'statuscode' => '200',
+                'data' => $fetch_data
+            ], 200);
+      }
+    
+    }
 }
