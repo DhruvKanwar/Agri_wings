@@ -28,6 +28,7 @@ class CreateUsersTable extends Migration
         DB::table('users')->insert([
             'name' => 'Super Admin',
             'email' => 'superadmin@agriwings.com',
+            'role' => 'super admin',
             'password' => bcrypt('123456'), // Change 'password' to the desired password
             'created_at' => now(),
             'updated_at' => now(),
