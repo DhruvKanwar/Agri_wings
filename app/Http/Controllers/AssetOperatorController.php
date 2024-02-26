@@ -580,7 +580,7 @@ class AssetOperatorController extends Controller
 
             $data['spray_started_created_by_id'] = $details->id;
             $data['spray_started_created_by'] = $details->name;
-            $data['spray_started_date'] =   date('Y-m-d');
+            // $data['spray_started_date'] =   date('Y-m-d');
 
             $update_services_done = Services::where('id', $id)->update(['spray_date' => date('Y-m-d'), 'spray_status' => 1, 'order_status' => 4]);
 
