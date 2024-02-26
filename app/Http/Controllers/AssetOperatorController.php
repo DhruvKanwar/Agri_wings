@@ -608,7 +608,9 @@ class AssetOperatorController extends Controller
         // return $data;
         $id = $data['id'];
         $check_order_exists = Services::where('id', $id)->first();
-        $currentDate = now()->format('Y-m-d');
+        // $currentDate = now()->format('Y-m-d');
+
+        $orderDate = $check_order_exists->order_date;
 
         if (empty($check_order_exists)) {
             return response()->json(['msg' => 'Service Does not exists', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
@@ -628,6 +630,7 @@ class AssetOperatorController extends Controller
                 $scheme_ids_array = [];
 
                 $orderType = $check_order_exists->order_type;
+             
                 if ($orderType == 1) {
                     $applicableSchemes = Scheme::select('id', 'type', 'client_id', 'scheme_name', 'discount_price')->whereIn('type', [1, 2, 3])
                         ->where(function ($query) use ($clientId) {
@@ -636,8 +639,8 @@ class AssetOperatorController extends Controller
                                 ->orWhere('client_id', ''); // Add this condition
                         })
                         ->where('crop_id', $cropId)
-                        ->where('period_from', '<=', $currentDate)
-                        ->where('period_to', '>=', $currentDate)
+                        ->where('period_from', '<=', $orderDate)
+                        ->where('period_to', '>=', $orderDate)
                         ->where('min_acreage', '<=', (int)$requestedAcreage)
                         ->where('max_acreage', '>=', (int)$requestedAcreage)
                         ->where('status', 1)
@@ -706,8 +709,8 @@ class AssetOperatorController extends Controller
                     $applicableSchemes = Scheme::select('id', 'type', 'crop_base_price', 'scheme_name', 'discount_price')->where('type', $orderType)
                         ->where('client_id', $clientId)
                         ->where('crop_id', $cropId)
-                        ->where('period_from', '<=', $currentDate)
-                        ->where('period_to', '>=', $currentDate)
+                        ->where('period_from', '<=', $orderDate)
+                        ->where('period_to', '>=', $orderDate)
                         ->where('min_acreage', '<=', (int)$requestedAcreage)
                         ->where('max_acreage', '>=', (int)$requestedAcreage)
                         ->where('status', 1)
