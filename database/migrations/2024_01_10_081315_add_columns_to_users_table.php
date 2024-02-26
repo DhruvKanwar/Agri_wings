@@ -17,7 +17,7 @@ class AddColumnsToUsersTable extends Migration
             //
             $table->string('login_id')->unique()->nullable()->after('email');
             $table->text('text_password')->nullable()->after('password');
-            $table->string('role')->nullable()->after('text_password');
+          
         });
     }
 
