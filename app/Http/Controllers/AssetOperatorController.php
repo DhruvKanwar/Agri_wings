@@ -632,7 +632,7 @@ class AssetOperatorController extends Controller
                 $orderType = $check_order_exists->order_type;
              
                 if ($orderType == 1) {
-                    $applicableSchemes = Scheme::select('id', 'type', 'client_id', 'scheme_name', 'discount_price')->whereIn('type', [1, 2, 3])
+                    $applicableSchemes = Scheme::withTrashed()->select('id', 'type', 'client_id', 'scheme_name', 'discount_price')->whereIn('type', [1, 2, 3])
                         ->where(function ($query) use ($clientId) {
                             $query->where('client_id', $clientId)
                                 ->orWhereNull('client_id')
@@ -643,7 +643,7 @@ class AssetOperatorController extends Controller
                         ->where('period_to', '>=', $orderDate)
                         ->where('min_acreage', '<=', (int)$requestedAcreage)
                         ->where('max_acreage', '>=', (int)$requestedAcreage)
-                        ->where('status', 1)
+                        // ->where('status', 1)
                         ->get();
 
                     // return $applicableSchemes;
@@ -706,14 +706,14 @@ class AssetOperatorController extends Controller
                 // check_again
                 elseif ($orderType == 4 || $orderType == 5) {
 
-                    $applicableSchemes = Scheme::select('id', 'type', 'crop_base_price', 'scheme_name', 'discount_price')->where('type', $orderType)
+                    $applicableSchemes = Scheme::withTrashed()->select('id', 'type', 'crop_base_price', 'scheme_name', 'discount_price')->where('type', $orderType)
                         ->where('client_id', $clientId)
                         ->where('crop_id', $cropId)
                         ->where('period_from', '<=', $orderDate)
                         ->where('period_to', '>=', $orderDate)
                         ->where('min_acreage', '<=', (int)$requestedAcreage)
                         ->where('max_acreage', '>=', (int)$requestedAcreage)
-                        ->where('status', 1)
+                        // ->where('status', 1)
                         ->get();
 
                     // return $applicableSchemes;
