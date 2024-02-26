@@ -5,6 +5,7 @@ use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\ApiUsersController;
 use App\Http\Controllers\AssetController;
 use App\Http\Controllers\AssetOperatorController;
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\BatteryController;
 use App\Http\Controllers\ChemicalController;
 use App\Http\Controllers\ClientController;
@@ -96,6 +97,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('start_spray', [AssetOperatorController::class, 'start_spray']);
     Route::post('complete_spray', [AssetOperatorController::class, 'complete_spray']);
     Route::post('mark_spray_successful', [AssetOperatorController::class, 'mark_spray_successful']);
+
+    Route::post('clockIn', [AttendanceController::class, 'clockIn']);
+    Route::post('clockOut', [AttendanceController::class, 'clockOut']);
+    Route::get('autoClockOut', [AttendanceController::class, 'autoClockOut']);
+
+
+
+
     Route::post('submit_vehicle_details', [VehicleController::class, 'submit_vehicle_details']);
     Route::post('edit_vehicle_details', [VehicleController::class, 'edit_vehicle_details']);
     Route::get('fetch_vehicle_list', [VehicleController::class, 'fetch_vehicle_list']);
