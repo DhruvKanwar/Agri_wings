@@ -11,6 +11,7 @@ use App\Models\OrdersTimeline;
 use App\Models\RegionalClient;
 use App\Models\Scheme;
 use App\Models\Services;
+use App\Models\User;
 use Aws\Api\Service;
 use Illuminate\Http\Request;
 use DB;
@@ -84,7 +85,7 @@ class ServiceController extends Controller
             $total_discount_sum = array_sum($total_discount);
             // return $total_discount_sum;
             $total_discount_price = $total_discount_sum;
-            
+
             $total_client_discount  = array_sum($client_discount);
         } else {
             $total_discount_sum = 0;
@@ -138,10 +139,10 @@ class ServiceController extends Controller
 
         $total_amount = $crop_base_price * $data['requested_acreage'];
         // return [$data['total_discount'], $total_discount_price, $data['total_amount'], $total_amount, $crop_base_price, $data['order_type']];
-// return [number_format($data['total_discount'], 3),gettype(number_format($data['total_discount'], 3)), strval(number_format($total_discount_price, 3)),gettype(strval(number_format($total_discount_price, 3)))];
+        // return [number_format($data['total_discount'], 3),gettype(number_format($data['total_discount'], 3)), strval(number_format($total_discount_price, 3)),gettype(strval(number_format($total_discount_price, 3)))];
         // return [gettype($data['total_discount']),gettype($total_discount_price), gettype($data['total_amount']), gettype($total_amount),gettype($crop_base_price), gettype($data['order_type'])];
         // return [$total_discount_price, $total_amount];
-        if ( number_format($data['total_discount'], 3) != strval(number_format($total_discount_price, 3)) || number_format($data['total_amount'], 3) != strval(number_format($total_amount, 3))) {
+        if (number_format($data['total_discount'], 3) != strval(number_format($total_discount_price, 3)) || number_format($data['total_amount'], 3) != strval(number_format($total_amount, 3))) {
             return response()->json(['msg' => 'Calculation of total discount or total amount not matching', 'status' => 'error', 'statuscode' => '200']);
         }
 
@@ -149,7 +150,7 @@ class ServiceController extends Controller
         // return [$data['total_discount'], $total_discount_price, $data['total_amount'], $total_amount, $total_payable];
 
         // return [$data['total_payable_amount'], $total_payable];
-        if ( number_format($data['total_payable_amount'], 3)  != strval(number_format($total_payable, 3))) {
+        if (number_format($data['total_payable_amount'], 3)  != strval(number_format($total_payable, 3))) {
             return response()->json(['msg' => 'Total Payable is not matching', 'status' => 'error', 'statuscode' => '200']);
         }
         //    return [$agriwings_discount, $data['agriwings_discount']];    
@@ -341,8 +342,29 @@ class ServiceController extends Controller
     public function fetch_order_list()
     {
 
+        $details = Auth::user();
+        $get_user_data=User::where('id',$details->id)->first();
+        if($get_user_data->role == 'cso' || $get_user_data->role == 'client'|| $get_user_data->role == 'rtl')
+        {
+            $explode_client_ids=explode(',', $get_user_data->client_id);
+            $services = Services::with(['assetOperator', 'orderTimeline', 'asset', 'clientDetails', 'farmerDetails', 'farmLocation'])->whereIn('client_id', $explode_client_ids)->get();
+            return response()->json(['data' => $services, 'msg' => 'Service List Fetched Successfully', 'statuscode' => '200', 'status' => 'success'], 200);
+   
+        }
 
-        $services = Services::with(['assetOperator', 'orderTimeline', 'asset', 'clientDetails', 'farmerDetails', 'farmLocation'])->get();
+     else  if ($get_user_data->role == 'rm' || $get_user_data->role == 'accounts' || $get_user_data->role == 'hr'
+            || $get_user_data->role == 'admin'
+            || $get_user_data->role == 'super-admin') {
+
+            $services = Services::with(['assetOperator', 'orderTimeline', 'asset', 'clientDetails', 'farmerDetails', 'farmLocation'])->get();
+            return response()->json(['data' => $services, 'msg' => 'Service List Fetched Successfully', 'statuscode' => '200', 'status' => 'success'], 200);
+
+        }
+        else{
+            return response()->json(['data' => [], 'msg' => 'You do not have rights for this list', 'statuscode' => '200', 'status' => 'error'], 200);
+
+        }
+  
         // dd(DB::getQueryLog());
         // Transform the services to include battery IDs
         // $transformedServices = $services->map(function ($service) {
