@@ -343,28 +343,23 @@ class ServiceController extends Controller
     {
 
         $details = Auth::user();
-        $get_user_data=User::where('id',$details->id)->first();
-        if($get_user_data->role == 'cso' || $get_user_data->role == 'client'|| $get_user_data->role == 'rtl')
-        {
-            $explode_client_ids=explode(',', $get_user_data->client_id);
+        $get_user_data = User::where('id', $details->id)->first();
+        if ($get_user_data->role == 'cso' || $get_user_data->role == 'client' || $get_user_data->role == 'rtl') {
+            $explode_client_ids = explode(',', $get_user_data->client_id);
             $services = Services::with(['assetOperator', 'orderTimeline', 'asset', 'clientDetails', 'farmerDetails', 'farmLocation'])->whereIn('client_id', $explode_client_ids)->get();
             return response()->json(['data' => $services, 'msg' => 'Service List Fetched Successfully', 'statuscode' => '200', 'status' => 'success'], 200);
-   
-        }
-
-     else  if ($get_user_data->role == 'rm' || $get_user_data->role == 'accounts' || $get_user_data->role == 'hr'
+        } else  if (
+            $get_user_data->role == 'rm' || $get_user_data->role == 'accounts' || $get_user_data->role == 'hr'
             || $get_user_data->role == 'admin'
-            || $get_user_data->role == 'super admin') {
+            || $get_user_data->role == 'super admin'
+        ) {
 
             $services = Services::with(['assetOperator', 'orderTimeline', 'asset', 'clientDetails', 'farmerDetails', 'farmLocation'])->get();
             return response()->json(['data' => $services, 'msg' => 'Service List Fetched Successfully', 'statuscode' => '200', 'status' => 'success'], 200);
-
-        }
-        else{
+        } else {
             return response()->json(['data' => [], 'msg' => 'You do not have rights for this list', 'statuscode' => '200', 'status' => 'error'], 200);
-
         }
-  
+
         // dd(DB::getQueryLog());
         // Transform the services to include battery IDs
         // $transformedServices = $services->map(function ($service) {
@@ -392,6 +387,30 @@ class ServiceController extends Controller
         }
 
         return response()->json(['data' => $orders]);
+    }
+
+    public function get_order_timeline($id)
+    {
+        $orders = Services::where('id',$id)->first();
+
+
+
+        if (empty($orders)) {
+            return response()->json(['msg' => 'Order not found', 'status' => 'error', 'statuscode' => '404']);
+        }
+
+        $order_timeline_id=$orders->order_details_id;
+
+        $timeline_data=OrdersTimeline::where('id', $order_timeline_id)->first();
+        if (empty($timeline_data)) {
+            return response()->json(['msg' => 'Time Line not found', 'status' => 'error', 'statuscode' => '404']);
+        }
+
+
+
+        return response()->json(['msg' => 'Time Line Data fetched successfully..', 'statuscode'=>'200','data' => $timeline_data]);
+
+
     }
 
     public function fetch_assigned_details(Request $request)

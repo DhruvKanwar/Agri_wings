@@ -144,6 +144,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('fetch_assigned_details', [ServiceController::class, 'fetch_assigned_details']);
     Route::post('submit_assigned_operator', [ServiceController::class, 'submit_assigned_operator']);
     Route::post('cancel_order', [ServiceController::class, 'cancel_order']);
+    Route::get('get_order_timeline/{id}', [ServiceController::class, 'get_order_timeline']);
 
 
     Route::post('import_chemical', [ChemicalController::class, 'import_chemical']);
