@@ -644,10 +644,6 @@ class AssetOperatorController extends Controller
                     ->where('crop_id', $cropId)
                     ->where('period_from', '<=', $orderDate)
                     ->where('period_to', '>=', $orderDate)
-                    ->where(function ($query) use ($orderDate) {
-                        $query->whereNull('deleted_at') // Records not deleted
-                        ->orWhere('deleted_at', '>=', $orderDate); // Records deleted after the given date
-                    })
                     ->where('min_acreage', '<=', (int)$requestedAcreage)
                     ->where('max_acreage', '>=', (int)$requestedAcreage)
                         // ->orderBy('id', 'desc')
@@ -669,6 +665,7 @@ class AssetOperatorController extends Controller
                             // $scheme = Scheme::find($scheme_id);
 
                             if ($scheme) {
+                                if ($scheme->status) {
                                 $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                 // $total_discount = $total_discount_price+$scheme->discount_price;
                                 // return $scheme;
@@ -680,6 +677,16 @@ class AssetOperatorController extends Controller
                                 } else {
                                     $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
                                 }
+                            } else if (date('Y-m-d', strtotime($scheme->deleted_at)) >= $orderDate) {
+                                    $scheme_ids_array[]  = $scheme->id;
+
+                                    if (!empty($scheme->client_id)) {
+                                        // $crop_base_price = $scheme->crop_base_price;
+                                        $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
+                                    } else {
+                                        $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
+                                    }
+                            }
                             }
                         }
                         $total_discount_sum = array_sum($total_discount);
@@ -733,10 +740,6 @@ class AssetOperatorController extends Controller
                         ->where('period_to', '>=', $orderDate)
                         ->where('min_acreage', '<=', (int)$requestedAcreage)
                         ->where('max_acreage', '>=', (int)$requestedAcreage)
-                        ->where(function ($query) use ($orderDate) {
-                            $query->whereNull('deleted_at') // Records not deleted
-                                ->orWhere('deleted_at', '>=', $orderDate); // Records deleted after the given date
-                        })
                     
                         // ->orderBy('id', 'desc')
                         // ->where('status', 1)
@@ -756,7 +759,7 @@ class AssetOperatorController extends Controller
 
                             if ($scheme) {
                                 // return $scheme->discount_price;
-
+                                if ($scheme->status) {
                                 $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                 // $total_discount = $total_discount_price+$scheme->discount_price;
                                 // return $total_discount;
@@ -769,6 +772,21 @@ class AssetOperatorController extends Controller
                                 } else {
                                     $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
                                 }
+                            }
+                            else if (date('Y-m-d', strtotime($scheme->deleted_at)) >= $orderDate){
+                                    $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
+                                    // $total_discount = $total_discount_price+$scheme->discount_price;
+                                    // return $total_discount;
+                                    $scheme_ids_array[]  = $scheme->id;
+                                    $crop_base_price = $scheme->crop_base_price;
+
+                                    if (!empty($scheme->client_id)) {
+                                        // $crop_base_price = $scheme->crop_base_price;
+                                        $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
+                                    } else {
+                                        $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
+                                    }
+                            }
                             }
                         }
                         $total_discount_sum = array_sum($total_discount);
