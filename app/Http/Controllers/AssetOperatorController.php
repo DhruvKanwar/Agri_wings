@@ -669,24 +669,28 @@ class AssetOperatorController extends Controller
                                     $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                     // $total_discount = $total_discount_price+$scheme->discount_price;
                                     // return $scheme;
-                                    $scheme_ids_array[]  = $scheme->id;
 
                                     if (!empty($scheme->client_id)) {
                                         // $crop_base_price = $scheme->crop_base_price;
+                                        $scheme_ids_array[]  = $scheme->id;
+
                                         $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                     } else {
+                                        $scheme_ids_array[]  = $scheme->id;
+
                                         $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
                                     }
                                 } else {
 
 
                                     if (date('Y-m-d', strtotime($scheme->deleted_at)) >= $orderDate) {
-                                        $scheme_ids_array[]  = $scheme->id;
 
                                         if (!empty($scheme->client_id)) {
                                             // $crop_base_price = $scheme->crop_base_price;
+                                            $scheme_ids_array[]  = $scheme->id;
                                             $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                         } else {
+                                            $scheme_ids_array[]  = $scheme->id;
                                             $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
                                         }
                                     }
@@ -767,13 +771,15 @@ class AssetOperatorController extends Controller
                                     $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                     // $total_discount = $total_discount_price+$scheme->discount_price;
                                     // return $total_discount;
-                                    $scheme_ids_array[]  = $scheme->id;
+                                   
                                     $crop_base_price = $scheme->crop_base_price;
 
                                     if (!empty($scheme->client_id)) {
                                         // $crop_base_price = $scheme->crop_base_price;
+                                        $scheme_ids_array[]  = $scheme->id;
                                         $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                     } else {
+                                        $scheme_ids_array[]  = $scheme->id;
                                         $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
                                     }
                                 } else {
@@ -781,13 +787,14 @@ class AssetOperatorController extends Controller
                                         $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                         // $total_discount = $total_discount_price+$scheme->discount_price;
                                         // return $total_discount;
-                                        $scheme_ids_array[]  = $scheme->id;
                                         $crop_base_price = $scheme->crop_base_price;
 
                                         if (!empty($scheme->client_id)) {
+                                            $scheme_ids_array[]  = $scheme->id;
                                             // $crop_base_price = $scheme->crop_base_price;
                                             $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                         } else {
+                                            $scheme_ids_array[]  = $scheme->id;
                                             $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
                                         }
                                     }
