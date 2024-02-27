@@ -98,6 +98,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('complete_spray', [AssetOperatorController::class, 'complete_spray']);
     Route::post('mark_spray_successful', [AssetOperatorController::class, 'mark_spray_successful']);
 
+
     Route::post('clockIn', [AttendanceController::class, 'clockIn']);
     Route::post('clockOut', [AttendanceController::class, 'clockOut']);
     Route::get('autoClockOut', [AttendanceController::class, 'autoClockOut']);
@@ -174,3 +175,4 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
 });
+Route::get('generate_invoice_pdf/{id}', [AssetOperatorController::class, 'generate_invoice_pdf']);

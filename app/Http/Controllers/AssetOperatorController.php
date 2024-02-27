@@ -21,6 +21,7 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use PDF;
 
 
 
@@ -90,7 +91,7 @@ class AssetOperatorController extends Controller
                 'login_id' => $data['user_id'],
                 'text_password' => $data['user_password'],
                 'password' => Hash::make($data['user_password']),
-                'role'=> 'operator'
+                'role' => 'operator'
             ]);
 
             // Assign the 'operator' role to the new user
@@ -275,7 +276,7 @@ class AssetOperatorController extends Controller
             $asset_id = $check_asset_id->asset_id;
         }
 
-  
+
 
         // remove user_id with saved user_id
 
@@ -357,7 +358,7 @@ class AssetOperatorController extends Controller
         $assetOperator = AssetOperator::where('id', $data['id'])->update($data);
 
         if ($assetOperator) {
-            $update_vehicle=Vehicle::where('id',$data['vehicle_id'])->update(['operator_id'=> $data['id']]);
+            $update_vehicle = Vehicle::where('id', $data['vehicle_id'])->update(['operator_id' => $data['id']]);
             if (empty($asset_id)) {
                 AssetDetails::where('id', $asset_id)->update(['assigned_date' => null, 'assigned_status' => 0]);
             }
@@ -386,7 +387,7 @@ class AssetOperatorController extends Controller
                 'id' => 'required|exists:asset_operators,id',
             ]);
 
-            $data=$request->all();
+            $data = $request->all();
             $id = $request->input('id');
             $end_date = $request->input('end_date');
 
@@ -447,7 +448,7 @@ class AssetOperatorController extends Controller
 
     public function fetch_operators_to_assign()
     {
-        $asset_operators = AssetOperator::select('id','phone', 'code', 'name')->where('asset_id', '!=', '')->where('status', 1)->get();
+        $asset_operators = AssetOperator::select('id', 'phone', 'code', 'name')->where('asset_id', '!=', '')->where('status', 1)->get();
 
         if (empty($asset_operators)) {
             return response()->json(['msg' => 'Asset Operator Does not exits to assign', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
@@ -459,8 +460,7 @@ class AssetOperatorController extends Controller
 
     public function get_all_operators()
     {
-        $vehicle_list = AssetOperator::with('VehicleDetails', 'UserDetails')->
-        withTrashed()->get();
+        $vehicle_list = AssetOperator::with('VehicleDetails', 'UserDetails')->withTrashed()->get();
 
         if (!$vehicle_list->isEmpty()) {
             return ['data' => $vehicle_list, 'statuscode' => '200', 'status' => 'success', 'msg' => 'Operators list fetched successfully.'];
@@ -496,9 +496,9 @@ class AssetOperatorController extends Controller
         if (!empty($user_id)) {
             $fetch_operator_details = AssetOperator::where('user_id', $user_id)->first();
             $fetch_assigned_orders = Services::with('crop', 'farmerDetails', 'farmLocation')
-            ->where('asset_operator_id', $fetch_operator_details->id)
-            ->whereIn('order_status', [0, 3, 4, 5, 6])
-            ->get();
+                ->where('asset_operator_id', $fetch_operator_details->id)
+                ->whereIn('order_status', [0, 3, 4, 5, 6])
+                ->get();
             return response()->json(['msg' => 'Assigned Order List Fetched successfully', 'status' => 'success', 'statuscode' => '200', 'data' => $fetch_assigned_orders], 201);
         } else {
             return response()->json(['msg' => 'You are not valid user for fetching this details', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
@@ -586,10 +586,11 @@ class AssetOperatorController extends Controller
 
             if ($update_services_done) {
                 $update_location_coordinates = DB::table('farm_details')
-                ->where('id',
-                    $check_order_exists->farm_location
-                )
-                ->update(['location_coordinates' => $data['location_coordinates']]);
+                    ->where(
+                        'id',
+                        $check_order_exists->farm_location
+                    )
+                    ->update(['location_coordinates' => $data['location_coordinates']]);
 
                 unset($data['location_coordinates']);
                 $update_services = OrdersTimeline::where('id', $check_order_exists->order_details_id)->update($data);
@@ -630,7 +631,7 @@ class AssetOperatorController extends Controller
                 $scheme_ids_array = [];
 
                 $orderType = $check_order_exists->order_type;
-             
+
                 if ($orderType == 1) {
                     $applicableSchemes = Scheme::withTrashed()->select('id', 'type', 'client_id', 'scheme_name', 'discount_price')->whereIn('type', [1, 2, 3])
                         ->where(function ($query) use ($clientId) {
@@ -867,20 +868,18 @@ class AssetOperatorController extends Controller
 
             $update_services_done = Services::where('id', $id)->update($data);
             // return $update_services_done;
-            $update_services="";
+            $update_services = "";
 
             if ($update_services_done) {
                 // return $check_order_exists->id;
                 $update_services = OrdersTimeline::where('id', $check_order_exists->order_details_id)->update($timeline_data);
-             
+
                 $orders = Services::with(['assetOperator', 'asset', 'clientDetails', 'farmerDetails', 'farmLocation', 'orderTimeline'])->find($id);
 
                 if ($update_services) {
                     return response()->json(['msg' => 'Spray Completed Successfully..', 'status' => 'success', 'statuscode' => '200', 'data' => $orders], 201);
                 }
             }
-
-          
         }
     }
 
@@ -892,8 +891,8 @@ class AssetOperatorController extends Controller
         $id = $data['id'];
         $check_order_exists = Services::where('id', $id)->first();
         // $currentDate = now()->format('Y-m-d');
-         
-        if (empty($check_order_exists) || $check_order_exists->order_status!=5) {
+
+        if (empty($check_order_exists) || $check_order_exists->order_status != 5) {
             return response()->json(['msg' => 'Service Does not exists or not in the spray complete status', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
         } else {
             // return $data['amount_received'];
@@ -906,10 +905,9 @@ class AssetOperatorController extends Controller
             $timeline_data['delivered_created_by'] = $details->name;
             $timeline_data['delivered_date'] = date('Y-m-d');
 
-            if($check_order_exists->order_type == 4 || $check_order_exists->order_type == 5 )
-            {
+            if ($check_order_exists->order_type == 4 || $check_order_exists->order_type == 5) {
                 $done_services =   Services::where('id', $id)->update([
-                     'order_status' => 6,
+                    'order_status' => 6,
                     'payment_status' =>  1, 'delivery_date' => date('Y-m-d')
                 ]);
 
@@ -926,38 +924,32 @@ class AssetOperatorController extends Controller
             $amountReceivedString = $data['amount_received'];
             $amountReceivedArray = json_decode($amountReceivedString, true);
             $amount_receive_array = [];
-            $refund_amount_array =[];
+            $refund_amount_array = [];
             foreach ($amountReceivedArray as $amount_received) {
                 // return $amount_received;
-                if($amount_received['mode'] == 1 || $amount_received['mode'] == 2 )
-                {
+                if ($amount_received['mode'] == 1 || $amount_received['mode'] == 2) {
                     $amount_receive_array[] = $amount_received['amount'];
-                  
-
-                }else  if($amount_received['mode'] == 3 || $amount_received['mode'] == 4 ){
+                } else  if ($amount_received['mode'] == 3 || $amount_received['mode'] == 4) {
 
                     $refund_amount_array[] = $amount_received['amount'];
-
                 }
             }
-         
+
             $amount_receive_sum = array_sum($amount_receive_array);
 
-            if(!empty($refund_amount_array))
-            {
+            if (!empty($refund_amount_array)) {
                 $refund_amount_sum = array_sum($refund_amount_array);
                 $amount_receive_sum = $amount_receive_sum - $refund_amount_sum;
             }
-               
+
 
 
             // return [$check_order_exists->total_payable_amount,$amount_receive_sum, number_format($amount_receive_sum, 3)];
-            if (number_format($amount_receive_sum, 3) != number_format($check_order_exists->total_payable_amount, 3) ) {
+            if (number_format($amount_receive_sum, 3) != number_format($check_order_exists->total_payable_amount, 3)) {
                 return response()->json(['msg' => 'Amount Received Sum is not equal to the total payable amount', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
-
             }
 
-          
+
             if (!empty($data['farmer_refund_signature'])) {
                 $timeline_data['farmer_refund_signature'] = $data['farmer_refund_signature'];
             }
@@ -980,12 +972,14 @@ class AssetOperatorController extends Controller
             }
             $get_services_details = Services::find($id);
 
-          
 
-// return $timeline_data;
 
-            $done_services =   Services::where('id', $id)->update(['amount_received' => $data['amount_received'], 'order_status'=>6,
-                'payment_status'=>  1,'delivery_date'=>date('Y-m-d')]);
+            // return $timeline_data;
+
+            $done_services =   Services::where('id', $id)->update([
+                'amount_received' => $data['amount_received'], 'order_status' => 6,
+                'payment_status' =>  1, 'delivery_date' => date('Y-m-d')
+            ]);
 
             if ($done_services) {
                 $get_services_details = Services::find($id);
@@ -993,8 +987,8 @@ class AssetOperatorController extends Controller
             }
 
             if ($update_time_line) {
-                $fetch_services=Services::where('id',$id)->first();
-                AssetOperator::where('id',$fetch_services->asset_operator_id)->update(['assigned_status'=>0]);
+                $fetch_services = Services::where('id', $id)->first();
+                AssetOperator::where('id', $fetch_services->asset_operator_id)->update(['assigned_status' => 0]);
                 return response()->json(['msg' => 'Spray Makred Successful..', 'status' => 'success', 'statuscode' => '200', 'data' => $get_services_details], 201);
             }
 
@@ -1003,5 +997,19 @@ class AssetOperatorController extends Controller
             //farmer_refund_signature
 
         }
+    }
+
+   public function generate_invoice_pdf($id)
+    {
+        // return 1;
+        $data = [
+            'invoice_number' => 'INV-123',
+            'customer_name' => 'John Doe',
+            'id'=>$id
+            // Add more data as needed
+        ];
+        $pdf = PDF::loadView('invoicePDF.invoice', $data);
+        return $pdf->stream('sampleTest.pdf');
+        // return $pdf->download('sampleTest.pdf');
     }
 }
