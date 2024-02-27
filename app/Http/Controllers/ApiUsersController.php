@@ -14,7 +14,7 @@ class ApiUsersController extends Controller
 
     public function get_all_users()
     {
-        $users = User::get();
+        $users = User::where('role','!=', 'operator')->get();
         // $users['all_roles'] = Role::pluck('name')->toArray();
 
         $result_array = array(
