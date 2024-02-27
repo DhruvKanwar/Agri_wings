@@ -677,7 +677,11 @@ class AssetOperatorController extends Controller
                                 } else {
                                     $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
                                 }
-                            } else if (date('Y-m-d', strtotime($scheme->deleted_at)) >= $orderDate) {
+
+                            } else{
+
+                            
+                             if (date('Y-m-d', strtotime($scheme->deleted_at)) >= $orderDate) {
                                     $scheme_ids_array[]  = $scheme->id;
 
                                     if (!empty($scheme->client_id)) {
@@ -687,6 +691,7 @@ class AssetOperatorController extends Controller
                                         $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
                                     }
                             }
+                        }
                             }
                         }
                         $total_discount_sum = array_sum($total_discount);
