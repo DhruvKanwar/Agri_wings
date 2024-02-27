@@ -634,7 +634,7 @@ class AssetOperatorController extends Controller
 
                 if ($orderType == 1) {
                     $applicableSchemes = Scheme::withTrashed()
-                    ->select('id', 'type', 'client_id', 'scheme_name', 'discount_price')
+                    ->select('id', 'type', 'client_id', 'scheme_name', 'discount_price', 'status', 'deleted_at')
                     ->whereIn('type', [1, 2, 3])
                     ->where(function ($query) use ($clientId) {
                         $query->where('client_id', $clientId)
@@ -660,7 +660,7 @@ class AssetOperatorController extends Controller
                         // $explode_scheme_ids = explode(',', $data['scheme_ids']);
                         // return $explode_scheme_ids;
 
-
+// return $applicableSchemes;
                         foreach ($applicableSchemes as $scheme) {
                             // $scheme = Scheme::find($scheme_id);
 
@@ -733,7 +733,7 @@ class AssetOperatorController extends Controller
                     //     ->first();
 
                     $applicableSchemes = Scheme::withTrashed()
-                        ->select('id', 'type', 'crop_base_price', 'scheme_name', 'discount_price')->where('type', $orderType)
+                        ->select('id', 'type', 'crop_base_price', 'scheme_name', 'discount_price','status', 'deleted_at')->where('type', $orderType)
                         ->where('client_id', $clientId)
                         ->where('crop_id', $cropId)
                         ->where('period_from', '<=', $orderDate)
