@@ -45,9 +45,16 @@ class AttendanceController extends Controller
         }
 
 
-        $get_asset_operator=AssetOperator::where('user_id', $check_user_exists->login_id)->first();
-// return [ $check_user_exists->login_id,$get_asset_operator];
-        // Create a new attendance operator instance
+        $get_asset_operator = AssetOperator::where('user_id', $check_user_exists->login_id)->first();
+        // return [ $check_user_exists->login_id,$get_asset_operator];
+        // Create a new attendance operator instance    
+        $check_attendance_table = AttendanceOperator::where('user_id', $request->user_id)
+            ->where('date', $request->date)
+            ->get();
+        // return $check_attendance_table;
+        if (!$check_attendance_table->isEmpty()) {
+            return response()->json(['msg' => 'Clock in Entry Already Exists', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
+        }
         $attendanceOperator = new AttendanceOperator([
             'user_id' => $request->user_id,
             'user_name' => $check_user_exists->name,
@@ -89,6 +96,14 @@ class AttendanceController extends Controller
                 'msg' => 'No clock in record found for the user today.',
                 'statuscode' => '404'
             ], 404);
+        }
+
+        $check_attendance_table = AttendanceOperator::where('user_id', $request->user_id)
+            ->where('date', date('Y-m-d'))
+            ->first();
+        // return $check_attendance_table;
+        if (!empty($check_attendance_table->out)) {
+            return response()->json(['msg' => 'Clock Out Entry Already Exists', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
         }
 
         // Update the clock out time
@@ -154,25 +169,23 @@ class AttendanceController extends Controller
     public function fetch_operator_attendance()
     {
         $details = Auth::user();
-        $id=$details->id;
+        $id = $details->id;
 
-        $fetch_data=AttendanceOperator::where('user_id',$id)->where('date',date('Y-m-d'))->get();
-      if(empty($fetch_data))
-      {
+        $fetch_data = AttendanceOperator::where('user_id', $id)->where('date', date('Y-m-d'))->get();
+        if (empty($fetch_data)) {
             return response()->json([
                 'msg' => 'Attendance Details Not Found.',
                 'status' => 'success',
                 'statuscode' => '200',
                 'data' => []
             ], 200);
-      }else{
+        } else {
             return response()->json([
                 'msg' => 'Attendance Details Fetched Successfully..',
                 'status' => 'success',
                 'statuscode' => '200',
                 'data' => $fetch_data
             ], 200);
-      }
-    
+        }
     }
 }
