@@ -644,8 +644,9 @@ class AssetOperatorController extends Controller
                         ->where('period_to', '>=', $orderDate)
                         ->where('min_acreage', '<=', (int)$requestedAcreage)
                         ->where('max_acreage', '>=', (int)$requestedAcreage)
+                        ->orderBy('id', 'desc')
                         // ->where('status', 1)
-                        ->get();
+                        ->first();
 
                     // return $applicableSchemes;
 
@@ -714,8 +715,9 @@ class AssetOperatorController extends Controller
                         ->where('period_to', '>=', $orderDate)
                         ->where('min_acreage', '<=', (int)$requestedAcreage)
                         ->where('max_acreage', '>=', (int)$requestedAcreage)
+                        ->orderBy('id','desc')
                         // ->where('status', 1)
-                        ->get();
+                        ->first();
 
                     // return $applicableSchemes;
 
