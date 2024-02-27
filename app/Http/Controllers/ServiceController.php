@@ -354,7 +354,7 @@ class ServiceController extends Controller
 
      else  if ($get_user_data->role == 'rm' || $get_user_data->role == 'accounts' || $get_user_data->role == 'hr'
             || $get_user_data->role == 'admin'
-            || $get_user_data->role == 'super-admin') {
+            || $get_user_data->role == 'super admin') {
 
             $services = Services::with(['assetOperator', 'orderTimeline', 'asset', 'clientDetails', 'farmerDetails', 'farmLocation'])->get();
             return response()->json(['data' => $services, 'msg' => 'Service List Fetched Successfully', 'statuscode' => '200', 'status' => 'success'], 200);
