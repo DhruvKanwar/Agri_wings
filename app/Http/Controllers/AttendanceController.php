@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AssetOperator;
 use App\Models\AttendanceOperator;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -22,8 +23,6 @@ class AttendanceController extends Controller
 
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id',
-            'user_name' => 'required|string',
-            'user_mobile_no' => 'required|string',
             'date' => 'required|date',
             'in' => 'required|date_format:H:i:s',
         ]);
@@ -39,17 +38,20 @@ class AttendanceController extends Controller
             ], 422);
         }
         $id = $data['user_id'];
-        $check_order_exists = User::where('id', $id)->first();
-        // return $check_order_exists;
-        if (empty($check_order_exists)) {
+        $check_user_exists = User::where('id', $id)->first();
+        // return $check_user_exists;
+        if (empty($check_user_exists)) {
             return response()->json(['msg' => 'User Does not exists', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
         }
 
+
+        $get_asset_operator=AssetOperator::where('user_id', $check_user_exists->login_id)->first();
+// return [ $check_user_exists->login_id,$get_asset_operator];
         // Create a new attendance operator instance
         $attendanceOperator = new AttendanceOperator([
             'user_id' => $request->user_id,
-            'user_name' => $request->user_name,
-            'user_mobile_no' => $request->user_mobile_no,
+            'user_name' => $check_user_exists->name,
+            'user_mobile_no' => $get_asset_operator->phone,
             'date' => $request->date,
             'in' => $request->in,
         ]);
