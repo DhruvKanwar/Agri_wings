@@ -719,7 +719,6 @@ class AssetOperatorController extends Controller
                     // start logic
 
 
-                    // return $applicableSchemes;
                     if (count($applicableSchemes) != 0) {
                         // $explode_scheme_ids = explode(',', $data['scheme_ids']);
                         // return $explode_scheme_ids;
@@ -747,6 +746,8 @@ class AssetOperatorController extends Controller
                                 }
                                 if (!($scheme->status) && $scheme->type == 1 && !$type_1 && !$type_inactive_1) {
                                     if (date('Y-m-d', strtotime($scheme->deleted_at)) >= $orderDate) {
+                                        // return 'in';
+                                        $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                         $scheme_ids_array[]  = $scheme->id;
                                         $type_inactive_1=1;
                                         if (!empty($scheme->client_id)) {
@@ -757,6 +758,7 @@ class AssetOperatorController extends Controller
                                         }
                                     }
                                 }
+                                // return "Ew";
                                 //
                                 if ($scheme->status && $scheme->type == 2) {
                                     $type_2 = 1;
@@ -776,6 +778,7 @@ class AssetOperatorController extends Controller
                                 }
                                 if (!($scheme->status) && $scheme->type == 2 && !  $type_2 && !$type_inactive_2) {
                                     if (date('Y-m-d', strtotime($scheme->deleted_at)) >= $orderDate) {
+                                        $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                         $scheme_ids_array[]  = $scheme->id;
                                         $type_inactive_2=1;
                                         if (!empty($scheme->client_id)) {
@@ -806,6 +809,7 @@ class AssetOperatorController extends Controller
                                 }
                                 if (!($scheme->status) && $scheme->type == 3 && !$type_3 && !$type_inactive_3) {
                                     if (date('Y-m-d', strtotime($scheme->deleted_at)) >= $orderDate) {
+                                        $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                         $scheme_ids_array[]  = $scheme->id;
                                         $type_inactive_3=1;
                                         if (!empty($scheme->client_id)) {
@@ -819,6 +823,7 @@ class AssetOperatorController extends Controller
                                 //
                             }
                         }
+                        // return $total_discount;
                         $total_discount_sum = array_sum($total_discount);
                         // return $total_discount;
                         $total_discount_price = $total_discount_sum;
@@ -910,6 +915,7 @@ class AssetOperatorController extends Controller
                                 }
                                 if (!($scheme->status) && !$type_4 && !$type_inactive_4) {
                                     if (date('Y-m-d', strtotime($scheme->deleted_at)) >= $orderDate) {
+                                        $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                         $scheme_ids_array[]  = $scheme->id;
                                         $type_inactive_4=1;
                                         if (!empty($scheme->client_id)) {
