@@ -415,7 +415,7 @@ class ServiceController extends Controller
 
         $order_timeline_id=$orders->order_details_id;
 
-        $timeline_data=OrdersTimeline::where('id', $order_timeline_id)->first();
+        $timeline_data=OrdersTimeline::where('id', $order_timeline_id)->get();
         if (empty($timeline_data)) {
             return response()->json(['msg' => 'Time Line not found', 'status' => 'error', 'statuscode' => '404']);
         }
