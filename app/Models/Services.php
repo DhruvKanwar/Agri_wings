@@ -47,6 +47,7 @@ class Services extends Model
         'order_accepted',
         'order_details_id',
         'cancel_remarks',
+        'invoice_no',
      
     ];
 

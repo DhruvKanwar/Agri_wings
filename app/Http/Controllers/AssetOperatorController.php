@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\AssetDetails;
 use App\Models\AssetOperator;
+use App\Models\BaseClient;
 use App\Models\Crop;
 use App\Models\CropPrice;
 use App\Models\FarmDetails;
@@ -22,6 +23,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use PDF;
+use App\Helpers\NumberToWords;
 
 
 
@@ -29,6 +31,48 @@ use PDF;
 class AssetOperatorController extends Controller
 {
     //
+
+    private
+        $stateArray = [
+            "JK" => "JAMMU AND KASHMIR (UT)",
+            "HP" => "HIMACHAL PRADESH",
+            "PB" => "PUNJAB",
+            "CH" => "CHANDIGARH (UT)",
+            "UK" => "UTTARAKHAND",
+            "HR" => "HARYANA",
+            "DL" => "DELHI (UT)",
+            "RJ" => "RAJASTHAN",
+            "UP" => "UTTAR PRADESH",
+            "BH" => "BIHAR",
+            "SK" => "SIKKIM",
+            "AR" => "ARUNACHAL PRADESH",
+            "NL" => "NAGALAND",
+            "MN" => "MANIPUR",
+            "MZ" => "MIZORAM",
+            "TR" => "TRIPURA",
+            "ML" => "MEGHALAYA",
+            "AS" => "ASSAM",
+            "WB" => "WEST BENGAL",
+            "JH" => "JHARKHAND",
+            "OR" => "ODISHA",
+            "CG" => "CHATTISGARH",
+            "MP" => "MADHYA PRADESH",
+            "GJ" => "GUJARAT",
+            "DN" => "DADRA AND NAGAR HAVELI AND DAMAN AND DIU (UT)",
+            "MH" => "MAHARASHTRA",
+            "KA" => "KARNATAKA",
+            "GA" => "GOA",
+            "LD" => "LAKSHADWEEP (UT)",
+            "KL" => "KERALA",
+            "TN" => "TAMIL NADU",
+            "PY" => "PUDUCHERRY (UT)",
+            "AN" => "ANDAMAN AND NICOBAR ISLANDS (UT)",
+            "TG" => "TELANGANA",
+            "AP" => "ANDHRA PRADESH",
+            "LA" => "LADAKH (UT)",
+        ];
+
+
     public function submit_operator_details(Request $request)
     {
         // Validation rules
@@ -629,33 +673,46 @@ class AssetOperatorController extends Controller
                 $total_amount = 0;
                 $total_payable = 0;
                 $scheme_ids_array = [];
-                $type_1=0;
+                $type_1 = 0;
                 $type_2 = 0;
                 $type_3 = 0;
                 $type_4 = 0;
                 // $type_5 = 0;
-
+                $type_inactive_1 = 0;
+                $type_inactive_2 = 0;
+                $type_inactive_3 = 0;
+                $type_inactive_4 = 0;
 
                 $orderType = $check_order_exists->order_type;
 
                 if ($orderType == 1) {
                     $applicableSchemes = Scheme::withTrashed()
-                        ->select('id', 'type', 'client_id', 'scheme_name', 'discount_price', 'status', 'deleted_at')
-                        ->whereIn('type', [1, 2, 3])
-                        ->where(function ($query) use ($clientId) {
-                            $query->where('client_id', $clientId)
-                                ->orWhereNull('client_id')
-                                ->orWhere('client_id', ''); // Add this condition
-                        })
-                        ->where('crop_id', $cropId)
-                        ->where('period_from', '<=', $orderDate)
-                        ->where('period_to', '>=', $orderDate)
-                        ->where('min_acreage', '<=', (int)$requestedAcreage)
-                        ->where('max_acreage', '>=', (int)$requestedAcreage)
-                        // ->orderBy('id', 'desc')
-                        // ->where('status', 1)
-                        ->get()
-                        ->sortByDesc('status');
+                    ->select('id',
+                        'type',
+                        'client_id',
+                        'scheme_name',
+                        'discount_price',
+                        'status',
+                        'deleted_at'
+                    )
+                    ->whereIn('type', [1, 2, 3])
+                    ->where(function ($query) use ($clientId) {
+                        $query->where('client_id', $clientId)
+                        ->orWhereNull('client_id')
+                        ->orWhere('client_id', ''); // Add this condition
+                    })
+                    ->where('crop_id', $cropId)
+                    ->where('period_from', '<=', $orderDate)
+                    ->where('period_to', '>=', $orderDate)
+                    ->where('min_acreage', '<=', (int)$requestedAcreage)
+                    ->where('max_acreage', '>=', (int)$requestedAcreage)
+                    ->orderBy('status', 'desc') // Sort by status in descending order
+                    ->orderBy('updated_at', 'desc') // Then sort by updated_at in descending order
+                    ->get()
+                    ->sortByDesc(function ($scheme) {
+                        return $scheme->status . '-' . $scheme->updated_at;
+                    });
+
 
                     // return $applicableSchemes;
 
@@ -672,7 +729,7 @@ class AssetOperatorController extends Controller
                             // $scheme = Scheme::find($scheme_id);
 
                             if ($scheme) {
-                                if ($scheme->status && $scheme->type == 1 ) {
+                                if ($scheme->status && $scheme->type == 1) {
                                     $type_1 = 1;
                                     $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                     // $total_discount = $total_discount_price+$scheme->discount_price;
@@ -680,17 +737,18 @@ class AssetOperatorController extends Controller
                                     $scheme_ids_array[]  = $scheme->id;
                                     if (!empty($scheme->client_id)) {
                                         // $crop_base_price = $scheme->crop_base_price;
-                                      
+
 
                                         $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                     } else {
-                                     
+
                                         $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
                                     }
                                 }
-                                if (!($scheme->status) && $scheme->type == 1 && !$type_1) {
+                                if (!($scheme->status) && $scheme->type == 1 && !$type_1 && !$type_inactive_1) {
                                     if (date('Y-m-d', strtotime($scheme->deleted_at)) >= $orderDate) {
                                         $scheme_ids_array[]  = $scheme->id;
+                                        $type_inactive_1=1;
                                         if (!empty($scheme->client_id)) {
                                             // $crop_base_price = $scheme->crop_base_price;
                                             $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
@@ -716,9 +774,10 @@ class AssetOperatorController extends Controller
                                         $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
                                     }
                                 }
-                                if (!($scheme->status) && $scheme->type == 2 && !$type_2) {
+                                if (!($scheme->status) && $scheme->type == 2 && !  $type_2 && !$type_inactive_2) {
                                     if (date('Y-m-d', strtotime($scheme->deleted_at)) >= $orderDate) {
                                         $scheme_ids_array[]  = $scheme->id;
+                                        $type_inactive_2=1;
                                         if (!empty($scheme->client_id)) {
                                             // $crop_base_price = $scheme->crop_base_price;
                                             $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
@@ -745,9 +804,10 @@ class AssetOperatorController extends Controller
                                         $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
                                     }
                                 }
-                                if (!($scheme->status) && $scheme->type == 3 && !$type_3) {
+                                if (!($scheme->status) && $scheme->type == 3 && !$type_3 && !$type_inactive_3) {
                                     if (date('Y-m-d', strtotime($scheme->deleted_at)) >= $orderDate) {
                                         $scheme_ids_array[]  = $scheme->id;
+                                        $type_inactive_3=1;
                                         if (!empty($scheme->client_id)) {
                                             // $crop_base_price = $scheme->crop_base_price;
                                             $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
@@ -810,11 +870,12 @@ class AssetOperatorController extends Controller
                         ->where('period_to', '>=', $orderDate)
                         ->where('min_acreage', '<=', (int)$requestedAcreage)
                         ->where('max_acreage', '>=', (int)$requestedAcreage)
-
-                        // ->orderBy('id', 'desc')
-                        // ->where('status', 1)
+                       ->orderBy('status', 'desc') // Sort by status in descending order
+                        ->orderBy('updated_at', 'desc') // Then sort by updated_at in descending order
                         ->get()
-                        ->sortByDesc('status');
+                        ->sortByDesc(function ($scheme) {
+                            return $scheme->status . '-' . $scheme->updated_at;
+                        });
 
 
                     // return $applicableSchemes;
@@ -837,19 +898,20 @@ class AssetOperatorController extends Controller
 
                                     $crop_base_price = $scheme->crop_base_price;
                                     $scheme_ids_array[]  = $scheme->id;
-                                    $type_4=1;
+                                    $type_4 = 1;
                                     if (!empty($scheme->client_id)) {
                                         // $crop_base_price = $scheme->crop_base_price;
-                                      
+
                                         $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                     } else {
-                                       
+
                                         $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
                                     }
                                 }
-                                if (!($scheme->status) && !$type_4) {
+                                if (!($scheme->status) && !$type_4 && !$type_inactive_4) {
                                     if (date('Y-m-d', strtotime($scheme->deleted_at)) >= $orderDate) {
                                         $scheme_ids_array[]  = $scheme->id;
+                                        $type_inactive_4=1;
                                         if (!empty($scheme->client_id)) {
                                             // $crop_base_price = $scheme->crop_base_price;
                                             $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
@@ -858,7 +920,6 @@ class AssetOperatorController extends Controller
                                         }
                                     }
                                 }
-                                                         
                             }
                         }
                         $total_discount_sum = array_sum($total_discount);
@@ -1086,15 +1147,33 @@ class AssetOperatorController extends Controller
                 // print_r($url);
                 $timeline_data['refund_image'] = $customFilename;
             }
-            $get_services_details = Services::find($id);
+            $get_services_details = Services::with('farmLocation')->find($id);
 
 
-
+            $farm_state = $get_services_details->farmLocation->state;
             // return $timeline_data;
+
+            // start
+            $stateName = strtoupper($farm_state); 
+            $stateCode = $this->generateStateCode($stateName);
+          
+
+            // Query the database to get the latest farmer code for the state
+            $latestCode = Services::where('invoice_no', 'like', "AW$stateCode%")
+            ->orderBy('invoice_no', 'desc')
+            ->value('invoice_no');
+
+            // Generate the new farmer code
+            if ($latestCode) {
+                $generated_invoice_no = $this->generateInvoiceNoFromLatest($stateCode, $latestCode);
+            } else {
+                $generated_invoice_no = "AW$stateCode-24000001";
+            }
+            // end
 
             $done_services =   Services::where('id', $id)->update([
                 'amount_received' => $data['amount_received'], 'order_status' => 6,
-                'payment_status' =>  1, 'delivery_date' => date('Y-m-d')
+                'payment_status' =>  1, 'delivery_date' => date('Y-m-d'), 'invoice_no'=> $generated_invoice_no
             ]);
 
             if ($done_services) {
@@ -1115,7 +1194,21 @@ class AssetOperatorController extends Controller
         }
     }
 
-    public function generate_invoice_pdf($id)
+    private function generateInvoiceNoFromLatest($stateCode, $latestCode)
+    {
+        // Extract the numeric part and increment
+        // $numericPart = (int)substr($latestCode, -4) + 1;
+        $numericPart = (int)substr($latestCode, strpos($latestCode, '-') + 1);
+        // Generate the new farmer code
+        $numericPart += 1;
+
+        // Generate the new farmer code
+        $newCode = "AW" . $stateCode . "-" . str_pad($numericPart, 4, '0', STR_PAD_LEFT);
+
+        return $newCode;
+    }
+
+    public function generate_invoice_pdf_old($id)
     {
         // return 1;
         $data = [
@@ -1127,6 +1220,680 @@ class AssetOperatorController extends Controller
         $pdf = PDF::loadView('invoicePDF.invoice', $data);
         return $pdf->stream('sampleTest.pdf');
         // return $pdf->download('sampleTest.pdf');
+    }
+    public function generate_invoice_pdf($id)
+    {
+        $order_details = Services::with(['assetOperator', 'orderTimeline', 'asset', 'clientDetails', 'farmerDetails', 'farmLocation'])->where('id', $id)->first();
+
+        if (empty($order_details)) {
+            return 1;
+        }
+
+        // return $order_details->clientDetails;
+        $base_client_id = $order_details->clientDetails->base_client_id;
+        $get_base_client_details = BaseClient::where('id', $base_client_id)->first();
+
+
+        $s3_url = 'https://agriwingsnew.s3.us-east-2.amazonaws.com';
+        // echo "<pre>"; print_r($order_details['Orderactivity']['CropDetail']['crop_price']); die;
+        // $fmc_img = public_path('assets/fmc.jpg');
+        $auth_sign = public_path('assets/gv_sign.jpg');
+        $footer_img = public_path('assets/footer_pdf.png');
+        $save_water = @$order_details['Orderactivity']['CropName']['water_qty'] * @$order_details['total_acerage'];
+        // dd($order_details['delivery_date']);
+        // $fmc_img = public_path('assets/fmc.jpg');
+        //
+        $agri_wings_img  = $s3_url . '/sign_img/' . $get_base_client_details->sign_img;
+
+        if (!empty($get_base_client_details->logo_img)) {
+            $comp_logo = $s3_url . '/logo_img/' . $get_base_client_details->logo_img;
+        } else {
+            $comp_logo = '';
+        }
+
+        // ===sign image
+        if (!empty($get_base_client_details->sign_img)) {
+            $auth_sign = $s3_url . '/sign_img/' . $get_base_client_details->sign_img;
+        } else {
+            $auth_sign = '';
+        }
+        //sign name
+        if (!empty($get_base_client_details->signature_name)) {
+            $sign_name = $get_base_client_details->signature_name;
+        } else {
+            $sign_name = '';
+        }
+
+        // . $farm_state . '(' . $state_data->state_code . ')
+
+        $html = '<!DOCTYPE html>
+        <html>
+            <head>
+                <meta charset="UTF-8" />
+                <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+                <meta name="viewport" content="width=device-width, initial-scale=1" />
+                <title>Invoice</title>
+
+                <style>
+                    * {
+                        margin: 0;
+                        padding: 0;
+                        font-family: "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+                    }
+                    body {
+                        width: 100%;
+                    }
+
+                    body .p1 {
+                        padding: 0.5rem;
+                    }
+                    body .textRight {
+                        text-align: right;
+                    }
+                    body .textLeft {
+                        text-align: left;
+                    }
+                    body .textCenter {
+                        text-align: center;
+                    }
+                    body .size1 {
+                        font-size: 14px;
+                        line-height: 20px;
+                    }
+                    body .size2 {
+                        font-size: 18px;
+                        line-height: 28px;
+                    }
+                    body .size3 {
+                        font-size: 22px;
+                        line-height: 38px;
+                    }
+                    body .bold {
+                        font-weight: bold;
+                    }
+                    body .redBg {
+                        background: #355a2e;
+                        padding: 14px;
+                    }
+                    body td,
+                    body th {
+                        vertical-align: middle;
+                    }
+                    body .headBg {
+                        min-width: 60px;
+                        -webkit-clip-path: polygon(0% 0%, 0% 100%, 100% 100%, 60px 0%);
+                        clip-path: polygon(0% 0%, 0% 100%, 100% 100%, 60px 0%);
+                    }
+                    body .headTitle {
+                        width: 100%;
+                        -webkit-clip-path: polygon(0% 0%, 30px 100%, 100% 100%, 100% 0%);
+                        clip-path: polygon(0% 0%, 30px 100%, 100% 100%, 100% 0%);
+                    }
+                    body .headTitle .title {
+                        padding: 10px 32px 10px 10px;
+                        color: #fff;
+                        font-size: 24px;
+                        font-weight: 500;
+                    }
+                    body .inlineDetail a {
+                        min-width: 70px;
+                    }
+                    body .inlineDetail a.address {
+                        max-width: 10ch;
+                    }
+                    body .billingClient {
+                        border-radius: 20px;
+                        border: 1px solid rgba(131, 131, 131, 0.5019607843);
+                        padding: 4px;
+                    }
+                    body .billingClient .details {
+                        margin-top: 6px;
+                        background: #ededed;
+                        border-radius: 12px;
+                        padding: 12px;
+                    }
+                    body .key {
+                        width: 25%;
+                    }
+                    body .value {
+                        font-weight: 500;
+                    }
+                    body .value p {
+                        max-width: 30ch;
+                    }
+                    body .invTable {
+                        border-radius: 20px;
+                        border: 1px solid rgba(131, 131, 131, 0.5019607843);
+                        padding: 6px 8px 4px;
+                    }
+                    body .invTable td {
+                        padding-bottom: 4px;
+                    }
+                    body .serviceDetailsTable {
+                        width: 80%;
+                        margin: 1rem auto;
+                        border-collapse: collapse;
+                    }
+                    body .serviceDetailsTable thead {
+                        border-top: 2px solid;
+                        border-bottom: 2px solid;
+                    }
+                    body .serviceDetailsTable thead th {
+                        padding: 5px 16px;
+                    }
+                    body .serviceDetailsTable td {
+                        padding: 4px 16px;
+                        line-height: 26px;
+                    }
+                    body .serviceDetailsTable td svg {
+                        height: 16px;
+                        width: 16px;
+                        margin-right: 12px;
+                        margin-bottom: -4px;
+                    }
+
+                    body .verticalTop {
+                        vertical-align: top;
+                    }
+                    body .innerTable td {
+                        padding: 0;
+                        line-height: 20px;
+                        font-size: 14px;
+                    }
+                    body .p-0 {
+                        padding: 0 10px !important;
+                    }
+                    body .size4 {
+                        font-size: 18px;
+                    }
+
+                    body .pdfHeading {
+                        padding-left: 12px;
+                        text-decoration: underline;
+                    }
+                    body .footer {
+                        position: fixed;
+                        bottom: 20px;
+                        left: 50%;
+                        transform: translateX(-50%);
+                        width: 90%;
+                    }
+                    body ul {
+                        width: 90%;
+                        margin: auto;
+                        font-size: 8px;
+                        padding-top: 1rem;
+                    }
+                    body .companyName {
+                        font-size: 22px;
+                        text-transform: capitalize;
+                        margin-bottom: 8px;
+                    }
+                    body .companyAddress {
+                        font-size: 12px;
+                        margin: auto;
+                        text-transform: capitalize;
+                        color: #333; white-space: normal;
+                        width: 450px;
+                    }
+                    body .companyContact {
+                        font-size: 12px;
+                        color: #333;
+                        margin: 0.2rem auto 3rem;
+                    }
+                    body .footerAdrress {
+                        background-color: #355a2e;
+                        color: #fff;
+                        text-align: center;
+                        padding: 8px;
+                        margin-top: 4px;
+                        font-size: 14px;
+                    }
+                    tr.head td {
+                        border-top: 2px solid;
+                        border-bottom: 2px solid;
+                        padding: 4px;
+                    }
+                </style>
+            </head>
+            <body>
+                <table style="width: 100%; margin-top: 30px">
+                    <tr>
+                        <td class="textRight" style="width: 160px;">
+                            <img
+                                src="' . $agri_wings_img . '"
+                                alt="logo"
+                                style="height: 40px; object-fit: contain; margin-left: 16px;"
+                            />
+                        </td>
+
+                        <td style="vertical-align: bottom; text-align: center; width: 100%">
+                            <p
+                                class="textCenter"
+                                style="
+                                    font-size: 16px;
+                                    text-decoration: underline;
+                                    margin-left: -20px;
+                                "
+                            >
+                                <strong>Bill of Supply</strong>
+                            </p>
+                        </td>
+
+                        <td class="textLeft" style="width: 160px;">
+                            <img
+                                src="' . $comp_logo . '"
+                                alt="logo"
+                                style="width: 100px; object-fit: contain"
+                            />
+                        </td>
+                    </tr>
+                </table>
+
+                <table style="width: 90%; margin: 1rem auto">';
+        $company_name = $get_base_client_details->client_name;
+        $firstLetterCompany = substr($company_name, 0, 1);
+
+        if (!empty($order_details->packing_type)) {
+            $invoice_no_generate = @$order_details->packing_type;
+        } else {
+            if (!empty($order_details->invoice_no)) {
+                $invoice_no_generate = 'added';
+                // $invoice_no_generate = @$firstLetterCompany . '' . @$order_details->dispatch . '' . @$order_details->invoice_no;
+            } else {
+                $invoice_no_generate = '';
+            }
+        }
+
+        // echo "<pre>";
+        // print_r($order_details);
+        // exit;
+
+        $farm_state = $order_details->farmLocation->state;
+        $company_state =   $order_details->clientDetails->state;
+
+        $gst_address =  $order_details->clientDetails->address;
+        // $state_data = StateMaster::where('state_name', $farm_state)->first();
+
+        $html .= '<tbody>
+                        <tr>
+                            <td colspan="2">
+                                <p class="companyName textCenter">
+                                    <strong>' . $get_base_client_details->client_name . '</strong>
+                                </p>
+                                <p class="companyAddress textCenter" style="max-width: 60ch">'
+            . $gst_address . '
+                                </p>
+                                <p class="companyContact textCenter">
+                                PAN: ' . $get_base_client_details->pan_no . ' &nbsp;&nbsp;|&nbsp;&nbsp; GSTIN: ' . $order_details->clientDetails->gst_no . '
+                                </p>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td style="width: 60%">
+                                <p class="pdfHeading">Billed to (Farmer) :</p>
+                                <table style="width: 90%; margin: 0.5rem auto">
+                                    <tr>
+                                        <td class="size1">' . $order_details->farmerDetails->farmer_name . '</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="vertical-align: top" class="size1">
+                                        +91 ' . $order_details->farmerDetails->farmer_mobile_no  . '
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="size1">
+                                            <p>
+                                            #' . @$order_details->farmLocation->address . ',<br /> ' . @$order_details->farmLocation->district . ',<br />' . @$order_details->farmLocation->state . '
+                                            </p>
+                                        </td>
+                                    </tr>
+                                    <!-- <tr>
+                                                 <td class="size1">State Code: 06</td>
+                                         </tr> -->
+                                </table>
+                            </td>
+                            <td style="width: 360px">
+                                <table class="billingClient" style="width: 90%">
+                                    <tr>
+                                        <td class="textCenter">
+                                            <div class="size1">
+                                                <strong>Invoice Details</strong>
+                                            </div>
+                                            <div class="details">
+                                                <p class="inlineDetail textLeft size1">
+                                                    <a>
+                                                        Invoice No.
+                                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;
+                                                    </a>
+                                                    ' . @$invoice_no_generate . '
+                                                </p>
+                                                <p class="inlineDetail textLeft size1">
+                                                    <a>
+                                                        Invoice Date &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;
+                                                    </a>
+                                                    ' . date('d-m-Y', strtotime(@$order_details->delivery_date)) . '
+                                                </p>
+                                                <p class="inlineDetail textLeft size1">
+                                                    <a>
+                                                        State
+                                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                                        &nbsp;&nbsp;&nbsp;&nbsp;:&nbsp;&nbsp;
+                                                    </a>
+                                                    ' . $farm_state . '
+                                                </p>
+                                                <p class="inlineDetail textLeft size1">
+                                                <a>Place of Supply :&nbsp;&nbsp;</a>&nbsp;&nbsp;' . $farm_state . '
+
+                                                </p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td colspan="2">
+                                <table
+                                    style="width: 100%; border-collapse: collapse; margin-top: 1.5rem"
+                                >
+                                    <tr class="head">
+                                        <td class="size1"><strong>Service Details</strong></td>
+                                        <td class="textRight size1" style="white-space: nowrap">
+                                            <strong>Basic Price</strong>
+                                        </td>
+                                        <td class="textRight size1" style="white-space: nowrap">
+                                            <strong>Acreage</strong>
+                                        </td>
+                                        <td class="textRight size1" style="white-space: nowrap">
+                                            <strong>Total Amount</strong>
+                                        </td>
+                                    </tr>';
+
+        if (!empty($order_details->total_amount) && !empty($order_details->sprayed_acreage)) {
+            $crop_base_price = $order_details->total_amount/ $order_details->sprayed_acreage;
+            $acerage  = $order_details->sprayed_acreage;
+        } else if (!empty($order_details->total_amount) && !empty($order_details->requested_acreage) && empty($order_details->sprayed_acreage)) {
+            $crop_base_price = $order_details->total_amount / $order_details->requested_acreage;
+            $acerage  = $order_details->requested_acreage;
+
+
+        }
+
+ 
+
+        $html .= '<tr>
+                                        <td style="border-bottom: 1px solid #83838370">
+                                            <table class="innerTable">
+                                                <tr>
+                                                    <td class="verticalTop">Nature of Service</td>
+                                                    <td class="verticalTop">
+                                                        : Support services to crop production
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="verticalTop">SAC</td>
+                                                    <td class="verticalTop">: 998611</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="verticalTop">Crop</td>
+                                                    <td class="verticalTop">: ' . @$order_details->crop_name . '</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="verticalTop">Date of Service</td>
+                                                    <td class="verticalTop">: ' . date('d-m-Y', strtotime(@$order_details->spray_date)) . '</td>
+                                                </tr>
+                                            </table>
+                                        </td>
+                                        <td
+                                            class="textRight verticalTop"
+                                            style="
+                                                padding-top: 8px;
+                                                width: 120px;
+                                                border-bottom: 1px solid #83838370;
+                                            "
+                                        >
+                                        Rs. ' . $crop_base_price . '
+                                        </td>
+                                        <td
+                                            class="textRight verticalTop"
+                                            style="
+                                                padding-top: 8px;
+                                                width: 100px;
+                                                border-bottom: 1px solid #83838370;
+                                            "
+                                        >
+                                       ' . $acerage . '
+                                        </td>
+                                        <td
+                                            class="textRight verticalTop"
+                                            style="
+                                                padding-top: 8px;
+                                                width: 130px;
+                                                border-bottom: 1px solid #83838370;
+                                            "
+                                        >
+                                        Rs.  ' .$order_details->total_amount . '
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td
+                                            colspan="2"
+                                            class="textRight p-0"
+                                            style="
+                                                padding-top: 10px !important;
+                                                font-size: 14px;
+                                                line-height: 22px;
+                                            "
+                                        >
+                                            Total Basic Amount
+                                        </td>
+                                        <td
+                                            class="p-0 textRight"
+                                            style="
+                                                padding-top: 10px !important;
+                                                font-size: 14px;
+                                                line-height: 22px;
+                                            "
+                                        >
+                                        Rs.  ' . $order_details->total_amount  . '
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td
+                                            colspan="2"
+                                            class="textRight p-0"
+                                            style="font-size: 14px; line-height: 22px"
+                                        >
+                                            Discount</td>
+                                        <td
+                                            class="p-0 textRight"
+                                            style="font-size: 14px; line-height: 22px"
+                                        >
+                                            - Rs.  ' . $order_details->total_discount  . '
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td
+                                            colspan="2"
+                                            class="textRight p-0"
+                                            style="font-size: 14px; line-height: 22px"
+                                        >
+                                            GST (NIL)
+                                        </td>
+                                        <td
+                                            class="p-0 textRight"
+                                            style="font-size: 14px; line-height: 22px"
+                                        >
+                                        Rs. 0
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td></td>
+                                        <td
+                                            colspan="2"
+                                            class="textRight p-0 size4 verticalTop"
+                                            style="
+                                                border-top: 1px solid;
+                                                padding-top: 10px !important;
+                                                white-space: nowrap;
+                                            "
+                                        >
+                                            <strong>Total Invoice Amount</strong>
+                                        </td>
+                                        <td
+                                            class="p-0  textRight verticalTop"
+                                            style="border-top: 1px solid; padding-top: 10px !important"
+                                        >
+                                        <strong>Rs. ' . $order_details->total_payable_amount  . '</strong><br/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                    <td colspan="4" class="textRight p-0 size1 verticalTop"
+                                    style="
+                                        padding-top: 10px !important;
+                                        white-space: nowrap;
+                                    ">
+                                     <strong>In Words: '
+        . NumberToWords::convert( $order_details->total_payable_amount) .
+            ' Only</strong></td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+
+                        <tr>
+
+                            <td colspan="2">
+                                <table style="width: 100%; margin-top: 0.7rem">
+                                    <tr>
+                                        <td style="width: 65%">&nbsp;</td>
+                                        <td class="textCenter">
+                                            <img
+                                                src="' . $auth_sign . '"
+                                                style="
+                                                    width: 120px;
+                                                    min-height: 60px;
+                                                    height: 60px;
+                                                    max-height: 60px;
+                                                    border: none;
+                                                    padding: 16px;
+                                                    object-fit: contain;
+                                                "
+                                            />
+                                            <p style="font-size: 14px; text-align: center">
+                                                <strong>' . @$sign_name . '</strong>
+                                            </p>
+                                            <p class="pdfHeading" style="font-size: 13px; text-decoration: none; padding-left: 0">
+                                            Authorised Signatory
+                                        </p>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="footer">
+                    <p class="pdfHeading" style="margin-top: 1rem; font-size: 12px">
+                        Terms & Conditions
+                    </p>
+
+                    <ul>
+                        <li>
+                        Service Scope: This invoice covers our Boom spray service, limited to the application of pesticides, fertilizers, and other crop treatments provided by the farmer. We shall not be responsible for the supply, selection, or performance of any agri-inputs products used during the service.
+                        </li>
+                        <li>
+                        Service Charges: The Farmer agrees to pay the Provider the agreed-upon service charges for the Boom Spray Services. Payment through Online method only. GST exempted service as per notification No. 12/2017-Central Tax (Rate) dated 28.6. 2017 issued by Ministry of finance, Government of India. Services related to the cultivation of plants, rearing of all life forms of animals, and the care of their products are exempt from GST.
+                        </li>
+
+                        <li>
+                        Compliance with Laws: Our Boom spray operations will comply with all applicable agricultural laws, regulations, and guidelines set forth by the Indian Government and agricultural authorities.
+                        </li>
+
+                        <li>
+                        Liability Limitation: While we strive for the utmost precision and efficiency in our Boom spray service, we shall not be held liable for any non-performance, ineffectiveness, or adverse effects of the agri-inputs provided by the farmer. The farmer assumes full risk and responsibility for the quality, suitability, and outcome of the agri-inputs used.
+                        </li>
+                        <li>
+                        Prior Assessment: Before commencing any Boom spray operations, we shall conduct a thorough assessment of the designated agricultural area. However, it is the farmer' . "'" . 's responsibility to provide accurate and up-to-date information about the area, ensuring the efficacy of the service.
+                        </li>
+                        <li>
+                        Operator Competence: Our Boom spray service is conducted by operators who possess the necessary expertise to perform the spraying operations safely and efficiently.
+                        </li>
+                        <li>
+                        Farmer' . "'" . 's Obligations: The farmer, in this case, the farmer, is solely responsible for purchasing and supplying the appropriate agri-inputs for the Boom spray service. It is essential for the farmer to select high-quality and suitable products for the desired agricultural outcomes.
+                        </li>
+                        <li>
+                        Crop Damage: In the unlikely event of any crop damage or unintended effects due to the application of agri-inputs provided by the farmer, we shall not be held liable. The farmer must promptly address any issues arising from the agri-input' . "'" . 's performance.
+                        </li>
+                        <li>
+                        Indemnification: By availing of our Boom spray service, the farmer agrees to indemnify and hold our company, its employees, and agents harmless from any claims, liabilities, costs, and expenses arising out of or related to the use and performance of the agri-inputs provided by the farmer.
+                        </li>
+                        <li>
+                        Modification: These terms and conditions may be amended or updated as required. The latest version will be made available to the farmer and communicated through official channels.
+                        </li>
+                        <li>
+                        Dispute Resolution: In the event of any disputes or claims arising from the Boom spray service, both parties shall make reasonable efforts to settle the matter amicably through negotiations. The jurisdiction of courts will be at our Regd. Office only.
+                        </li>
+                        <li>
+                        Force Majeure: The performance of the service may be totally or partially suspended by the company during any period in which the company may be prevented or hindered from the performance of the services because of circumstances beyond the reasonable control of the company including but not limited to fire, storm, flood, cyclone, earthquake, pandemic, act of terror, war, riots, and strike.
+                        </li>
+                        <li style="margin-bottom: 12px">
+                        Farmer’s Helpdesk no: 18001026545
+                        </li>
+                    </ul>
+
+                    <!-- <p style="text-align: center; font-size: 10px; margin-top: 8px">
+                        <strong>For Refund/ Dispute Call: +91-8529698369</strong>
+                    </p> -->
+                    <p class="footerAdrress">
+                    ' . @$order_details->companyName->registered_address . '
+                    </p>
+                </div>
+            </body>
+        </html>
+        ';
+
+        // $pdf = PDF::loadView($html);
+        // // Helper::logAction('Download', 'download invoice pdf');
+        // // $pdf->setPaper('A4', 'portrait');
+        // return $pdf->stream('sampleTest.pdf');
+
+
+        // $pdf = PDF::loadView($html);
+        // return $pdf->stream('sampleTest.pdf');
+
+        // Helper::logAction('Download', 'download invoice pdf');
+        $pdf = \App::make('dompdf.wrapper');
+        $pdf->loadHTML($html);
+        // $customPaper = array(0,0,300,1440);
+        $pdf->setPaper('A4', 'portrait');
+        // $pdf->save(public_path() . '/consignment-pdf/invoice.pdf')->stream('invoice.pdf');
+
+        return $pdf->stream('document.pdf');
+
+        // return $pdf->download('Inovice.pdf');
+
+    }
+
+    private function generateStateCode($stateName)
+    {
+        // Find the state code based on the state name in the state array
+        $stateCode = array_search($stateName, $this->stateArray);
+
+        // If state code not found, you might want to handle this case accordingly
+        if (!$stateCode) {
+            // You can throw an exception or use a default value
+            $stateCode = 'UnknownState';
+        }
+
+        return $stateCode;
     }
 
     public function send_invoice_sms()
