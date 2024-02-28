@@ -64,6 +64,13 @@ class SchemeController extends Controller
 
         $data = $request->all();
 
+        if ($data['period_from'] >= date('Y-m-d')
+        ) {
+            return response()->json(['status' => 'error', 'data' => [], 'statuscode' => '400', 'msg' => "Don't Be Smart."]);
+
+        }
+
+
         if (!empty($data['client_id'])) {
             $check_scheme_exists = Scheme::where('type', $data['type'])->where('crop_id', $data['crop_id'])->where('client_id', $data['client_id'])->where('status', 1)->get();
         } else {
