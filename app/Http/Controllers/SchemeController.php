@@ -64,7 +64,7 @@ class SchemeController extends Controller
 
         $data = $request->all();
 
-        if ($data['period_from'] <= date('Y-m-d')
+        if ($data['period_from'] < date('Y-m-d')
         ) {
             return response()->json(['status' => 'error', 'data' => [], 'statuscode' => '400', 'msg' => "Don't Be Smart."]);
 
