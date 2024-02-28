@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -39,6 +40,14 @@ class AuthController extends Controller
             }
 
             return response()->json(['error' => $validator->errors()], 400);
+        }
+
+        $data=$request->all();
+        $check_inactive_user=User::where('email',$data['email'])->first();
+        if($check_inactive_user->status == 0)
+        {
+            return response()->json(['msg' => 'User is Inactive','statuscode'=>'200','data'=>[],'status'=>'error'], 400);
+
         }
 
         $credentials = $request->only('email', 'password');
