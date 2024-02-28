@@ -629,6 +629,12 @@ class AssetOperatorController extends Controller
                 $total_amount = 0;
                 $total_payable = 0;
                 $scheme_ids_array = [];
+                $type_1=0;
+                $type_2 = 0;
+                $type_3 = 0;
+                $type_4 = 0;
+                // $type_5 = 0;
+
 
                 $orderType = $check_order_exists->order_type;
 
@@ -648,7 +654,8 @@ class AssetOperatorController extends Controller
                         ->where('max_acreage', '>=', (int)$requestedAcreage)
                         // ->orderBy('id', 'desc')
                         // ->where('status', 1)
-                        ->get();
+                        ->get()
+                        ->sortByDesc('status');
 
                     // return $applicableSchemes;
 
@@ -665,36 +672,91 @@ class AssetOperatorController extends Controller
                             // $scheme = Scheme::find($scheme_id);
 
                             if ($scheme) {
-                                if ($scheme->status) {
+                                if ($scheme->status && $scheme->type == 1 ) {
+                                    $type_1 = 1;
                                     $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                     // $total_discount = $total_discount_price+$scheme->discount_price;
                                     // return $scheme;
-
+                                    $scheme_ids_array[]  = $scheme->id;
                                     if (!empty($scheme->client_id)) {
                                         // $crop_base_price = $scheme->crop_base_price;
-                                        $scheme_ids_array[]  = $scheme->id;
+                                      
 
                                         $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                     } else {
-                                        $scheme_ids_array[]  = $scheme->id;
-
+                                     
                                         $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
                                     }
-                                } else {
-
-
+                                }
+                                if (!($scheme->status) && $scheme->type == 1 && !$type_1) {
                                     if (date('Y-m-d', strtotime($scheme->deleted_at)) >= $orderDate) {
-
+                                        $scheme_ids_array[]  = $scheme->id;
                                         if (!empty($scheme->client_id)) {
                                             // $crop_base_price = $scheme->crop_base_price;
-                                            $scheme_ids_array[]  = $scheme->id;
                                             $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                         } else {
-                                            $scheme_ids_array[]  = $scheme->id;
                                             $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
                                         }
                                     }
                                 }
+                                //
+                                if ($scheme->status && $scheme->type == 2) {
+                                    $type_2 = 1;
+                                    $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
+                                    // $total_discount = $total_discount_price+$scheme->discount_price;
+                                    // return $scheme;
+                                    $scheme_ids_array[]  = $scheme->id;
+                                    if (!empty($scheme->client_id)) {
+                                        // $crop_base_price = $scheme->crop_base_price;
+
+
+                                        $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
+                                    } else {
+
+                                        $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
+                                    }
+                                }
+                                if (!($scheme->status) && $scheme->type == 2 && !$type_2) {
+                                    if (date('Y-m-d', strtotime($scheme->deleted_at)) >= $orderDate) {
+                                        $scheme_ids_array[]  = $scheme->id;
+                                        if (!empty($scheme->client_id)) {
+                                            // $crop_base_price = $scheme->crop_base_price;
+                                            $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
+                                        } else {
+                                            $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
+                                        }
+                                    }
+                                }
+                                //
+                                //
+                                if ($scheme->status && $scheme->type == 3) {
+                                    $type_3 = 1;
+                                    $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
+                                    // $total_discount = $total_discount_price+$scheme->discount_price;
+                                    // return $scheme;
+                                    $scheme_ids_array[]  = $scheme->id;
+                                    if (!empty($scheme->client_id)) {
+                                        // $crop_base_price = $scheme->crop_base_price;
+
+
+                                        $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
+                                    } else {
+
+                                        $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
+                                    }
+                                }
+                                if (!($scheme->status) && $scheme->type == 3 && !$type_3) {
+                                    if (date('Y-m-d', strtotime($scheme->deleted_at)) >= $orderDate) {
+                                        $scheme_ids_array[]  = $scheme->id;
+                                        if (!empty($scheme->client_id)) {
+                                            // $crop_base_price = $scheme->crop_base_price;
+                                            $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
+                                        } else {
+                                            $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
+                                        }
+                                    }
+                                }
+                                //
                             }
                         }
                         $total_discount_sum = array_sum($total_discount);
@@ -751,7 +813,8 @@ class AssetOperatorController extends Controller
 
                         // ->orderBy('id', 'desc')
                         // ->where('status', 1)
-                        ->get();
+                        ->get()
+                        ->sortByDesc('status');
 
 
                     // return $applicableSchemes;
@@ -771,34 +834,31 @@ class AssetOperatorController extends Controller
                                     $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                     // $total_discount = $total_discount_price+$scheme->discount_price;
                                     // return $total_discount;
-                                   
-                                    $crop_base_price = $scheme->crop_base_price;
 
+                                    $crop_base_price = $scheme->crop_base_price;
+                                    $scheme_ids_array[]  = $scheme->id;
+                                    $type_4=1;
                                     if (!empty($scheme->client_id)) {
                                         // $crop_base_price = $scheme->crop_base_price;
-                                        $scheme_ids_array[]  = $scheme->id;
+                                      
                                         $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                     } else {
-                                        $scheme_ids_array[]  = $scheme->id;
+                                       
                                         $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
                                     }
-                                } else {
+                                }
+                                if (!($scheme->status) && !$type_4) {
                                     if (date('Y-m-d', strtotime($scheme->deleted_at)) >= $orderDate) {
-                                        $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
-                                        // $total_discount = $total_discount_price+$scheme->discount_price;
-                                        // return $total_discount;
-                                        $crop_base_price = $scheme->crop_base_price;
-
+                                        $scheme_ids_array[]  = $scheme->id;
                                         if (!empty($scheme->client_id)) {
-                                            $scheme_ids_array[]  = $scheme->id;
                                             // $crop_base_price = $scheme->crop_base_price;
                                             $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                         } else {
-                                            $scheme_ids_array[]  = $scheme->id;
                                             $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
                                         }
                                     }
                                 }
+                                                         
                             }
                         }
                         $total_discount_sum = array_sum($total_discount);
