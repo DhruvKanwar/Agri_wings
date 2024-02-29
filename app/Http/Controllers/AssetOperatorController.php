@@ -1503,7 +1503,9 @@ class AssetOperatorController extends Controller
 
      
             if (!empty($order_details->invoice_no)) {
-                $invoice_no_generate = $order_details->invoice_no;
+                $invoice_no = explode('-',$order_details->invoice_no);
+                $invoice_no_generate = $invoice_no[0].''.$invoice_no[1];
+                
             } 
 
         // echo "<pre>";
