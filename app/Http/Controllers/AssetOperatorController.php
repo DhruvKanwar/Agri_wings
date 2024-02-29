@@ -1177,6 +1177,7 @@ class AssetOperatorController extends Controller
             }
             // end
 
+            // return $generated_invoice_no;
             $done_services =   Services::where('id', $id)->update([
                 'amount_received' => $data['amount_received'], 'order_status' => 6,
                 'payment_status' =>  1, 'delivery_date' => date('Y-m-d'), 'invoice_no'=> $generated_invoice_no
@@ -1500,16 +1501,10 @@ class AssetOperatorController extends Controller
         $company_name = $get_base_client_details->client_name;
         $firstLetterCompany = substr($company_name, 0, 1);
 
-        if (!empty($order_details->packing_type)) {
-            $invoice_no_generate = @$order_details->packing_type;
-        } else {
+     
             if (!empty($order_details->invoice_no)) {
-                $invoice_no_generate = 'added';
-                // $invoice_no_generate = @$firstLetterCompany . '' . @$order_details->dispatch . '' . @$order_details->invoice_no;
-            } else {
-                $invoice_no_generate = '';
-            }
-        }
+                $invoice_no_generate = $order_details->invoice_no;
+            } 
 
         // echo "<pre>";
         // print_r($order_details);
