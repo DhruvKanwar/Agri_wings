@@ -687,31 +687,32 @@ class AssetOperatorController extends Controller
 
                 if ($orderType == 1) {
                     $applicableSchemes = Scheme::withTrashed()
-                    ->select('id',
-                        'type',
-                        'client_id',
-                        'scheme_name',
-                        'discount_price',
-                        'status',
-                        'deleted_at'
-                    )
-                    ->whereIn('type', [1, 2, 3])
-                    ->where(function ($query) use ($clientId) {
-                        $query->where('client_id', $clientId)
-                        ->orWhereNull('client_id')
-                        ->orWhere('client_id', ''); // Add this condition
-                    })
-                    ->where('crop_id', $cropId)
-                    ->where('period_from', '<=', $orderDate)
-                    ->where('period_to', '>=', $orderDate)
-                    ->where('min_acreage', '<=', (int)$requestedAcreage)
-                    ->where('max_acreage', '>=', (int)$requestedAcreage)
-                    ->orderBy('status', 'desc') // Sort by status in descending order
-                    ->orderBy('updated_at', 'desc') // Then sort by updated_at in descending order
-                    ->get()
-                    ->sortByDesc(function ($scheme) {
-                        return $scheme->status . '-' . $scheme->updated_at;
-                    });
+                        ->select(
+                            'id',
+                            'type',
+                            'client_id',
+                            'scheme_name',
+                            'discount_price',
+                            'status',
+                            'deleted_at'
+                        )
+                        ->whereIn('type', [1, 2, 3])
+                        ->where(function ($query) use ($clientId) {
+                            $query->where('client_id', $clientId)
+                                ->orWhereNull('client_id')
+                                ->orWhere('client_id', ''); // Add this condition
+                        })
+                        ->where('crop_id', $cropId)
+                        ->where('period_from', '<=', $orderDate)
+                        ->where('period_to', '>=', $orderDate)
+                        ->where('min_acreage', '<=', (int)$requestedAcreage)
+                        ->where('max_acreage', '>=', (int)$requestedAcreage)
+                        ->orderBy('status', 'desc') // Sort by status in descending order
+                        ->orderBy('updated_at', 'desc') // Then sort by updated_at in descending order
+                        ->get()
+                        ->sortByDesc(function ($scheme) {
+                            return $scheme->status . '-' . $scheme->updated_at;
+                        });
 
 
                     // return $applicableSchemes;
@@ -749,7 +750,7 @@ class AssetOperatorController extends Controller
                                         // return 'in';
                                         $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                         $scheme_ids_array[]  = $scheme->id;
-                                        $type_inactive_1=1;
+                                        $type_inactive_1 = 1;
                                         if (!empty($scheme->client_id)) {
                                             // $crop_base_price = $scheme->crop_base_price;
                                             $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
@@ -776,11 +777,11 @@ class AssetOperatorController extends Controller
                                         $agriwings_discount_price = $data['sprayed_acreage'] * $scheme->discount_price;
                                     }
                                 }
-                                if (!($scheme->status) && $scheme->type == 2 && !  $type_2 && !$type_inactive_2) {
+                                if (!($scheme->status) && $scheme->type == 2 && !$type_2 && !$type_inactive_2) {
                                     if (date('Y-m-d', strtotime($scheme->deleted_at)) >= $orderDate) {
                                         $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                         $scheme_ids_array[]  = $scheme->id;
-                                        $type_inactive_2=1;
+                                        $type_inactive_2 = 1;
                                         if (!empty($scheme->client_id)) {
                                             // $crop_base_price = $scheme->crop_base_price;
                                             $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
@@ -811,7 +812,7 @@ class AssetOperatorController extends Controller
                                     if (date('Y-m-d', strtotime($scheme->deleted_at)) >= $orderDate) {
                                         $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                         $scheme_ids_array[]  = $scheme->id;
-                                        $type_inactive_3=1;
+                                        $type_inactive_3 = 1;
                                         if (!empty($scheme->client_id)) {
                                             // $crop_base_price = $scheme->crop_base_price;
                                             $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
@@ -875,7 +876,7 @@ class AssetOperatorController extends Controller
                         ->where('period_to', '>=', $orderDate)
                         ->where('min_acreage', '<=', (int)$requestedAcreage)
                         ->where('max_acreage', '>=', (int)$requestedAcreage)
-                       ->orderBy('status', 'desc') // Sort by status in descending order
+                        ->orderBy('status', 'desc') // Sort by status in descending order
                         ->orderBy('updated_at', 'desc') // Then sort by updated_at in descending order
                         ->get()
                         ->sortByDesc(function ($scheme) {
@@ -917,7 +918,7 @@ class AssetOperatorController extends Controller
                                     if (date('Y-m-d', strtotime($scheme->deleted_at)) >= $orderDate) {
                                         $total_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
                                         $scheme_ids_array[]  = $scheme->id;
-                                        $type_inactive_4=1;
+                                        $type_inactive_4 = 1;
                                         if (!empty($scheme->client_id)) {
                                             // $crop_base_price = $scheme->crop_base_price;
                                             $client_discount[] = $data['sprayed_acreage'] * $scheme->discount_price;
@@ -1160,14 +1161,14 @@ class AssetOperatorController extends Controller
             // return $timeline_data;
 
             // start
-            $stateName = strtoupper($farm_state); 
+            $stateName = strtoupper($farm_state);
             $stateCode = $this->generateStateCode($stateName);
-          
+
 
             // Query the database to get the latest farmer code for the state
             $latestCode = Services::where('invoice_no', 'like', "AW$stateCode%")
-            ->orderBy('invoice_no', 'desc')
-            ->value('invoice_no');
+                ->orderBy('invoice_no', 'desc')
+                ->value('invoice_no');
 
             // Generate the new farmer code
             if ($latestCode) {
@@ -1180,7 +1181,7 @@ class AssetOperatorController extends Controller
             // return $generated_invoice_no;
             $done_services =   Services::where('id', $id)->update([
                 'amount_received' => $data['amount_received'], 'order_status' => 6,
-                'payment_status' =>  1, 'delivery_date' => date('Y-m-d'), 'invoice_no'=> $generated_invoice_no
+                'payment_status' =>  1, 'delivery_date' => date('Y-m-d'), 'invoice_no' => $generated_invoice_no
             ]);
 
             if ($done_services) {
@@ -1250,12 +1251,14 @@ class AssetOperatorController extends Controller
         // dd($order_details['delivery_date']);
         // $fmc_img = public_path('assets/fmc.jpg');
         //
-        $agri_wings_img  = $s3_url . '/sign_img/' . $get_base_client_details->sign_img;
+        $d2f_img  = public_path('assets/d2f.png');
+
+      
 
         if (!empty($get_base_client_details->logo_img)) {
             $comp_logo = $s3_url . '/logo_img/' . $get_base_client_details->logo_img;
         } else {
-            $comp_logo = '';
+            $comp_logo =   public_path('assets/agriwing.png');;
         }
 
         // ===sign image
@@ -1468,7 +1471,7 @@ class AssetOperatorController extends Controller
                     <tr>
                         <td class="textRight" style="width: 160px;">
                             <img
-                                src="' . $agri_wings_img . '"
+                                src="' . $comp_logo . '"
                                 alt="logo"
                                 style="height: 40px; object-fit: contain; margin-left: 16px;"
                             />
@@ -1489,7 +1492,7 @@ class AssetOperatorController extends Controller
 
                         <td class="textLeft" style="width: 160px;">
                             <img
-                                src="' . $comp_logo . '"
+                                src="' . $d2f_img . '"
                                 alt="logo"
                                 style="width: 100px; object-fit: contain"
                             />
@@ -1501,12 +1504,11 @@ class AssetOperatorController extends Controller
         $company_name = $get_base_client_details->client_name;
         $firstLetterCompany = substr($company_name, 0, 1);
 
-     
-            if (!empty($order_details->invoice_no)) {
-                $invoice_no = explode('-',$order_details->invoice_no);
-                $invoice_no_generate = $invoice_no[0].''.$invoice_no[1];
-                
-            } 
+
+        if (!empty($order_details->invoice_no)) {
+            $invoice_no = explode('-', $order_details->invoice_no);
+            $invoice_no_generate = $invoice_no[0] . '' . $invoice_no[1];
+        }
 
         // echo "<pre>";
         // print_r($order_details);
@@ -1522,13 +1524,13 @@ class AssetOperatorController extends Controller
                         <tr>
                             <td colspan="2">
                                 <p class="companyName textCenter">
-                                    <strong>' . $get_base_client_details->client_name . '</strong>
+                                    <strong>D2F Services Private Limited</strong>
                                 </p>
-                                <p class="companyAddress textCenter" style="max-width: 60ch">'
-            . $gst_address . '
+                                <p class="companyAddress textCenter" style="max-width: 60ch">
+                                B-103, Bestech Business Towers, Mohali – 160062
                                 </p>
                                 <p class="companyContact textCenter">
-                                PAN: ' . $get_base_client_details->pan_no . ' &nbsp;&nbsp;|&nbsp;&nbsp; GSTIN: ' . $order_details->clientDetails->gst_no . '
+                                PAN: AAJCD8838K &nbsp;&nbsp;|&nbsp;&nbsp; GSTIN: 03AAJCD8838K1Z9
                                 </p>
                             </td>
                         </tr>
@@ -1616,16 +1618,14 @@ class AssetOperatorController extends Controller
                                     </tr>';
 
         if (!empty($order_details->total_amount) && !empty($order_details->sprayed_acreage)) {
-            $crop_base_price = $order_details->total_amount/ $order_details->sprayed_acreage;
+            $crop_base_price = $order_details->total_amount / $order_details->sprayed_acreage;
             $acerage  = $order_details->sprayed_acreage;
         } else if (!empty($order_details->total_amount) && !empty($order_details->requested_acreage) && empty($order_details->sprayed_acreage)) {
             $crop_base_price = $order_details->total_amount / $order_details->requested_acreage;
             $acerage  = $order_details->requested_acreage;
-
-
         }
 
- 
+
 
         $html .= '<tr>
                                         <td style="border-bottom: 1px solid #83838370">
@@ -1678,7 +1678,7 @@ class AssetOperatorController extends Controller
                                                 border-bottom: 1px solid #83838370;
                                             "
                                         >
-                                        Rs.  ' .$order_details->total_amount . '
+                                        Rs.  ' . $order_details->total_amount . '
                                         </td>
                                     </tr>
                                     <tr>
@@ -1763,7 +1763,7 @@ class AssetOperatorController extends Controller
                                         white-space: nowrap;
                                     ">
                                      <strong>In Words: '
-        . NumberToWords::convert( $order_details->total_payable_amount) .
+            . NumberToWords::convert($order_details->total_payable_amount) .
             ' Only</strong></td>
                                     </tr>
                                 </table>
