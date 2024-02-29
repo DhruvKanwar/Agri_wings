@@ -344,7 +344,7 @@ class ServiceController extends Controller
 
         $details = Auth::user();
         $get_user_data = User::where('id', $details->id)->first();
-         if ($get_user_data->role == 'cso' || $get_user_data->role == 'client' )
+         if ($get_user_data->role == 'cso' )
          {
             $user_id =$get_user_data->id;
             $explode_client_ids = explode(',', $get_user_data->client_id);
@@ -358,6 +358,18 @@ class ServiceController extends Controller
             return response()->json(['data' => $services, 'msg' => 'Service List Fetched Successfully', 'statuscode' => '200', 'status' => 'success'], 200);
 
          }
+       else if ($get_user_data->role == 'client') {
+            $user_id = $get_user_data->id;
+            $explode_client_ids = explode(',', $get_user_data->client_id);
+
+            $services = Services::with(['assetOperator', 'orderTimeline', 'asset', 'clientDetails', 'farmerDetails', 'farmLocation'])
+            ->whereIn('client_id', $explode_client_ids)
+                // ->whereHas('orderTimeline', function ($query) use ($user_id) {
+                //     $query->where('created_by_id', $user_id);
+                // })
+                ->get();
+            return response()->json(['data' => $services, 'msg' => 'Service List Fetched Successfully', 'statuscode' => '200', 'status' => 'success'], 200);
+        }
       else  if ($get_user_data->role == 'rtl') {
             $explode_client_ids = explode(',', $get_user_data->client_id);
             $services = Services::with(['assetOperator', 'orderTimeline', 'asset', 'clientDetails', 'farmerDetails', 'farmLocation'])->whereIn('client_id', $explode_client_ids)->get();
