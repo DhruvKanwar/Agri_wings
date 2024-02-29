@@ -1253,7 +1253,7 @@ class AssetOperatorController extends Controller
         //
         $d2f_img  = public_path('assets/d2f.png');
 
-      
+
 
         if (!empty($get_base_client_details->logo_img)) {
             $comp_logo = $s3_url . '/logo_img/' . $get_base_client_details->logo_img;
@@ -1515,9 +1515,12 @@ class AssetOperatorController extends Controller
         // exit;
 
         $farm_state = $order_details->farmLocation->state;
-        $company_state =   $order_details->clientDetails->state;
+        // $company_state =   $order_details->clientDetails->state;
 
-        $gst_address =  $order_details->clientDetails->address;
+        // $gst_address =  $order_details->clientDetails->address;
+
+    
+
         // $state_data = StateMaster::where('state_name', $farm_state)->first();
 
         $html .= '<tbody>
@@ -1617,12 +1620,18 @@ class AssetOperatorController extends Controller
                                         </td>
                                     </tr>';
 
+        $get_crop_details=Crop::where('id', $order_details->crop_id)->first();
+
+        $water_saved_qty= $get_crop_details->water_saved;
         if (!empty($order_details->total_amount) && !empty($order_details->sprayed_acreage)) {
             $crop_base_price = $order_details->total_amount / $order_details->sprayed_acreage;
             $acerage  = $order_details->sprayed_acreage;
+            $water_saved= $acerage* $water_saved_qty;
         } else if (!empty($order_details->total_amount) && !empty($order_details->requested_acreage) && empty($order_details->sprayed_acreage)) {
             $crop_base_price = $order_details->total_amount / $order_details->requested_acreage;
             $acerage  = $order_details->requested_acreage;
+            $water_saved = $acerage * $water_saved_qty;
+
         }
 
 
@@ -1643,6 +1652,10 @@ class AssetOperatorController extends Controller
                                                 <tr>
                                                     <td class="verticalTop">Crop</td>
                                                     <td class="verticalTop">: ' . @$order_details->crop_name . '</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="verticalTop">Water Saved</td>
+                                                    <td class="verticalTop">: ' . $water_saved . ' Ltr'. '</td>
                                                 </tr>
                                                 <tr>
                                                     <td class="verticalTop">Date of Service</td>
@@ -1777,23 +1790,8 @@ class AssetOperatorController extends Controller
                                     <tr>
                                         <td style="width: 65%">&nbsp;</td>
                                         <td class="textCenter">
-                                            <img
-                                                src="' . $auth_sign . '"
-                                                style="
-                                                    width: 120px;
-                                                    min-height: 60px;
-                                                    height: 60px;
-                                                    max-height: 60px;
-                                                    border: none;
-                                                    padding: 16px;
-                                                    object-fit: contain;
-                                                "
-                                            />
-                                            <p style="font-size: 14px; text-align: center">
-                                                <strong>' . @$sign_name . '</strong>
-                                            </p>
-                                            <p class="pdfHeading" style="font-size: 13px; text-decoration: none; padding-left: 0">
-                                            Authorised Signatory
+                                            <p class="pdfHeading" style="font-size: 13px; text-decoration: none; padding-top: 1rem; padding-left: 0">
+                                            This invoice has been electronically signed and does not require a physical signature
                                         </p>
                                         </td>
                                     </tr>
@@ -1809,52 +1807,76 @@ class AssetOperatorController extends Controller
                     </p>
 
                     <ul>
-                        <li>
-                        Service Scope: This invoice covers our Boom spray service, limited to the application of pesticides, fertilizers, and other crop treatments provided by the farmer. We shall not be responsible for the supply, selection, or performance of any agri-inputs products used during the service.
-                        </li>
-                        <li>
-                        Service Charges: The Farmer agrees to pay the Provider the agreed-upon service charges for the Boom Spray Services. Payment through Online method only. GST exempted service as per notification No. 12/2017-Central Tax (Rate) dated 28.6. 2017 issued by Ministry of finance, Government of India. Services related to the cultivation of plants, rearing of all life forms of animals, and the care of their products are exempt from GST.
-                        </li>
-
-                        <li>
-                        Compliance with Laws: Our Boom spray operations will comply with all applicable agricultural laws, regulations, and guidelines set forth by the Indian Government and agricultural authorities.
-                        </li>
-
-                        <li>
-                        Liability Limitation: While we strive for the utmost precision and efficiency in our Boom spray service, we shall not be held liable for any non-performance, ineffectiveness, or adverse effects of the agri-inputs provided by the farmer. The farmer assumes full risk and responsibility for the quality, suitability, and outcome of the agri-inputs used.
-                        </li>
-                        <li>
-                        Prior Assessment: Before commencing any Boom spray operations, we shall conduct a thorough assessment of the designated agricultural area. However, it is the farmer' . "'" . 's responsibility to provide accurate and up-to-date information about the area, ensuring the efficacy of the service.
-                        </li>
-                        <li>
-                        Operator Competence: Our Boom spray service is conducted by operators who possess the necessary expertise to perform the spraying operations safely and efficiently.
-                        </li>
-                        <li>
-                        Farmer' . "'" . 's Obligations: The farmer, in this case, the farmer, is solely responsible for purchasing and supplying the appropriate agri-inputs for the Boom spray service. It is essential for the farmer to select high-quality and suitable products for the desired agricultural outcomes.
-                        </li>
-                        <li>
-                        Crop Damage: In the unlikely event of any crop damage or unintended effects due to the application of agri-inputs provided by the farmer, we shall not be held liable. The farmer must promptly address any issues arising from the agri-input' . "'" . 's performance.
-                        </li>
-                        <li>
-                        Indemnification: By availing of our Boom spray service, the farmer agrees to indemnify and hold our company, its employees, and agents harmless from any claims, liabilities, costs, and expenses arising out of or related to the use and performance of the agri-inputs provided by the farmer.
-                        </li>
-                        <li>
-                        Modification: These terms and conditions may be amended or updated as required. The latest version will be made available to the farmer and communicated through official channels.
-                        </li>
-                        <li>
-                        Dispute Resolution: In the event of any disputes or claims arising from the Boom spray service, both parties shall make reasonable efforts to settle the matter amicably through negotiations. The jurisdiction of courts will be at our Regd. Office only.
-                        </li>
-                        <li>
-                        Force Majeure: The performance of the service may be totally or partially suspended by the company during any period in which the company may be prevented or hindered from the performance of the services because of circumstances beyond the reasonable control of the company including but not limited to fire, storm, flood, cyclone, earthquake, pandemic, act of terror, war, riots, and strike.
-                        </li>
+                       <li>
+                Service Scope: This invoice covers our AgriWings Drone Spray Service,
+                limited to the application of pesticides, fertilizers, and other crop treatments
+                provided by the farmer. We shall not be responsible for the supply, selection,
+                or performance of any agri-inputs products used during the Service.
+            </li>
+            <li>
+                Service Charges: The Farmer agrees to pay the Provider the agreed-upon
+                Service charges for the AgriWings Drone Spray Services. Payment through
+                Online method only. GST exempted Service as per notification No. 12/2017-
+                Central Tax (Rate) dated 28.6. 2017 issued by Ministry of finance,
+                Government of India. Services related to the cultivation of plants, rearing of
+                all life forms of animals, and the care of their products are exempt from GST.
+                Compliance with Laws: Our AgriWings Drone Spray operations will comply
+                with all applicable agricultural laws, regulations, and guidelines set forth by
+                the Indian Government and agricultural authorities.
+            </li>
+            <li>
+                Liability Limitation: While we strive for the utmost precision and efficiency in
+                our AgriWings Drone Spray Service, we shall not be held liable for any non-
+                performance, ineffectiveness, or adverse effects of the agri-inputs provided
+                by the farmer. The farmer assumes full risk and responsibility for the quality,
+                suitability, and outcome of the agri-inputs used.
+                Prior Assessment: Before commencing any AgriWings Drone Spray
+                operations, we shall conduct a thorough assessment of the designated
+                agricultural area. However, it is the farmer' . '' . 's responsibility to provide
+                accurate and up-to-date information about the area, ensuring the efficacy of
+                the Service.
+            </li>
+            <li>
+                Operator Competence: Our AgriWings Drone Spray Service is conducted by
+                operators who possess the necessary expertise to perform the spraying
+                operations safely and efficiently.
+                Farmer' . '' . 's Obligations: The farmer, in this case, the farmer, is solely
+                responsible for purchasing and supplying the appropriate agri-inputs for the
+                AgriWings Drone Spray Service. It is essential for the farmer to select high-
+                quality and suitable products for the desired agricultural outcomes.
+            </li>
+            <li>Crop Damage: In the unlikely event of any crop damage or unintended
+                effects due to the application of agri-inputs provided by the farmer, we shall
+                not be held liable. The farmer must promptly address any issues arising from
+                the agri-input' . '' . 's performance.
+            </li>
+            <li>
+                Indemnification: By availing of our AgriWings Drone Spray Service, the
+                farmer agrees to indemnify and hold our company, its employees, and
+                agents harmless from any claims, liabilities, costs, and expenses arising out
+                of or related to the use and performance of the agri-inputs provided by the
+                farmer.
+            </li>
+            <li>Modification: These terms and conditions may be amended or updated as
+                required. The latest version will be made available to the farmer and
+                communicated through official channels.
+                Dispute Resolution: In the event of any disputes or claims arising from the
+                AgriWings Drone Spray Service, both parties shall make reasonable efforts
+                to settle the matter amicably through negotiations. The jurisdiction of courts
+                will be at our Regd. Office only.
+            </li>
+            <li>Force Majeure: The performance of the Service may be totally or partially
+                suspended by the company during any period in which the company may be
+                prevented or hindered from the performance of the Services because of
+                circumstances beyond the reasonable control of the company including but
+                not limited to fire, storm, flood, cyclone, earthquake, pandemic, act of terror,
+                war, riots, and strike.
+            </li>
                         <li style="margin-bottom: 12px">
-                        Farmer’s Helpdesk no: 18001026545
+                        Farmer’s Helpdesk no: 9889161313
                         </li>
                     </ul>
 
-                    <!-- <p style="text-align: center; font-size: 10px; margin-top: 8px">
-                        <strong>For Refund/ Dispute Call: +91-8529698369</strong>
-                    </p> -->
                     <p class="footerAdrress">
                     ' . @$order_details->companyName->registered_address . '
                     </p>
