@@ -179,7 +179,7 @@ class ServiceController extends Controller
             $parts = explode('-', $latest_order_id->order_id);
             $lastNumber = end($parts);
             $nextNumber = (int)$lastNumber + 1;
-            $formattedNextNumber = sprintf('%05d', $nextNumber);
+            $formattedNextNumber = sprintf('%06d', $nextNumber); // Corrected to '%06d'
             $data['order_id'] = 'Order-' . $formattedNextNumber;
         }
         $data['order_date'] = date('Y-m-d');
