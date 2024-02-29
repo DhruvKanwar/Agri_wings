@@ -44,6 +44,9 @@ class AuthController extends Controller
 
         $data=$request->all();
         $check_inactive_user=User::where('email',$data['email'])->first();
+        if (empty($check_inactive_user)) {
+            return response()->json(['msg' => 'User Not Exists.', 'statuscode' => '403', 'data' => [], 'status' => 'error'], 400);
+
         if($check_inactive_user->status == 0)
         {
             return response()->json(['msg' => 'User is Inactive','statuscode'=>'403','data'=>[],'status'=>'error'], 400);
