@@ -1229,8 +1229,12 @@ class AssetOperatorController extends Controller
         return $pdf->stream('sampleTest.pdf');
         // return $pdf->download('sampleTest.pdf');
     }
-    public function generate_invoice_pdf($id)
+    public function generate_invoice_pdf($str)
     {
+        $id = base64_decode($str);
+        // $id = base64_encode($str);
+
+        // return $id;
         $order_details = Services::with(['assetOperator', 'orderTimeline', 'asset', 'clientDetails', 'farmerDetails', 'farmLocation'])->where('id', $id)->first();
 
         if (empty($order_details)) {
