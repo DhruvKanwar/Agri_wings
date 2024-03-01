@@ -1070,7 +1070,7 @@ class AssetOperatorController extends Controller
     public function mark_spray_successful(Request $request)
     {
         $data = $request->all();
-
+        DB::beginTransaction();
         // return $data;
         $id = $data['id'];
         $check_order_exists = Services::where('id', $id)->first();
@@ -1089,20 +1089,34 @@ class AssetOperatorController extends Controller
             $timeline_data['delivered_created_by'] = $details->name;
             $timeline_data['delivered_date'] = date('Y-m-d');
 
-            if ($check_order_exists->order_type == 4 || $check_order_exists->order_type == 5) {
-                $done_services =   Services::where('id', $id)->update([
-                    'order_status' => 6,
-                    'payment_status' =>  1, 'delivery_date' => date('Y-m-d')
-                ]);
+         
 
-                if ($done_services) {
-                    $get_services_details = Services::find($id);
-                    $update_time_line = OrdersTimeline::where('id', $get_services_details->order_details_id)->update($timeline_data);
-                }
+            try {
+                if ($check_order_exists->order_type == 4 || $check_order_exists->order_type == 5) {
+                    $done_services =   Services::where('id', $id)->update([
+                        'order_status' => 6,
+                        'payment_status' =>  1, 'delivery_date' => date('Y-m-d')
+                    ]);
 
-                if ($update_time_line) {
-                    return response()->json(['msg' => 'Spray Makred Successful..', 'status' => 'success', 'statuscode' => '200', 'data' => $get_services_details], 201);
+                    if ($done_services) {
+                        $get_services_details = Services::find($id);
+                        $update_time_line = OrdersTimeline::where('id', $get_services_details->order_details_id)->update($timeline_data);
+                    }
+
+                    if ($update_time_line) {
+                        // Commit the transaction
+                        DB::commit();
+                        self::send_invoice_sms($get_services_details->id);
+
+                        return response()->json(['msg' => 'Spray Marked Successful..', 'status' => 'success', 'statuscode' => '200', 'data' => $get_services_details], 201);
+                    }
                 }
+            } catch (\Exception $e) {
+                // If an error occurs, rollback the transaction
+                DB::rollback();
+
+                // Return an error response
+                return response()->json(['msg' => 'An error occurred while marking spray.', 'status' => 'error', 'statuscode' => '500', 'error' => $e->getMessage()], 500);
             }
 
             $amountReceivedString = $data['amount_received'];
@@ -1178,22 +1192,38 @@ class AssetOperatorController extends Controller
             }
             // end
 
-            // return $generated_invoice_no;
-            $done_services =   Services::where('id', $id)->update([
-                'amount_received' => $data['amount_received'], 'order_status' => 6,
-                'payment_status' =>  1, 'delivery_date' => date('Y-m-d'), 'invoice_no' => $generated_invoice_no
-            ]);
+    
 
-            if ($done_services) {
-                $get_services_details = Services::find($id);
-                $update_time_line = OrdersTimeline::where('id', $get_services_details->order_details_id)->update($timeline_data);
-            }
+            try {
+                $done_services = Services::where('id', $id)->update([
+                    'amount_received' => $data['amount_received'],
+                    'order_status' => 6,
+                    'payment_status' => 1,
+                    'delivery_date' => date('Y-m-d'),
+                    'invoice_no' => $generated_invoice_no
+                ]);
 
-            if ($update_time_line) {
-                // self::send_invoice_sms($get_services_details->id);
-                $fetch_services = Services::where('id', $id)->first();
-                AssetOperator::where('id', $fetch_services->asset_operator_id)->update(['assigned_status' => 0]);
-                return response()->json(['msg' => 'Spray Makred Successful..', 'status' => 'success', 'statuscode' => '200', 'data' => $get_services_details], 201);
+                if ($done_services) {
+                    $get_services_details = Services::find($id);
+                    $update_time_line = OrdersTimeline::where('id', $get_services_details->order_details_id)->update($timeline_data);
+                }
+
+                if ($update_time_line) {
+               
+                    $fetch_services = Services::where('id', $id)->first();
+                    AssetOperator::where('id', $fetch_services->asset_operator_id)->update(['assigned_status' => 0]);
+
+                    // Commit the transaction
+                    DB::commit();
+                    self::send_invoice_sms($get_services_details->id);
+                    return response()->json(['msg' => 'Spray Marked Successful..', 'status' => 'success', 'statuscode' => '200', 'data' => $get_services_details], 201);
+                }
+            } catch (\Exception $e) {
+                // If an error occurs, rollback the transaction
+                DB::rollback();
+
+                // Return an error response
+                return response()->json(['msg' => 'An error occurred while marking spray.', 'status' => 'error', 'statuscode' => '500', 'error' => $e->getMessage()], 200);
             }
 
 
@@ -1950,7 +1980,7 @@ class AssetOperatorController extends Controller
         // return 1;
         // $id=3;
 
-        $service_table=Services::with('assetOperator')->where('id',$id)->first();
+        $service_table=Services::with('assetOperator', 'farmerDetails')->where('id',$id)->first();
         if(empty($service_table))
         {
             return "Not valid order";
@@ -1963,6 +1993,11 @@ class AssetOperatorController extends Controller
         $API = "PY95H00rx0aSJP7v8ofVsA"; // GET Key from SMS Provider
         $peid = "1701168155524038890"; // Get Key from DLT
         $sender_id = "AGRWNG"; // Approved from DLT
+        $mob = $service_table->farmerDetails->farmer_mobile_no;
+        if(empty($mob))
+        {
+            return '';
+        }
         $mob = '8529698369'; // Get Mobile Number from Sender
       
         // print_r($getsender);
@@ -1978,6 +2013,7 @@ class AssetOperatorController extends Controller
 
         $url = 'http://sms.innuvissolutions.com/api/mt/SendSMS?APIkey=' . $API . '&senderid=' . $sender_id . '&channel=Trans&DCS=0&flashsms=0&number=' . urlencode($mob) . '&text=' . urlencode($umsg) . '&route=2&peid=' . urlencode($peid) . '';
 
+    //    $this->SendTSMS($url);
         self::SendTSMS($url);
 
         // return 1;
