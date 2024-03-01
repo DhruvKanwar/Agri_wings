@@ -1190,7 +1190,7 @@ class AssetOperatorController extends Controller
             }
 
             if ($update_time_line) {
-                // self::send_invoice_sms($get_services_details->id);
+                self::send_invoice_sms($get_services_details->id);
                 $fetch_services = Services::where('id', $id)->first();
                 AssetOperator::where('id', $fetch_services->asset_operator_id)->update(['assigned_status' => 0]);
                 return response()->json(['msg' => 'Spray Makred Successful..', 'status' => 'success', 'statuscode' => '200', 'data' => $get_services_details], 201);
@@ -1978,7 +1978,7 @@ class AssetOperatorController extends Controller
 
         $url = 'http://sms.innuvissolutions.com/api/mt/SendSMS?APIkey=' . $API . '&senderid=' . $sender_id . '&channel=Trans&DCS=0&flashsms=0&number=' . urlencode($mob) . '&text=' . urlencode($umsg) . '&route=2&peid=' . urlencode($peid) . '';
 
-        $this->SendTSMS($url);
+        self::SendTSMS($url);
 
         // return 1;
         
@@ -1999,7 +1999,7 @@ class AssetOperatorController extends Controller
         // $this->SendTSMS($url);
     }
 
-    public function SendTSMS($hostUrl)
+    public static function SendTSMS($hostUrl)
     {
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $hostUrl);
