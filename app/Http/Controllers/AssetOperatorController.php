@@ -1106,7 +1106,7 @@ class AssetOperatorController extends Controller
                     if ($update_time_line) {
                         // Commit the transaction
                         DB::commit();
-                        self::send_invoice_sms($get_services_details->id);
+                        // self::send_invoice_sms($get_services_details->id);
 
                         return response()->json(['msg' => 'Spray Marked Successful..', 'status' => 'success', 'statuscode' => '200', 'data' => $get_services_details], 201);
                     }
@@ -1215,7 +1215,7 @@ class AssetOperatorController extends Controller
 
                     // Commit the transaction
                     DB::commit();
-                    self::send_invoice_sms($get_services_details->id);
+                    // self::send_invoice_sms($get_services_details->id);
                     return response()->json(['msg' => 'Spray Marked Successful..', 'status' => 'success', 'statuscode' => '200', 'data' => $get_services_details], 201);
                 }
             } catch (\Exception $e) {
@@ -1993,11 +1993,20 @@ class AssetOperatorController extends Controller
         $API = "PY95H00rx0aSJP7v8ofVsA"; // GET Key from SMS Provider
         $peid = "1701168155524038890"; // Get Key from DLT
         $sender_id = "AGRWNG"; // Approved from DLT
-        $mob = $service_table->farmerDetails->farmer_mobile_no;
-        if(empty($mob))
-        {
-            return '';
+
+        $live_host_name = request()->getHttpHost();
+
+        // || $live_host_name == "ter.etsbeta.com"
+
+        if ($live_host_name == 'localhost:8000' || $live_host_name == 'new.agriwings.in') {
+             $mob = '8529698369';
+        }else{
+            $mob = $service_table->farmerDetails->farmer_mobile_no;
+            if (empty($mob)) {
+                return '';
+            }
         }
+      
         // $mob = '8529698369'; // Get Mobile Number from Sender
       
         // print_r($getsender);
