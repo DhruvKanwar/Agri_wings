@@ -55,4 +55,4 @@ Route::group(['middleware' => ['auth']], function () {
 
 });
 
-Route::get('/{id}', [AssetOperatorController::class, 'redirect_to_invoice']);
+Route::get('/zp/{id}', [AssetOperatorController::class, 'redirect_to_invoice']);

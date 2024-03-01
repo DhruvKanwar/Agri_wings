@@ -1927,7 +1927,6 @@ class AssetOperatorController extends Controller
 
     public function redirect_to_invoice($id)
     {
-        // return $id;
     return self::generate_invoice_pdf($id);
     }
 
@@ -1955,7 +1954,7 @@ class AssetOperatorController extends Controller
         // print_r($getsender);
         // exit;
 
-           $invoice_url= 'https://new.agriwings.in/.'.base64_encode($id);
+           $invoice_url= 'https://new.agriwings.in/zp/.'.base64_encode($id);
         //    $invoice_url = 'https://new.agriwings.in/inv';
         //    return $invoice_url;
      
