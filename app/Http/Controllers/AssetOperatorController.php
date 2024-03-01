@@ -1190,6 +1190,7 @@ class AssetOperatorController extends Controller
             }
 
             if ($update_time_line) {
+                self::send_invoice_sms($get_services_details->id);
                 $fetch_services = Services::where('id', $id)->first();
                 AssetOperator::where('id', $fetch_services->asset_operator_id)->update(['assigned_status' => 0]);
                 return response()->json(['msg' => 'Spray Makred Successful..', 'status' => 'success', 'statuscode' => '200', 'data' => $get_services_details], 201);
@@ -1927,14 +1928,27 @@ class AssetOperatorController extends Controller
 
     public function redirect_to_invoice($id)
     {
-    return self::generate_invoice_pdf($id);
+        // Check if $id is a valid base64-encoded string
+        if (!preg_match('/^[a-zA-Z0-9\/\+]*={0,2}$/', $id)) {
+            return 'ID is not applicable for this';
+        }
+
+        // Decode the base64-encoded string
+        $decodedId = base64_decode($id);
+
+        // Validate if the decoded string is a valid number
+        if (!is_numeric($decodedId)) {
+            return 'ID is not applicable for this';
+        }
+
+        return self::generate_invoice_pdf($id);
     }
 
-    public function send_invoice_sms()
+    public static function send_invoice_sms($id)
     {
 
         // return 1;
-        $id=3;
+        // $id=3;
 
         $service_table=Services::with('assetOperator')->where('id',$id)->first();
         if(empty($service_table))
