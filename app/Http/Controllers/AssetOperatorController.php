@@ -1190,7 +1190,7 @@ class AssetOperatorController extends Controller
             }
 
             if ($update_time_line) {
-                self::send_invoice_sms($get_services_details->id);
+                // self::send_invoice_sms($get_services_details->id);
                 $fetch_services = Services::where('id', $id)->first();
                 AssetOperator::where('id', $fetch_services->asset_operator_id)->update(['assigned_status' => 0]);
                 return response()->json(['msg' => 'Spray Makred Successful..', 'status' => 'success', 'statuscode' => '200', 'data' => $get_services_details], 201);
@@ -1964,7 +1964,7 @@ class AssetOperatorController extends Controller
         $peid = "1701168155524038890"; // Get Key from DLT
         $sender_id = "AGRWNG"; // Approved from DLT
         $mob = '8529698369'; // Get Mobile Number from Sender
-        $mob = '7888565237';
+      
         // print_r($getsender);
         // exit;
 
