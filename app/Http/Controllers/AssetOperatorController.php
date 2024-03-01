@@ -1238,7 +1238,7 @@ class AssetOperatorController extends Controller
         $order_details = Services::with(['assetOperator', 'orderTimeline', 'asset', 'clientDetails', 'farmerDetails', 'farmLocation'])->where('id', $id)->first();
 
         if (empty($order_details)) {
-            return 1;
+            return "Invalid Invoice Number";
         }
 
         // return $order_details->clientDetails;
@@ -1927,6 +1927,7 @@ class AssetOperatorController extends Controller
 
     public function send_invoice_sms()
     {
+
         return 1;
 
         $API = "cBQcckyrO0Sib5k7y9eUDw"; // GET Key from SMS Provider
@@ -1944,6 +1945,24 @@ class AssetOperatorController extends Controller
         $url = 'http://sms.innuvissolutions.com/api/mt/SendSMS?APIkey=' . $API . '&senderid=' . $sender_id . '&channel=Trans&DCS=0&flashsms=0&number=' . urlencode($mob) . '&text=' . urlencode($umsg) . '&route=2&peid=' . urlencode($peid) . '';
 
         $this->SendTSMS($url);
+
+        // return 1;
+        
+        // $API = "cBQcckyrO0Sib5k7y9eUDw"; // GET Key from SMS Provider
+        // $peid = "1201159713185947382"; // Get Key from DLT
+        // $sender_id = "FAPLHR"; // Approved from DLT
+        // $mob = '9876543424234243'; // Get Mobile Number from Sender
+        // $name = 'AgriWings';
+        // // print_r($getsender);
+        // // exit;
+
+
+        // $UNID = '123';
+        // $umsg = "Dear $name , your TER for Period 12-23-2933 to 12-23-2976 has been received and is under process. TER UNID is $UNID Thanks! Frontiers";
+
+        // $url = 'http://sms.innuvissolutions.com/api/mt/SendSMS?APIkey=' . $API . '&senderid=' . $sender_id . '&channel=Trans&DCS=0&flashsms=0&number=' . urlencode($mob) . '&text=' . urlencode($umsg) . '&route=2&peid=' . urlencode($peid) . '';
+
+        // $this->SendTSMS($url);
     }
 
     public function SendTSMS($hostUrl)
