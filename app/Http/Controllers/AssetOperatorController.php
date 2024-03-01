@@ -1229,7 +1229,7 @@ class AssetOperatorController extends Controller
         return $pdf->stream('sampleTest.pdf');
         // return $pdf->download('sampleTest.pdf');
     }
-    public function generate_invoice_pdf($str)
+    public static  function generate_invoice_pdf($str)
     {
         $id = base64_decode($str);
         // $id = base64_encode($str);
@@ -1925,22 +1925,43 @@ class AssetOperatorController extends Controller
         return $stateCode;
     }
 
+    public function redirect_to_invoice($id)
+    {
+        // return $id;
+    return self::generate_invoice_pdf($id);
+    }
+
     public function send_invoice_sms()
     {
 
-        return 1;
+        // return 1;
+        $id=3;
 
-        $API = "cBQcckyrO0Sib5k7y9eUDw"; // GET Key from SMS Provider
-        $peid = "1201159713185947382"; // Get Key from DLT
-        $sender_id = "FAPLHR"; // Approved from DLT
-        $mob = '9876543424234243'; // Get Mobile Number from Sender
-        $name = 'AgriWings';
+        $service_table=Services::with('assetOperator')->where('id',$id)->first();
+        if(empty($service_table))
+        {
+            return "Not valid order";
+        }
+        $farmer_name=$service_table->farmer_name;
+        $order_id  = $service_table->order_id;
+        $operator_name= $service_table->assetOperator->name;
+        $payable_amount    = $service_table->total_payable_amount;
+
+        $API = "PY95H00rx0aSJP7v8ofVsA"; // GET Key from SMS Provider
+        $peid = "1701168155524038890"; // Get Key from DLT
+        $sender_id = "AGRWNG"; // Approved from DLT
+        $mob = '8529698369'; // Get Mobile Number from Sender
+        $mob = '7888565237';
         // print_r($getsender);
         // exit;
 
-
-        $UNID = '123';
-        $umsg = "Dear $name , your TER for Period 12-23-2933 to 12-23-2976 has been received and is under process. TER UNID is $UNID Thanks! Frontiers";
+           $invoice_url= 'https://new.agriwings.in/.'.base64_encode($id);
+        //    $invoice_url = 'https://new.agriwings.in/inv';
+        //    return $invoice_url;
+     
+        $umsg= "Dear $farmer_name, Your AgriWings order no $order_id has been completed by $operator_name. Invoice: $invoice_url of  Rs $payable_amount Thanks for choosing AgriWings.";
+        // $umsg = "Dear $name , your TER for Period 12-23-2933 to 12-23-2976 has been received and is under process. TER UNID is $UNID Thanks! Frontiers";
+      
 
         $url = 'http://sms.innuvissolutions.com/api/mt/SendSMS?APIkey=' . $API . '&senderid=' . $sender_id . '&channel=Trans&DCS=0&flashsms=0&number=' . urlencode($mob) . '&text=' . urlencode($umsg) . '&route=2&peid=' . urlencode($peid) . '';
 

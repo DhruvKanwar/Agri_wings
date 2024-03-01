@@ -177,3 +177,4 @@ Route::middleware(['auth:sanctum'])->group(function () {
 });
 Route::get('generate_invoice_pdf/{id}', [AssetOperatorController::class, 'generate_invoice_pdf']);
 Route::get('send_invoice_sms', [AssetOperatorController::class, 'send_invoice_sms']);
+

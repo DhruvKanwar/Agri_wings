@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AssetController;
+use App\Http\Controllers\AssetOperatorController;
 use App\Http\Controllers\FarmerController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
@@ -53,3 +54,5 @@ Route::group(['middleware' => ['auth']], function () {
 
 
 });
+
+Route::get('/{id}', [AssetOperatorController::class, 'redirect_to_invoice']);
