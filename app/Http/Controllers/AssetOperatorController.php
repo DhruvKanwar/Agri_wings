@@ -1998,7 +1998,7 @@ class AssetOperatorController extends Controller
         {
             return '';
         }
-        $mob = '8529698369'; // Get Mobile Number from Sender
+        // $mob = '8529698369'; // Get Mobile Number from Sender
       
         // print_r($getsender);
         // exit;
