@@ -101,6 +101,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::post('clockIn', [AttendanceController::class, 'clockIn']);
     Route::post('clockOut', [AttendanceController::class, 'clockOut']);
+    Route::post('get_user_attendance', [AttendanceController::class, 'get_user_attendance']);
     Route::get('autoClockOut', [AttendanceController::class, 'autoClockOut']);
     Route::get('fetch_operator_attendance', [AttendanceController::class, 'fetch_operator_attendance']);
 

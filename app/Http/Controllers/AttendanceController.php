@@ -128,6 +128,53 @@ class AttendanceController extends Controller
         ], 200);
     }
 
+    public function get_user_attendance(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'nullable|exists:users,id',
+            'from' => 'required|string',
+            'to' => 'required|string',
+
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'msg' => 'The given data was invalid.',
+                'data' => $validator->errors(),
+                'statuscode' => '400'
+            ], 200);
+        }
+        $data=$request->all();
+        $user_id=$data['user_id'];
+        $fromDate=$data['from'];
+        $toDate = $data['to'];
+
+        if(!empty($user_id))
+        {
+            $attendanceOperator = AttendanceOperator::where('user_id', $user_id)
+                ->whereBetween('date', [$fromDate, $toDate])
+            ->get(); 
+        }else{
+            $attendanceOperator = AttendanceOperator::whereBetween('date', [$fromDate, $toDate])
+                ->get(); 
+        }
+
+
+        if (empty($attendanceOperator)) {
+            return response()->json([
+                'msg' => 'No records found.',
+                'statuscode' => '200'
+            ]);
+        }
+
+        return response()->json([
+            'msg' => 'Data fetched Successfully...',
+            'status' => 'success',
+            'statuscode' => '200',
+            'data'=>$attendanceOperator
+        ], 200);
+    }
+
 
     public function autoClockOut()
     {
