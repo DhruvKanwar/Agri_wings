@@ -110,6 +110,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('submit_operator_reimbursement', [ReimbursementController::class, 'submit_operator_reimbursement']);
     Route::post('get_all_reimbursements', [ReimbursementController::class, 'get_all_reimbursements']);
     Route::post('edit_operator_reimbursement', [ReimbursementController::class, 'edit_operator_reimbursement']);
+    Route::post('get_reimburse_dashboard_details', [ReimbursementController::class, 'get_reimburse_dashboard_details']);
+
 
 
 

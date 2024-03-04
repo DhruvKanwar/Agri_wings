@@ -214,4 +214,60 @@ class ReimbursementController extends Controller
             'data' => $dashboardData
         ], 200);
     }
+
+    public function get_reimburse_dashboard_details(Request $request)
+    {
+
+        // Validate the incoming request
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|string',
+            'from_date' => 'required|date',
+            'to_date' => 'required|date',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'statuscode' => '422',
+                'msg' => 'Invalid input data.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $userId = $request->input('user_id');
+        $fromDate = $request->input('from_date');
+        $toDate = $request->input('to_date');
+        $category = $request->input('category');
+
+        // Start building the query
+        $query = OperatorReimbursementDetail::select('category', 'claimed_amount', 'id')
+            ->where('user_id', $userId)
+            ->whereDate('from_date', '>=', $fromDate)
+            ->whereDate('to_date', '<=', $toDate);
+
+        // If category is provided, add it to the query
+        if ($category) {
+            $query->where('category', $category);
+        }
+
+        // Execute the query
+        $dashboardData = $query->get();
+
+        // Format the response
+        $formattedData = [];
+        foreach ($dashboardData as $data) {
+            $formattedData[] = [
+                'id' => $data->id,
+                'category' => $data->category,
+                'amount' => $data->claimed_amount,
+            ];
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'statuscode' => '200',
+            'msg' => 'Data fetched successfully.',
+            'data' => $formattedData
+        ], 200);
+    }
 }
