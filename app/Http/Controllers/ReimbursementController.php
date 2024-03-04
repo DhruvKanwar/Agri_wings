@@ -195,7 +195,8 @@ class ReimbursementController extends Controller
         // Start building the query
         $query = OperatorReimbursementDetail::where('user_id', $userId)
             ->whereDate('from_date', '>=', $fromDate)
-            ->whereDate('to_date', '<=', $toDate);
+            ->whereDate('to_date', '<=', $toDate)
+            ->where('status', 1);
 
         // If category is provided, add it to the query
         if ($category) {
@@ -243,8 +244,8 @@ class ReimbursementController extends Controller
         $query = OperatorReimbursementDetail::select('category', 'claimed_amount', 'id')
             ->where('user_id', $userId)
             ->whereDate('from_date', '>=', $fromDate)
-            ->whereDate('to_date', '<=', $toDate);
-
+            ->whereDate('to_date', '<=', $toDate)
+            ->where('status', 1);
         // If category is provided, add it to the query
         if ($category) {
             $query->where('category', $category);
