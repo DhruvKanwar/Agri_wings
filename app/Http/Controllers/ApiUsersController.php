@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
-
+use Illuminate\Support\Facades\Auth;
 class ApiUsersController extends Controller
 {
     //
@@ -123,6 +123,10 @@ class ApiUsersController extends Controller
             }
 
             $user->assignRole($data['role']);
+            // Invalidate user's session if active
+            if (Auth::check() && Auth::id() == $id) {
+                Auth::logout();
+            }
             // $user->roles()->attach($get_role->id);
         } else {
             unset($data['role']);
