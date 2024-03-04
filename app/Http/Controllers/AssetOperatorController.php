@@ -474,11 +474,13 @@ class AssetOperatorController extends Controller
             if ($assetOperator) {
                 if (!empty($asset_id)) {
                     AssetOperator::where('id', $id)->update(['end_date' => $end_date, 'status' => 0, 'asset_id' => '']);
+                    User::where('login_id', $assetOperator->user_id)->update(['status'=>0]);
                     $assetOperator->delete();
                     AssetDetails::where('id', $asset_id)->update(['assigned_date' => null, 'assigned_status' => 0]);
                     return response()->json(['statuscode' => '200', 'status' => 'success',  'msg' => 'Record deleted successfully']);
                 } else {
                     AssetOperator::where('id', $id)->update(['end_date' => $end_date, 'status' => 0]);
+                    User::where('login_id', $assetOperator->user_id)->update(['status' => 0]);
                     $assetOperator->delete();
                     return response()->json(['statuscode' => '200', 'status' => 'success',  'msg' => 'Record deleted successfully']);
                 }

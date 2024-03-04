@@ -11,6 +11,7 @@ use App\Http\Controllers\ChemicalController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CropController;
 use App\Http\Controllers\FarmerController;
+use App\Http\Controllers\ReimbursementController;
 use App\Http\Controllers\SchemeController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\VehicleController;
@@ -104,6 +105,13 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('get_user_attendance', [AttendanceController::class, 'get_user_attendance']);
     Route::get('autoClockOut', [AttendanceController::class, 'autoClockOut']);
     Route::get('fetch_operator_attendance', [AttendanceController::class, 'fetch_operator_attendance']);
+
+
+    Route::post('submit_operator_reimbursement', [ReimbursementController::class, 'submit_operator_reimbursement']);
+    Route::post('get_all_reimbursements', [ReimbursementController::class, 'get_all_reimbursements']);
+    Route::post('edit_operator_reimbursement', [ReimbursementController::class, 'edit_operator_reimbursement']);
+
+
 
 
 
