@@ -50,7 +50,7 @@ class AuthController extends Controller
 
         if($check_inactive_user->status == 0)
         {
-            return response()->json(['msg' => 'User is Inactive','statuscode'=>'403','data'=>[],'status'=>'error'], 400);
+            return response()->json(['msg' => 'User is Inactive','statuscode'=>'403','data'=>[],'status'=>'error']);
 
         }
 
