@@ -1999,7 +1999,7 @@ class AssetOperatorController extends Controller
         // || $live_host_name == "ter.etsbeta.com"
 
         if ($live_host_name == 'localhost:8000' || $live_host_name == 'new.agriwings.in') {
-             $mob = '8529698369';
+             $mob = '9878616117';
         }else{
             $mob = $service_table->farmerDetails->farmer_mobile_no;
             if (empty($mob)) {
