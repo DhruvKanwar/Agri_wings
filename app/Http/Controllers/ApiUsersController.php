@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+
 class ApiUsersController extends Controller
 {
     //
@@ -100,7 +102,6 @@ class ApiUsersController extends Controller
         $data = $request->all();
         $id = $data['id'];
         $user = User::find($id);
-
         if (!$user) {
             return response()->json(['status' => 'error', 'statuscode' => '404', 'msg' => 'User not found'], 404);
         }
@@ -122,11 +123,20 @@ class ApiUsersController extends Controller
                 $user->roles()->detach($get_role->id);
             }
 
-            $user->assignRole($data['role']);
-            // Invalidate user's session if active
-            if (Auth::check() && Auth::id() == $id) {
-                Auth::logout();
+            // Revoke user's API token if exists
+
+            $tokens = DB::table('personal_access_tokens')->where('tokenable_id', $user->id)
+            ->get();
+           
+            if(!empty($tokens))
+            {
+                foreach ($tokens as $token) {
+                    DB::table('personal_access_tokens')->where('id', $token->id)->delete();
+                }
+        
             }
+         
+          
             // $user->roles()->attach($get_role->id);
         } else {
             unset($data['role']);
