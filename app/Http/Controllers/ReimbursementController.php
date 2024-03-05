@@ -135,6 +135,11 @@ class ReimbursementController extends Controller
                 'statuscode' => '404',
                 'msg' => 'Status of this Reimbursement is not in Created Mode',
             ], 200);
+        }else{
+            $reimbursement->update(['status'=>0]);
+
+            // Return response
+            return response()->json(['status' => 'success', 'statuscode' => '200', 'msg' => 'Reimbursement updated successfully'], 200);
         }
 
         // Check if the reimbursement exists
