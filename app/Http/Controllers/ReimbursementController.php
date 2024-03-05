@@ -374,7 +374,7 @@ class ReimbursementController extends Controller
             DB::commit();
 
             // Return success response
-            return response()->json(['message' => 'TER details submitted successfully'], 200);
+            return response()->json(['msg' => 'TER details submitted successfully','statuscode'=>'200','status'=>'success'], 200);
         } catch (\Exception $e) {
             DB::rollBack();
 
