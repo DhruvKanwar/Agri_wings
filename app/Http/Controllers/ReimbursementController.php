@@ -309,7 +309,7 @@ class ReimbursementController extends Controller
         $check_ter_exist=Ter::where('user_id',$userId)->whereDate('from_date', '>=', $fromDate)
         ->whereDate('to_date', '<=', $toDate)
         ->where('status', '!=',0)->get();
-        if(!empty($check_ter_exist))
+        if(count($check_ter_exist) != 0)
         {
             return response()->json([
                 'status' => 'error',
