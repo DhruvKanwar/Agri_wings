@@ -250,7 +250,7 @@ class ReimbursementController extends Controller
             ->where('user_id', $userId)
             ->whereDate('from_date', '>=', $fromDate)
             ->whereDate('to_date', '<=', $toDate)
-            ->where('status', '=',2);
+            ->where('status', '=',2)->get();
 
             if(count($query) == 0)
             {
