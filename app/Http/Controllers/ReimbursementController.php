@@ -250,11 +250,20 @@ class ReimbursementController extends Controller
             ->where('user_id', $userId)
             ->whereDate('from_date', '>=', $fromDate)
             ->whereDate('to_date', '<=', $toDate)
-            ->where('status', '!=',0);
-        // If category is provided, add it to the query
-        if ($category) {
-            $query->where('category', $category);
-        }
+            ->where('status', '=',2);
+
+            if(count($query) == 0)
+            {
+            $query = OperatorReimbursementDetail::select('category', 'claimed_amount', 'id')
+            ->where('user_id', $userId)
+            ->whereDate('from_date', '>=', $fromDate)
+            ->whereDate('to_date', '<=', $toDate)
+            ->where('status', '=', 1);
+            }
+        // // If category is provided, add it to the query
+        // if ($category) {
+        //     $query->where('category', $category);
+        // }
 
         // Execute the query
         $dashboardData = $query->get();
@@ -308,7 +317,7 @@ class ReimbursementController extends Controller
 
         $check_ter_exist=Ter::where('user_id',$userId)->whereDate('from_date', '>=', $fromDate)
         ->whereDate('to_date', '<=', $toDate)
-        ->where('status', '!=',0)->get();
+            ->whereIn('status', [1, 2])->get();
         if(count($check_ter_exist) != 0)
         {
             return response()->json([
