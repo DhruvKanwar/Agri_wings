@@ -201,7 +201,7 @@ class ReimbursementController extends Controller
         $query = OperatorReimbursementDetail::where('user_id', $userId)
             ->whereDate('from_date', '>=', $fromDate)
             ->whereDate('to_date', '<=', $toDate)
-            ->where('status', 1);
+            ->where('status', '!=',0);
 
         // If category is provided, add it to the query
         if ($category) {
