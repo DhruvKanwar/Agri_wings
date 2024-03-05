@@ -10,6 +10,7 @@ use App\Http\Controllers\BatteryController;
 use App\Http\Controllers\ChemicalController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CropController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FarmerController;
 use App\Http\Controllers\ReimbursementController;
 use App\Http\Controllers\SchemeController;
@@ -111,6 +112,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('get_all_reimbursements', [ReimbursementController::class, 'get_all_reimbursements']);
     Route::post('edit_operator_reimbursement', [ReimbursementController::class, 'edit_operator_reimbursement']);
     Route::post('get_reimburse_dashboard_details', [ReimbursementController::class, 'get_reimburse_dashboard_details']);
+    Route::post('final_ter_submit', [ReimbursementController::class, 'final_ter_submit']);
+
 
 
 
@@ -168,6 +171,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
 
+    Route::get('get_fleet_management_details', [DashboardController::class, 'get_fleet_management_details']);
 
 
 

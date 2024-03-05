@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\OperatorReimbursementDetail;
+use App\Models\Ter;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -271,4 +272,191 @@ class ReimbursementController extends Controller
             'data' => $formattedData
         ], 200);
     }
+
+
+    public function final_ter_submit(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|exists:users,id',
+            'from_date' => 'required|date',
+            'to_date' => 'required|date|after_or_equal:from_date',
+            'da_amount' => 'required|string',
+            'total_attendance' => 'required|string',
+            'total_claimed_amount' => 'required|string',
+            'da_limit' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'statuscode' => '422',
+                'msg' => 'Invalid input data.',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $data = $request->all();
+        $userId = $data['user_id'];
+        $fromDate = $data['from_date'];
+        $toDate = $data['to_date'];
+
+        $get_current_reimburse_details = OperatorReimbursementDetail::where('user_id', $userId)
+        ->whereDate('from_date', '>=', $fromDate)
+        ->whereDate('to_date', '<=', $toDate)
+        ->where('status', 1)->get();
+
+        $categoryIds = [];
+        $totalCategoryAmount = 0;
+
+        foreach ($get_current_reimburse_details as $detail) {
+            $categoryIds[] = $detail->id;
+            $totalCategoryAmount += $detail->claimed_amount;
+        }
+
+        $check_claimed_amount = $totalCategoryAmount + $data['da_amount'];
+        $data['total_category_amount'] = $totalCategoryAmount;
+        $data['submit_date'] = date('Y-m-d');
+
+        $check_da_amount = $data['da_limit'] * $data['total_attendance'];
+
+        if ($check_da_amount != $data['da_amount']) {
+            return response()->json([
+                'status' => 'error',
+                'statuscode' => '200',
+                'msg' => 'Da Amount not matching',
+                'data' => []
+            ], 200);
+        }
+
+        if ($check_claimed_amount != $data['total_claimed_amount']) {
+            return response()->json([
+                'status' => 'error',
+                'statuscode' => '200',
+                'msg' => 'Claimed Amount not matching',
+                'data' => []
+            ], 200);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            // Add category_ids to the data array
+            $data['category_ids'] = implode(',', $categoryIds);
+
+            // Create Ter record
+            $ter = Ter::create($data);
+
+            if ($ter) {
+                // Update OperatorReimbursementDetail records
+                OperatorReimbursementDetail::whereIn('id', $categoryIds)
+                    ->update(['status' => 2, 'unid' => $ter->id]);
+            }
+
+            DB::commit();
+
+            // Return success response
+            return response()->json(['message' => 'TER details submitted successfully'], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            // Handle the exception
+            return response()->json([
+                'status' => 'error',
+                'statuscode' => '500',
+                'msg' => 'An error occurred while processing your request.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // public function final_ter_submit(Request $request)
+    // {
+    //     $validator = Validator::make($request->all(), [
+    //         'user_id' => 'required|exists:users,id',
+    //         'from_date' => 'required|date',
+    //         'to_date' => 'required|date|after_or_equal:from_date',
+    //         'da_amount' => 'required|string',
+    //         'total_attendance' => 'required|string',
+    //         'total_claimed_amount' => 'required|string',
+    //         'da_limit' => 'required|string',
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'statuscode' => '422',
+    //             'msg' => 'Invalid input data.',
+    //             'errors' => $validator->errors(),
+    //         ], 422);
+    //     }
+
+    //     $data=$request->all();
+
+    //     $userId=$data['user_id'];
+    //     $fromDate=$data['from_date'];
+    //     $toDate = $data['to_date'];
+
+
+    //     $get_current_reimburse_details = OperatorReimbursementDetail::where('user_id', $userId)
+    //         ->whereDate('from_date', '>=', $fromDate)
+    //         ->whereDate('to_date', '<=', $toDate)
+    //         ->where('status', 1)->get();
+
+    //     $categoryIds = [];
+    //     $totalCategoryAmount = 0;
+
+    //     foreach ($get_current_reimburse_details as $detail) {
+    //         $categoryIds[] = $detail->id;
+    //         $totalCategoryAmount += $detail->claimed_amount;
+    //     }
+
+    //     $check_claimed_amount=$totalCategoryAmount+$data['da_amount'];
+    //     $data['total_category_amount']= $totalCategoryAmount;
+    //     $data['submit_date'] = date('Y-m-d');
+
+
+
+    //     $check_da_amount =  $data['da_limit'] * $data['total_attendance'];
+
+    //     if ($check_da_amount != $data['da_amount']) {
+
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'statuscode' => '200',
+    //             'msg' => 'Da Amount not matching',
+    //             'data' => []
+    //         ], 200);
+    //     }
+
+    //     if($check_claimed_amount != $data['total_claimed_amount'])
+    //     {
+
+    //         return response()->json([
+    //             'status' => 'error',
+    //             'statuscode' => '200',
+    //             'msg' => 'Claimed Amount not matching',
+    //             'data' => []
+    //         ], 200);
+    //     }
+
+
+    //     // Convert categoryIds array to a comma-separated string
+    //     $data['category_ids'] = implode(',', $categoryIds);
+
+
+
+    //     $ter = Ter::create($data);
+
+    //     if ($ter) {
+    //         $explode_category_ids = explode(',', $data['category_ids']);
+
+    //         // Update OperatorReimbursementDetail records in a single query
+    //         OperatorReimbursementDetail::whereIn('id', $explode_category_ids)
+    //         ->update(['status' => 2, 'unid' => $ter->id]);
+    //     }
+    
+
+    //     // Return success response
+    //     return response()->json(['message' => 'TER details submitted successfully'], 200);
+    // }
 }
