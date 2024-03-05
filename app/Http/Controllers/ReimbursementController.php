@@ -107,7 +107,6 @@ class ReimbursementController extends Controller
             'bill_amount' => 'numeric',
             'claimed_amount' => 'numeric|lte:bill_amount',
             'remarks' => 'string',
-            'attachment' => 'nullable|image|mimes:jpeg,png,jpg,gif,pdf',
             'user_id' => 'string', // Assuming user_id is a string
         ]);
         $data = $request->all();
@@ -136,12 +135,12 @@ class ReimbursementController extends Controller
                 'msg' => 'Status of this Reimbursement is not in Created Mode',
             ], 200);
         }
-        // else{
-        //     $reimbursement->update(['status'=>0]);
+        else{
+            $reimbursement->update(['status'=>0]);
 
-        //     // Return response
-        //     return response()->json(['status' => 'success', 'statuscode' => '200', 'msg' => 'Reimbursement updated successfully'], 200);
-        // }
+            // Return response
+            return response()->json(['status' => 'success', 'statuscode' => '200', 'msg' => 'Reimbursement updated successfully'], 200);
+        }
 
         // Check if the reimbursement exists
         if (!$reimbursement) {
