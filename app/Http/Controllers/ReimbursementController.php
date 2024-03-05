@@ -260,13 +260,15 @@ class ReimbursementController extends Controller
         // Execute the query
         $dashboardData = $query->get();
 
+        $groupedData = $dashboardData->groupBy('category');
         // Format the response
         $formattedData = [];
-        foreach ($dashboardData as $data) {
+        foreach ($groupedData  as $category => $items) {
+            $totalAmount = $items->sum('claimed_amount');
             $formattedData[] = [
-                'id' => $data->id,
-                'category' => $data->category,
-                'amount' => $data->claimed_amount,
+                // 'id' => $data->id,
+                'category' => $category,
+                'amount' => $totalAmount,
             ];
         }
 
