@@ -327,7 +327,6 @@ class ReimbursementController extends Controller
                 'data' => []
             ], 200);
         }
-
         $get_current_reimburse_details = OperatorReimbursementDetail::where('user_id', $userId)
         ->whereDate('from_date', '>=', $fromDate)
         ->whereDate('to_date', '<=', $toDate)
