@@ -24,4 +24,10 @@ class Ter extends Model
         'remarks',
         'status',
     ];
+
+  
+    public function operatorReimbursement()
+    {
+        return $this->hasMany('App\Models\OperatorReimbursementDetail', 'unid', 'id');
+    }
 }

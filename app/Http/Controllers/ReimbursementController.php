@@ -369,6 +369,13 @@ class ReimbursementController extends Controller
         }
     }
 
+    public function get_ter_list()
+    {
+        $schemes = Ter::with('operatorReimbursement')->get();
+
+        return response()->json(['status' => 'success', 'statuscode' => '200', 'data' => $schemes, 'msg' => 'Scheme List Fetched Successfully...']);
+    }
+
     // public function final_ter_submit(Request $request)
     // {
     //     $validator = Validator::make($request->all(), [
