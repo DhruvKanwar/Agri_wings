@@ -306,6 +306,19 @@ class ReimbursementController extends Controller
         $fromDate = $data['from_date'];
         $toDate = $data['to_date'];
 
+        $check_ter_exist=Ter::where('user_id',$userId)->whereDate('from_date', '>=', $fromDate)
+        ->whereDate('to_date', '<=', $toDate)
+        ->where('status', '!=',0)->get();
+        if(!empty($check_ter_exist))
+        {
+            return response()->json([
+                'status' => 'error',
+                'statuscode' => '200',
+                'msg' => 'Ter Already Exists..',
+                'data' => []
+            ], 200);
+        }
+
         $get_current_reimburse_details = OperatorReimbursementDetail::where('user_id', $userId)
         ->whereDate('from_date', '>=', $fromDate)
         ->whereDate('to_date', '<=', $toDate)
