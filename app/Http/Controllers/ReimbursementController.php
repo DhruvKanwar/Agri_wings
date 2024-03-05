@@ -250,7 +250,7 @@ class ReimbursementController extends Controller
             ->where('user_id', $userId)
             ->whereDate('from_date', '>=', $fromDate)
             ->whereDate('to_date', '<=', $toDate)
-            ->where('status', '=',2)->get();
+            ->where('status', 2)->get();
 
             if(count($query) == 0)
             {
@@ -258,7 +258,7 @@ class ReimbursementController extends Controller
             ->where('user_id', $userId)
             ->whereDate('from_date', '>=', $fromDate)
             ->whereDate('to_date', '<=', $toDate)
-            ->where('status', '=', 1);
+            ->where('status',1);
             }
         // // If category is provided, add it to the query
         // if ($category) {
