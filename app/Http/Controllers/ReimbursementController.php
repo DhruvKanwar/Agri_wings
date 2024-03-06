@@ -491,7 +491,38 @@ class ReimbursementController extends Controller
         $data = $request->all();
 
         $id=$data['id'];
-        // $check_ter_table=Ter::where('id')
+        $check_ter_table=Ter::where('id',$id)->first();
+        if(empty($check_ter_table))
+        {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'statuscode' => '200',
+                    'msg' => 'Ter Does not exists.',
+                    'data' => []
+                ],
+                200
+            );
+        }
+
+        if($data['status'] == 2)
+        {
+
+           $update_ter= Ter::where('id',$id)->update(['status'=>2,'hr_updated_date'=>date('Y-m-d')]);
+
+           if($update_ter)
+           {
+            OperatorReimbursementDetail::where('unid',$id)->update(['status'=>3]);
+           }
+
+        } else if ($data['status'] == 3) {
+
+            $update_ter = Ter::where('id', $id)->update(['status' => 3, 'hr_updated_date' => date('Y-m-d'),'remarks'=>$data['remarks']]);
+
+            if ($update_ter) {
+                OperatorReimbursementDetail::where('unid', $id)->update(['status' => 4]);
+            }
+        }
 
 
             return response()->json([

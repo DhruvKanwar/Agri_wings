@@ -116,6 +116,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
     Route::post('get_ter_list', [ReimbursementController::class, 'get_ter_list']);
+    Route::post('update_ter_details', [ReimbursementController::class, 'update_ter_details']);
+
 
 
 
