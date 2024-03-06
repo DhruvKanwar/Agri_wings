@@ -51,6 +51,7 @@ class ReimbursementController extends Controller
         $validatedData = $validator->validated();
 
        $check_users_table=User::where('id', $validatedData['user_id'])->first();
+       
 
        if(empty($check_users_table))
        {
@@ -63,6 +64,19 @@ class ReimbursementController extends Controller
             return response()->json(['status' => 'error', 'statuscode' => '200', 'msg' => 'Failed to submit reimbursement for inactive user','data'=>[]], 200);
 
        }
+
+
+        $check_ter_table = Ter::where('user_id',
+            $validatedData['user_id']
+        )->whereDate('from_date', '>=', $validatedData['from_date'])
+        ->whereDate('to_date', '<=', $validatedData['to_date'])
+        ->where('status', '!=',3)->get();
+
+        if(count($check_ter_table) != 0)
+        {
+            return response()->json(['status' => 'error', 'statuscode' => '200', 'msg' => 'Ter already submitted for this month', 'data' => []], 200);
+
+        }
 
 
         $attachment = $request->file('attachment');
