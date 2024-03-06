@@ -293,7 +293,7 @@ class ReimbursementController extends Controller
                 // 'id' => $data->id,
                 'category' => $category,
                 'amount' => $totalAmount,
-                'status' => $category->status
+                'status' => $items[0]->status
             ];
         }
 
