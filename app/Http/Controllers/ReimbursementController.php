@@ -413,11 +413,71 @@ class ReimbursementController extends Controller
         }
     }
 
-    public function get_ter_list()
+    public function get_ter_list(Request $request)
     {
-        $schemes = Ter::with('operatorReimbursement')->get();
+        $validator = Validator::make($request->all(), [
+            'from_date' => 'required|date',
+            'to_date' => 'required|date|after_or_equal:from_date'
+        ], $messages);
+
+        // Check if validation fails
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'statuscode' => '422',
+                'msg' => 'The given data was invalid.',
+                'errors' => $validator->errors(),
+            ], 200);
+        }
+
+        $data=$request->all();
+
+        $fromDate=$data['from_date'];
+        $toDate = $data['to_date'];
+
+        $schemes = Ter::with('operatorReimbursement')->whereDate('from_date', '>=', $fromDate)
+            ->whereDate('to_date', '<=', $toDate)->get();
 
         return response()->json(['status' => 'success', 'statuscode' => '200', 'data' => $schemes, 'msg' => 'Scheme List Fetched Successfully...']);
+    }
+
+    public function update_ter_details(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'id' => 'required|string',
+            'status' => 'required|string',
+            'remarks' => 'nullable|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'statuscode' => '422',
+                'msg' => 'Invalid input data.',
+                'errors' => $validator->errors(),
+            ],
+                422
+            );
+        }
+
+        $data = $request->all();
+
+        $id=$data['id'];
+        // $check_ter_table=Ter::where('id')
+
+
+            return response()->json([
+                'status' => 'error',
+                'statuscode' => '200',
+                'msg' => 'Da Amount not matching',
+                'data' => []
+            ],
+                200
+            );
+        
+        
+
+        }
     }
 
     // public function final_ter_submit(Request $request)
