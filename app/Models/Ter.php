@@ -22,7 +22,7 @@ class Ter extends Model
         'submit_date',
         'hr_updated_date',
         'remarks',
-        'status',
+        'status', 'operator_id'
     ];
 
   

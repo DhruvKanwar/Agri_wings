@@ -16,6 +16,7 @@ class CreateTerTable extends Migration
         Schema::create('ter', function (Blueprint $table) {
             $table->id();
             $table->string('user_id');
+            $table->string('operator_id');
             $table->date('from_date');
             $table->date('to_date');
             $table->string('da_amount');

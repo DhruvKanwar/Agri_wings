@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AssetOperator;
 use App\Models\OperatorReimbursementDetail;
 use App\Models\Ter;
 use App\Models\User;
@@ -50,34 +51,28 @@ class ReimbursementController extends Controller
         // Validate the request
         $validatedData = $validator->validated();
 
-       $check_users_table=User::where('id', $validatedData['user_id'])->first();
-       
+        $check_users_table = User::where('id', $validatedData['user_id'])->first();
 
-       if(empty($check_users_table))
-       {
+
+        if (empty($check_users_table)) {
             return response()->json(['status' => 'error', 'statuscode' => '200', 'msg' => 'Failed to submit reimbursement for non existence user', 'data' => []], 200);
+        }
 
-       }
-
-       if(!$check_users_table->status)
-       {
-            return response()->json(['status' => 'error', 'statuscode' => '200', 'msg' => 'Failed to submit reimbursement for inactive user','data'=>[]], 200);
-
-       }
+        if (!$check_users_table->status) {
+            return response()->json(['status' => 'error', 'statuscode' => '200', 'msg' => 'Failed to submit reimbursement for inactive user', 'data' => []], 200);
+        }
 
 
         $check_ter_table = Ter::where('user_id', $validatedData['user_id'])
-        ->whereYear('from_date', '=', date('Y', strtotime($validatedData['from_date'])))
-        ->whereMonth('from_date', '=', date('m', strtotime($validatedData['from_date'])))
-        ->whereYear('to_date', '=', date('Y', strtotime($validatedData['to_date'])))
-        ->whereMonth('to_date', '=', date('m', strtotime($validatedData['to_date'])))
-        ->where('status', '!=', 3)
-        ->get();
+            ->whereYear('from_date', '=', date('Y', strtotime($validatedData['from_date'])))
+            ->whereMonth('from_date', '=', date('m', strtotime($validatedData['from_date'])))
+            ->whereYear('to_date', '=', date('Y', strtotime($validatedData['to_date'])))
+            ->whereMonth('to_date', '=', date('m', strtotime($validatedData['to_date'])))
+            ->where('status', '!=', 3)
+            ->get();
 
-        if(count($check_ter_table) != 0)
-        {
+        if (count($check_ter_table) != 0) {
             return response()->json(['status' => 'error', 'statuscode' => '200', 'msg' => 'Ter already submitted for this month', 'data' => []], 200);
-
         }
 
 
@@ -126,7 +121,7 @@ class ReimbursementController extends Controller
             'user_id' => 'string', // Assuming user_id is a string
         ]);
         $data = $request->all();
-        $id=$data['id'];
+        $id = $data['id'];
 
         // Check if validation fails
         if ($validator->fails()) {
@@ -138,20 +133,19 @@ class ReimbursementController extends Controller
             ], 200);
         }
 
-     
+
         // Find the existing reimbursement
         $reimbursement = OperatorReimbursementDetail::find($id);
 
 
-        if($reimbursement->status !=1)
-        {
+        if ($reimbursement->status != 1) {
             return response()->json([
                 'status' => 'error',
                 'statuscode' => '404',
                 'msg' => 'Status of this Reimbursement is not in Created Mode',
             ], 200);
         } else if ($reimbursement->status == 0) {
-            $reimbursement->update(['status'=>0]);
+            $reimbursement->update(['status' => 0]);
 
             // Return response
             return response()->json(['status' => 'success', 'statuscode' => '200', 'msg' => 'Reimbursement updated successfully'], 200);
@@ -217,7 +211,7 @@ class ReimbursementController extends Controller
         $query = OperatorReimbursementDetail::where('user_id', $userId)
             ->whereDate('from_date', '>=', $fromDate)
             ->whereDate('to_date', '<=', $toDate)
-            ->where('status', '!=',0);
+            ->where('status', '!=', 0);
 
         // If category is provided, add it to the query
         if ($category) {
@@ -227,7 +221,7 @@ class ReimbursementController extends Controller
         // Execute the query
         $dashboardData = $query->get();
 
-   
+
 
         return response()->json([
             'status' => 'success',
@@ -262,20 +256,19 @@ class ReimbursementController extends Controller
         $category = $request->input('category');
 
         // Start building the query
-        $query = OperatorReimbursementDetail::select('category', 'claimed_amount', 'id','status')
+        $query = OperatorReimbursementDetail::select('category', 'claimed_amount', 'id', 'status')
             ->where('user_id', $userId)
             ->whereDate('from_date', '>=', $fromDate)
             ->whereDate('to_date', '<=', $toDate)
             ->where('status', 2)->get();
 
-            if(count($query) == 0)
-            {
-            $query = OperatorReimbursementDetail::select('category', 'claimed_amount', 'id','status')
-            ->where('user_id', $userId)
-            ->whereDate('from_date', '>=', $fromDate)
-            ->whereDate('to_date', '<=', $toDate)
-            ->where('status',1)->get();
-            }
+        if (count($query) == 0) {
+            $query = OperatorReimbursementDetail::select('category', 'claimed_amount', 'id', 'status')
+                ->where('user_id', $userId)
+                ->whereDate('from_date', '>=', $fromDate)
+                ->whereDate('to_date', '<=', $toDate)
+                ->where('status', 1)->get();
+        }
         // // If category is provided, add it to the query
         // if ($category) {
         //     $query->where('category', $category);
@@ -332,11 +325,10 @@ class ReimbursementController extends Controller
         $fromDate = $data['from_date'];
         $toDate = $data['to_date'];
 
-        $check_ter_exist=Ter::where('user_id',$userId)->whereDate('from_date', '>=', $fromDate)
-        ->whereDate('to_date', '<=', $toDate)
+        $check_ter_exist = Ter::where('user_id', $userId)->whereDate('from_date', '>=', $fromDate)
+            ->whereDate('to_date', '<=', $toDate)
             ->whereIn('status', [1, 2])->get();
-        if(count($check_ter_exist) != 0)
-        {
+        if (count($check_ter_exist) != 0) {
             return response()->json([
                 'status' => 'error',
                 'statuscode' => '200',
@@ -345,9 +337,9 @@ class ReimbursementController extends Controller
             ], 200);
         }
         $get_current_reimburse_details = OperatorReimbursementDetail::where('user_id', $userId)
-        ->whereDate('from_date', '>=', $fromDate)
-        ->whereDate('to_date', '<=', $toDate)
-        ->where('status', 1)->get();
+            ->whereDate('from_date', '>=', $fromDate)
+            ->whereDate('to_date', '<=', $toDate)
+            ->where('status', 1)->get();
 
         $categoryIds = [];
         $totalCategoryAmount = 0;
@@ -381,6 +373,11 @@ class ReimbursementController extends Controller
             ], 200);
         }
 
+        $user_details=User::where('id',$userId)->first();
+
+        $assetOperator_table=AssetOperator::where('user_id', $user_details->login_id)->first();
+        $data['operator_id']=$assetOperator_table->id;
+
         DB::beginTransaction();
 
         try {
@@ -399,7 +396,7 @@ class ReimbursementController extends Controller
             DB::commit();
 
             // Return success response
-            return response()->json(['msg' => 'TER details submitted successfully','statuscode'=>'200','status'=>'success'], 200);
+            return response()->json(['msg' => 'TER details submitted successfully', 'statuscode' => '200', 'status' => 'success'], 200);
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -429,17 +426,16 @@ class ReimbursementController extends Controller
                 'errors' => $validator->errors(),
             ], 200);
         }
-  
 
-        $data=$request->all();
 
-        $fromDate=$data['from_date'];
+        $data = $request->all();
+
+        $fromDate = $data['from_date'];
         $toDate = $data['to_date'];
 
-        $user_id=$data['user_id'];
+        $user_id = $data['user_id'];
 
-        if(!empty($user_id))
-        {
+        if (!empty($user_id)) {
             $data = Ter::with('operatorReimbursement')
                 ->where(function ($query) use ($fromDate, $toDate) {
                     $query->where('from_date', '>=', $fromDate)
@@ -448,10 +444,9 @@ class ReimbursementController extends Controller
                 ->orWhere(function ($query) use ($fromDate, $toDate) {
                     $query->where('to_date', '>=', $fromDate)
                         ->where('to_date', '<=', $toDate);
-                })->where('user_id',$user_id)
+                })->where('user_id', $user_id)
                 ->get();
-
-        }else{
+        } else {
             $data = Ter::with('operatorReimbursement')
                 ->where(function ($query) use ($fromDate, $toDate) {
                     $query->where('from_date', '>=', $fromDate)
@@ -464,7 +459,7 @@ class ReimbursementController extends Controller
                 ->get();
         }
 
-    
+
 
         return response()->json(['status' => 'success', 'statuscode' => '200', 'data' => $data, 'msg' => 'Ter List Fetched Successfully...']);
     }
@@ -478,22 +473,22 @@ class ReimbursementController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'statuscode' => '422',
-                'msg' => 'Invalid input data.',
-                'errors' => $validator->errors(),
-            ],
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'statuscode' => '422',
+                    'msg' => 'Invalid input data.',
+                    'errors' => $validator->errors(),
+                ],
                 422
             );
         }
 
         $data = $request->all();
 
-        $id=$data['id'];
-        $check_ter_table=Ter::where('id',$id)->first();
-        if(empty($check_ter_table))
-        {
+        $id = $data['id'];
+        $check_ter_table = Ter::where('id', $id)->first();
+        if (empty($check_ter_table)) {
             return response()->json(
                 [
                     'status' => 'error',
@@ -505,19 +500,16 @@ class ReimbursementController extends Controller
             );
         }
 
-        if($data['status'] == 2)
-        {
+        if ($data['status'] == 2) {
 
-           $update_ter= Ter::where('id',$id)->update(['status'=>2,'hr_updated_date'=>date('Y-m-d')]);
+            $update_ter = Ter::where('id', $id)->update(['status' => 2, 'hr_updated_date' => date('Y-m-d')]);
 
-           if($update_ter)
-           {
-            OperatorReimbursementDetail::where('unid',$id)->update(['status'=>3]);
-           }
-
+            if ($update_ter) {
+                OperatorReimbursementDetail::where('unid', $id)->update(['status' => 3]);
+            }
         } else if ($data['status'] == 3) {
 
-            $update_ter = Ter::where('id', $id)->update(['status' => 3, 'hr_updated_date' => date('Y-m-d'),'remarks'=>$data['remarks']]);
+            $update_ter = Ter::where('id', $id)->update(['status' => 3, 'hr_updated_date' => date('Y-m-d'), 'remarks' => $data['remarks']]);
 
             if ($update_ter) {
                 OperatorReimbursementDetail::where('unid', $id)->update(['status' => 4]);
@@ -525,19 +517,17 @@ class ReimbursementController extends Controller
         }
 
 
-            return response()->json([
+        return response()->json(
+            [
                 'status' => 'error',
                 'statuscode' => '200',
                 'msg' => 'Da Amount not matching',
                 'data' => []
             ],
-                200
-            );
-        
-        
-
-        }
+            200
+        );
     }
+}
 
     // public function final_ter_submit(Request $request)
     // {
@@ -629,4 +619,3 @@ class ReimbursementController extends Controller
     //     // Return success response
     //     return response()->json(['message' => 'TER details submitted successfully'], 200);
     // }
-
