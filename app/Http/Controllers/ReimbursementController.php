@@ -65,6 +65,22 @@ class ReimbursementController extends Controller
 
        }
 
+
+        $check_ter_table = Ter::where('user_id', $validatedData['user_id'])
+        ->whereYear('from_date', '=', date('Y', strtotime($validatedData['from_date'])))
+        ->whereMonth('from_date', '=', date('m', strtotime($validatedData['from_date'])))
+        ->whereYear('to_date', '=', date('Y', strtotime($validatedData['to_date'])))
+        ->whereMonth('to_date', '=', date('m', strtotime($validatedData['to_date'])))
+        ->where('status', '!=', 3)
+        ->get();
+
+        if(count($check_ter_table) != 0)
+        {
+            return response()->json(['status' => 'error', 'statuscode' => '200', 'msg' => 'Ter already submitted for this month', 'data' => []], 200);
+
+        }
+
+
         $attachment = $request->file('attachment');
         if (!empty($attachment)) {
             // Generate a random string for the filename
@@ -315,15 +331,11 @@ class ReimbursementController extends Controller
         $fromDate = $data['from_date'];
         $toDate = $data['to_date'];
 
-        $check_ter_table = OperatorReimbursementDetail::where('user_id',   $userId)
-        ->whereYear('from_date', '=', date('Y', strtotime($fromDate)))
-        ->whereMonth('from_date', '=', date('m', strtotime($fromDate)))
-        ->whereYear('to_date', '=', date('Y', strtotime($toDate)))
-        ->whereMonth('to_date', '=', date('m', strtotime($toDate)))
-        ->where('status', '!=', 4)
-        ->get();
-
-        if (count($check_ter_table) != 0) {
+        $check_ter_exist=Ter::where('user_id',$userId)->whereDate('from_date', '>=', $fromDate)
+        ->whereDate('to_date', '<=', $toDate)
+            ->whereIn('status', [1, 2])->get();
+        if(count($check_ter_exist) != 0)
+        {
             return response()->json([
                 'status' => 'error',
                 'statuscode' => '200',
@@ -331,8 +343,6 @@ class ReimbursementController extends Controller
                 'data' => []
             ], 200);
         }
-
-   
         $get_current_reimburse_details = OperatorReimbursementDetail::where('user_id', $userId)
         ->whereDate('from_date', '>=', $fromDate)
         ->whereDate('to_date', '<=', $toDate)
