@@ -102,6 +102,10 @@ class DashboardController extends Controller
         $crop_state_wise_acerage = Services::with(['clientDetails' => function ($query) {
             $query->select('id', 'state')
             ->where('status', 1);
+        },
+        'crop' => function ($query) {
+            $query->select('id', 'crop_name')
+            ->where('status', 1);
         }])
             ->select('client_id', DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'))
             ->where('order_status', '!=', 0)
