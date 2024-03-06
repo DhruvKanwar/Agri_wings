@@ -66,11 +66,13 @@ class ReimbursementController extends Controller
        }
 
 
-        $check_ter_table = Ter::where('user_id',
-            $validatedData['user_id']
-        )->whereDate('from_date', '>=', $validatedData['from_date'])
-        ->whereDate('to_date', '<=', $validatedData['to_date'])
-        ->where('status', '!=',3)->get();
+        $check_ter_table = Ter::where('user_id', $validatedData['user_id'])
+        ->whereYear('from_date', '=', date('Y', strtotime($validatedData['from_date'])))
+        ->whereMonth('from_date', '=', date('m', strtotime($validatedData['from_date'])))
+        ->whereYear('to_date', '=', date('Y', strtotime($validatedData['to_date'])))
+        ->whereMonth('to_date', '=', date('m', strtotime($validatedData['to_date'])))
+        ->where('status', '!=', 3)
+        ->get();
 
         if(count($check_ter_table) != 0)
         {
