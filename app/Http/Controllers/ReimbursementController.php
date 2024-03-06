@@ -436,10 +436,37 @@ class ReimbursementController extends Controller
         $fromDate=$data['from_date'];
         $toDate = $data['to_date'];
 
-        $schemes = Ter::with('operatorReimbursement')->whereDate('from_date', '>=', $fromDate)
-            ->whereDate('to_date', '<=', $toDate)->get();
+        $user_id=$data['user_id'];
 
-        return response()->json(['status' => 'success', 'statuscode' => '200', 'data' => $schemes, 'msg' => 'Scheme List Fetched Successfully...']);
+        if(!empty($user_id))
+        {
+            $data = Ter::with('operatorReimbursement')
+                ->where(function ($query) use ($fromDate, $toDate) {
+                    $query->where('from_date', '>=', $fromDate)
+                        ->where('from_date', '<=', $toDate);
+                })
+                ->orWhere(function ($query) use ($fromDate, $toDate) {
+                    $query->where('to_date', '>=', $fromDate)
+                        ->where('to_date', '<=', $toDate);
+                })->where('user_id',$user_id)
+                ->get();
+
+        }else{
+            $data = Ter::with('operatorReimbursement')
+                ->where(function ($query) use ($fromDate, $toDate) {
+                    $query->where('from_date', '>=', $fromDate)
+                        ->where('from_date', '<=', $toDate);
+                })
+                ->orWhere(function ($query) use ($fromDate, $toDate) {
+                    $query->where('to_date', '>=', $fromDate)
+                        ->where('to_date', '<=', $toDate);
+                })
+                ->get();
+        }
+
+    
+
+        return response()->json(['status' => 'success', 'statuscode' => '200', 'data' => $data, 'msg' => 'Ter List Fetched Successfully...']);
     }
 
     public function update_ter_details(Request $request)
