@@ -87,6 +87,29 @@ class DashboardController extends Controller
             ->get();
         $data['client_sprayed_acerage']= $client_sprayed_acerage;
 
+
+        $crop_wise_acerage = Services::with(['crop' => function ($query) {
+            $query->select('id', 'crop_name')
+            ->where('status', 1);
+        }])
+            ->select('crop_id', DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'))
+            ->where('order_status', '!=', 0)
+            ->groupBy('crop_id')
+            ->orderByDesc('total_sprayed_acreage')
+            ->get();
+        $data['crop_wise_acerage'] = $crop_wise_acerage;
+
+        $crop_state_wise_acerage = Services::with(['clientDetails' => function ($query) {
+            $query->select('id', 'state')
+            ->where('status', 1);
+        }])
+            ->select('client_id', DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'))
+            ->where('order_status', '!=', 0)
+            ->groupBy('client_id')
+            ->orderByDesc('total_sprayed_acreage')
+            ->get();
+        $data['crop_state_wise_acerage'] = $crop_state_wise_acerage;
+
         // return [$data['client_requested_acerage'], $data['client_sprayed_acerage']];
 
         $result_array = array(
