@@ -436,7 +436,7 @@ class ReimbursementController extends Controller
         $user_id = $data['user_id'];
 
         if (!empty($user_id)) {
-            $data = Ter::with('operatorReimbursement')
+            $data = Ter::with('operatorReimbursement','assetOperator')
                 ->where(function ($query) use ($fromDate, $toDate) {
                     $query->where('from_date', '>=', $fromDate)
                         ->where('from_date', '<=', $toDate);
@@ -447,7 +447,7 @@ class ReimbursementController extends Controller
                 })->where('user_id', $user_id)
                 ->get();
         } else {
-            $data = Ter::with('operatorReimbursement')
+            $data = Ter::with('operatorReimbursement','assetOperator')
                 ->where(function ($query) use ($fromDate, $toDate) {
                     $query->where('from_date', '>=', $fromDate)
                         ->where('from_date', '<=', $toDate);

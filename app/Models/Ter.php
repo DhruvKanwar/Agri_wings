@@ -30,4 +30,9 @@ class Ter extends Model
     {
         return $this->hasMany('App\Models\OperatorReimbursementDetail', 'unid', 'id');
     }
+
+    public function assetOperator()
+    {
+        return $this->belongsTo(AssetOperator::class, 'operator_id')->withTrashed();
+    }
 }
