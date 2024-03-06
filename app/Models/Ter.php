@@ -33,6 +33,8 @@ class Ter extends Model
 
     public function assetOperator()
     {
-        return $this->belongsTo(AssetOperator::class, 'operator_id')->withTrashed();
+        return $this->belongsTo(AssetOperator::class, 'operator_id')
+        ->select('name', 'phone', 'status')
+        ->withTrashed();
     }
 }
