@@ -415,20 +415,21 @@ class ReimbursementController extends Controller
 
     public function get_ter_list(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'from_date' => 'required|date',
             'to_date' => 'required|date|after_or_equal:from_date'
-        ], $messages);
+        ]);
 
-        // Check if validation fails
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
                 'statuscode' => '422',
-                'msg' => 'The given data was invalid.',
+                'msg' => 'Invalid input data.',
                 'errors' => $validator->errors(),
             ], 200);
         }
+  
 
         $data=$request->all();
 
