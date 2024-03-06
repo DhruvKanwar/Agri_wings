@@ -436,19 +436,32 @@ class ReimbursementController extends Controller
         $user_id = $data['user_id'];
 
         if (!empty($user_id)) {
-            $data = Ter::with('operatorReimbursement','assetOperator')
-                ->where(function ($query) use ($fromDate, $toDate) {
+            $data = Ter::with(['operatorReimbursement', 'assetOperator' => function ($query) {
+                $query->select('name', 'phone', 'status');
+            }])
+            ->where(function ($query) use ($fromDate, $toDate) {
+                $query->where('from_date', '>=', $fromDate)
+                ->where('to_date', '<=', $toDate);
+            })
+                ->orWhere(function ($query) use ($fromDate, $toDate) {
                     $query->where('from_date', '>=', $fromDate)
-                        ->where('from_date', '<=', $toDate);
+                    ->where('from_date', '<=', $toDate);
                 })
                 ->orWhere(function ($query) use ($fromDate, $toDate) {
                     $query->where('to_date', '>=', $fromDate)
-                        ->where('to_date', '<=', $toDate);
-                })->where('user_id', $user_id)
+                    ->where('to_date', '<=', $toDate);
+                })
+                ->where('user_id', $user_id)
                 ->get();
         } else {
-            $data = Ter::with('operatorReimbursement','assetOperator')
-                ->where(function ($query) use ($fromDate, $toDate) {
+            $data = Ter::with(['operatorReimbursement', 'assetOperator' => function ($query) {
+                $query->select('name', 'phone', 'status');
+            }])
+            ->where(function ($query) use ($fromDate, $toDate) {
+                $query->where('from_date', '>=', $fromDate)
+                    ->where('to_date', '<=', $toDate);
+            })
+                ->orWhere(function ($query) use ($fromDate, $toDate) {
                     $query->where('from_date', '>=', $fromDate)
                         ->where('from_date', '<=', $toDate);
                 })
