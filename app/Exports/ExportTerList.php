@@ -99,10 +99,10 @@ class ExportTerList implements FromCollection, WithHeadings
         // return Tercourier::select('id','saved_by_name','created_at','updated_by_name','updated_at')->get();
     }
 
-    public function headings(): array
-    {
-        // return [
-        //     "S.No.", "Name", "Mobile No", "Sub District", "Village", "District", "State", "Pincode", "Address"
-        // ];
-    }
+    // public function headings(): array
+    // {
+    //     // return [
+    //     //     "S.No.", "Name", "Mobile No", "Sub District", "Village", "District", "State", "Pincode", "Address"
+    //     // ];
+    // }
 }
