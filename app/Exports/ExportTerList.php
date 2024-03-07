@@ -55,17 +55,21 @@ class ExportTerList implements FromCollection, WithHeadings
             }else if ($item->status == 3) {
                 $status = 'Rejected';
             }
-            $operatorReimbursements = $item->operator_reimbursement;
+            $operatorReimbursements = $item->operatorReimbursement;
 
             // Iterate over each operator_reimbursement
             foreach ($operatorReimbursements as $reimbursement) {
             
                 // Access the details of each operator_reimbursement
-                $id = $reimbursement['id'];
-                $unid = $reimbursement['unid'];
+                $bill_amount = $reimbursement['bill_amount'];
+                $claimed_amount = $reimbursement['claimed_amount'];
                 $category = $reimbursement['category'];
-                $billNo = $reimbursement['bill_no'];
-                // Access other properties as needed
+                $bill_no = $reimbursement['bill_no'];
+                $remarks = $reimbursement['remarks'];
+                $attachment = 'https://agriwingsnew.s3.us-east-2.amazonaws.com/reimburse/' . $reimbursement['attachment'];
+                $bill_no = $reimbursement['bill_no'];
+
+               
             }
             
             $arr_instrulist_excel[] = [
@@ -75,12 +79,12 @@ class ExportTerList implements FromCollection, WithHeadings
                 'operator_phone' => $item->assetOperator->phone,
                 'from_date' => $item->from_date,
                 'to_date' => $item->to_date,
-                'bill_amount' => $item->operatorReimbursement->bill_amount, 
-                'claimed_amount' => $item->operatorReimbursement->claimed_amount, 
-                'category' => $item->operatorReimbursement->category, 
-                'bill_number' => $item->operatorReimbursement->bill_no, 
-                'remarks' => $item->operatorReimbursement->remarks, 
-                'attachment' => 'https://agriwingsnew.s3.us-east-2.amazonaws.com/reimburse/'.$item->operatorReimbursement->attachment, 
+                'bill_amount' => $bill_amount, 
+                'claimed_amount' => $claimed_amount, 
+                'category' => $category, 
+                'bill_number' => $bill_no, 
+                'remarks' => $remarks, 
+                'attachment' => $attachment, 
                 'da_amount' => $item->da_amount,
                 'da_limit' => $item->da_limit,
                 'total_attendance' => $item->total_attendance,
