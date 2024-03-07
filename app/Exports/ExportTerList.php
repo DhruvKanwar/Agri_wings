@@ -55,8 +55,8 @@ class ExportTerList implements FromCollection, WithHeadings
             }else if ($item->status == 3) {
                 $status = 'Rejected';
             }
-            $operatorReimbursements = $item['operator_reimbursement'];
-            return $operatorReimbursements;
+            $operatorReimbursements = $item->operator_reimbursement;
+
             // Iterate over each operator_reimbursement
             foreach ($operatorReimbursements as $reimbursement) {
             
