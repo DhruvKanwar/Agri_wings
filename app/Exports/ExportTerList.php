@@ -56,10 +56,10 @@ class ExportTerList implements FromCollection, WithHeadings
                 $status = 'Rejected';
             }
             $operatorReimbursements = $item['operator_reimbursement'];
-
+            return $operatorReimbursements;
             // Iterate over each operator_reimbursement
             foreach ($operatorReimbursements as $reimbursement) {
-                return $reimbursement['bill_no'];
+            
                 // Access the details of each operator_reimbursement
                 $id = $reimbursement['id'];
                 $unid = $reimbursement['unid'];
