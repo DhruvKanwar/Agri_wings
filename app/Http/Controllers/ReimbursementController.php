@@ -546,13 +546,13 @@ class ReimbursementController extends Controller
          
         }
 
-        // $export = new ExportTerList($fromDate, $toDate);
+        $export = new ExportTerList($fromDate, $toDate);
 
-        // // Generate the export data
-        // $exportData = $export->collection();
+        // Generate the export data
+        $exportData = $export->collection();
 
 
-        // return $exportData;
+        return $exportData;
      
         return Excel::download(new ExportTerList($fromDate,$toDate), 'Ter_List_.'.date('d-m-Y').'.xlsx');
     }
