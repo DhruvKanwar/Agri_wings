@@ -93,7 +93,6 @@ class ExportTerList implements FromCollection, WithHeadings
                 'status' => $status,
             ];
         }
-
         return collect($arr_instrulist_excel);
 
         // return Tercourier::select('id','saved_by_name','created_at','updated_by_name','updated_at')->get();
