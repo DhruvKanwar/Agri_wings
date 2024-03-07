@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
+use PhpParser\Node\Stmt\Return_;
 
 class ReimbursementController extends Controller
 {
@@ -530,10 +531,28 @@ class ReimbursementController extends Controller
 
     public function download_ter_list(Request $request)
     {
-        $data=$request->all();
-        $fromDate=$data['from_date'];
-        $toDate=$data['to_date'];
+        $fromDate = $request->query('from_date');
+        $toDate = $request->query('to_date');
 
+        // Ensure that both from_date and to_date are present in the request
+        if (!$fromDate || !$toDate) {
+            return response()->json(['status' => 'error', 'statuscode' => '200', 'msg' => 'Input Missing']);
+
+        }
+
+        // Validate that from_date is not less than to_date
+        if ($fromDate > $toDate) {
+            return response()->json(['status' => 'error', 'statuscode' => '200', 'msg' => 'Invalid date range: from_date cannot be greater than to_date.']);
+         
+        }
+
+        $export = new ExportTerList($fromDate, $toDate);
+
+        // Generate the export data
+        $exportData = $export->collection();
+
+
+        return $exportData;
      
         return Excel::download(new ExportTerList($fromDate,$toDate), 'Ter_List_.'.date('d-m-Y').'.xlsx');
     }
