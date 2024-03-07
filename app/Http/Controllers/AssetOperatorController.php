@@ -1108,7 +1108,7 @@ class AssetOperatorController extends Controller
                     if ($update_time_line) {
                         // Commit the transaction
                         DB::commit();
-                        // self::send_invoice_sms($get_services_details->id);
+                        self::send_invoice_sms($get_services_details->id);
 
                         return response()->json(['msg' => 'Spray Marked Successful..', 'status' => 'success', 'statuscode' => '200', 'data' => $get_services_details], 201);
                     }
@@ -1217,7 +1217,7 @@ class AssetOperatorController extends Controller
 
                     // Commit the transaction
                     DB::commit();
-                    // self::send_invoice_sms($get_services_details->id);
+                    self::send_invoice_sms($get_services_details->id);
                     return response()->json(['msg' => 'Spray Marked Successful..', 'status' => 'success', 'statuscode' => '200', 'data' => $get_services_details], 201);
                 }
             } catch (\Exception $e) {
@@ -1997,9 +1997,9 @@ class AssetOperatorController extends Controller
         $sender_id = "AGRWNG"; // Approved from DLT
 
         $live_host_name = request()->getHttpHost();
-
+// return $live_host_name;
         // || $live_host_name == "ter.etsbeta.com"
-
+      
         if ($live_host_name == 'localhost:8000' || $live_host_name == 'new.agriwings.in') {
             //ramakant  $mob = '9878616117'; 
             $mob = '7888565237'; 
