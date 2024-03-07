@@ -25,49 +25,59 @@ class ExportTerList implements FromCollection, WithHeadings
      */
     public function collection(): Collection
     {
-
-        // start
-        $data  = Ter::with('operatorReimbursement', 'assetOperator')
+        $data = Ter::with('operatorReimbursement', 'assetOperator')
         ->where(function ($query) {
             $query->where('from_date', '>=', $this->fromDate)
-            ->where('from_date', '<=', $this->toDate);
+                ->where('from_date', '<=', $this->toDate);
         })
-        ->orWhere(function ($query) {
-            $query->where('to_date', '>=', $this->fromDate)
-            ->where('to_date', '<=', $this->toDate);
-        })
-        ->get();
-        // end
-   
-        // dd($data);
-        // return $data;
-        $size = sizeof($data);
-        // $val="";
-        $arr_instrulist_excel[] = array();
+            ->orWhere(function ($query) {
+                $query->where('to_date', '>=', $this->fromDate)
+                    ->where('to_date', '<=', $this->toDate);
+            })
+            ->get();
+
+        $arr_instrulist_excel = [];
 
         foreach ($data as $item) {
-            $status='';
-            if($item->status == 1)
-            {
-                $status='Created';
+            $status = '';
+            if ($item->status == 1) {
+                $status = 'Created';
             } else if ($item->status == 2) {
                 $status = 'Approved';
-            }else if ($item->status == 3) {
+            } else if ($item->status == 3) {
                 $status = 'Rejected';
             }
+
+            $operatorCode = $operatorName = $operatorPhone = '';
+            if ($item->assetOperator) {
+                $operatorCode = $item->assetOperator->code;
+                $operatorName = $item->assetOperator->name;
+                $operatorPhone = $item->assetOperator->phone;
+            }
+
+            $billAmount = $claimedAmount = $category = $billNumber = $remarks = $attachment = '';
+            if ($item->operatorReimbursement) {
+                $billAmount = $item->operatorReimbursement->bill_amount;
+                $claimedAmount = $item->operatorReimbursement->claimed_amount;
+                $category = $item->operatorReimbursement->category;
+                $billNumber = $item->operatorReimbursement->bill_no;
+                $remarks = $item->operatorReimbursement->remarks;
+                $attachment = 'https://agriwingsnew.s3.us-east-2.amazonaws.com/reimburse/' . $item->operatorReimbursement->attachment;
+            }
+
             $arr_instrulist_excel[] = [
                 'unid' => $item->id,
-                'operator_code' => $item->assetOperator->code,
-                'operator_name' => $item->assetOperator->name,
-                'operator_phone' => $item->assetOperator->phone,
+                'operator_code' => $operatorCode,
+                'operator_name' => $operatorName,
+                'operator_phone' => $operatorPhone,
                 'from_date' => $item->from_date,
                 'to_date' => $item->to_date,
-                'bill_amount' => $item->operatorReimbursement->bill_amount, 
-                'claimed_amount' => $item->operatorReimbursement->claimed_amount, 
-                'category' => $item->operatorReimbursement->category, 
-                'bill_number' => $item->operatorReimbursement->bill_no, 
-                'remarks' => $item->operatorReimbursement->remarks, 
-                'attachment' => 'https://agriwingsnew.s3.us-east-2.amazonaws.com/reimburse/'.$item->operatorReimbursement->attachment, 
+                'bill_amount' => $billAmount,
+                'claimed_amount' => $claimedAmount,
+                'category' => $category,
+                'bill_number' => $billNumber,
+                'remarks' => $remarks,
+                'attachment' => $attachment,
                 'da_amount' => $item->da_amount,
                 'da_limit' => $item->da_limit,
                 'total_attendance' => $item->total_attendance,
@@ -78,8 +88,6 @@ class ExportTerList implements FromCollection, WithHeadings
         }
 
         return collect($arr_instrulist_excel);
-
-        // return Tercourier::select('id','saved_by_name','created_at','updated_by_name','updated_at')->get();
     }
 
     public function headings(): array
