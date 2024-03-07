@@ -101,8 +101,8 @@ class ExportTerList implements FromCollection, WithHeadings
 
     public function headings(): array
     {
-        return [
-            "S.No.", "Name", "Mobile No", "Sub District", "Village", "District", "State", "Pincode", "Address"
-        ];
+        // return [
+        //     "S.No.", "Name", "Mobile No", "Sub District", "Village", "District", "State", "Pincode", "Address"
+        // ];
     }
 }
