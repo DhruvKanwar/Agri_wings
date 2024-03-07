@@ -115,7 +115,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('final_ter_submit', [ReimbursementController::class, 'final_ter_submit']);
 
 
+    Route::post('download_ter_list', [ReimbursementController::class, 'download_ter_list']);
     Route::post('get_ter_list', [ReimbursementController::class, 'get_ter_list']);
+
     Route::post('update_ter_details', [ReimbursementController::class, 'update_ter_details']);
 
 

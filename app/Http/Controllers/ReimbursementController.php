@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ExportTerList;
 use App\Models\AssetOperator;
 use App\Models\OperatorReimbursementDetail;
 use App\Models\Ter;
@@ -11,7 +12,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
-
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReimbursementController extends Controller
 {
@@ -525,6 +526,16 @@ class ReimbursementController extends Controller
             ],
             200
         );
+    }
+
+    public function download_ter_list(Request $request)
+    {
+        $data=$request->all();
+        $fromDate=$data['from_date'];
+        $toDate=$data['to_date'];
+
+     
+        return Excel::download(new ExportTerList($fromDate,$toDate), 'Ter_List_.'.date('d-m-Y').'.xlsx');
     }
 }
 
