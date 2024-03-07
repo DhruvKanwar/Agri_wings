@@ -519,10 +519,9 @@ class ReimbursementController extends Controller
 
         return response()->json(
             [
-                'status' => 'error',
+                'status' => 'success',
                 'statuscode' => '200',
-                'msg' => 'Da Amount not matching',
-                'data' => []
+                'msg' => 'Ter Updated Successfully..'
             ],
             200
         );
