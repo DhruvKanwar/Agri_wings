@@ -25,77 +25,54 @@ class ExportTerList implements FromCollection, WithHeadings
      */
     public function collection(): Collection
     {
-
-        // start
-        $data  = Ter::with('operatorReimbursement', 'assetOperator')
+        $data = Ter::with('operatorReimbursement', 'assetOperator')
         ->where(function ($query) {
             $query->where('from_date', '>=', $this->fromDate)
-            ->where('from_date', '<=', $this->toDate);
+                ->where('from_date', '<=', $this->toDate);
         })
-        ->orWhere(function ($query) {
-            $query->where('to_date', '>=', $this->fromDate)
-            ->where('to_date', '<=', $this->toDate);
-        })
-        ->get();
-        // end
-   
-        // dd($data);
-        // return $data;
-        $size = sizeof($data);
-        // $val="";
-        $arr_instrulist_excel[] = array();
+            ->orWhere(function ($query) {
+                $query->where('to_date', '>=', $this->fromDate)
+                    ->where('to_date', '<=', $this->toDate);
+            })
+            ->get();
+
+        $arr_instrulist_excel = [];
 
         foreach ($data as $item) {
-            $status='';
-            if($item->status == 1)
-            {
-                $status='Created';
-            } else if ($item->status == 2) {
-                $status = 'Approved';
-            }else if ($item->status == 3) {
-                $status = 'Rejected';
-            }
-            $operatorReimbursements = $item->operatorReimbursement;
+            foreach ($item->operatorReimbursement as $reimbursement) {
+                $status = '';
+                if ($item->status == 1) {
+                    $status = 'Created';
+                } else if ($item->status == 2) {
+                    $status = 'Approved';
+                } else if ($item->status == 3) {
+                    $status = 'Rejected';
+                }
 
-            // Iterate over each operator_reimbursement
-            foreach ($operatorReimbursements as $reimbursement) {
-            
-                // Access the details of each operator_reimbursement
-                $bill_amount = $reimbursement['bill_amount'];
-                $claimed_amount = $reimbursement['claimed_amount'];
-                $category = $reimbursement['category'];
-                $bill_no = $reimbursement['bill_no'];
-                $remarks = $reimbursement['remarks'];
-                $attachment = 'https://agriwingsnew.s3.us-east-2.amazonaws.com/reimburse/' . $reimbursement['attachment'];
-                $bill_no = $reimbursement['bill_no'];
-
-               
+                $arr_instrulist_excel[] = [
+                    'unid' => $item->id,
+                    'operator_code' => $item->assetOperator->code,
+                    'operator_name' => $item->assetOperator->name,
+                    'operator_phone' => $item->assetOperator->phone,
+                    'from_date' => $reimbursement->from_date,
+                    'to_date' => $reimbursement->to_date,
+                    'bill_amount' => $reimbursement->bill_amount,
+                    'claimed_amount' => $reimbursement->claimed_amount,
+                    'category' => $reimbursement->category,
+                    'bill_number' => $reimbursement->bill_no,
+                    'remarks' => $reimbursement->remarks,
+                    'attachment' => 'https://agriwingsnew.s3.us-east-2.amazonaws.com/reimburse/' . $reimbursement->attachment,
+                    'da_amount' => $item->da_amount,
+                    'da_limit' => $item->da_limit,
+                    'total_attendance' => $item->total_attendance,
+                    'hr_update_date' => $item->hr_updated_date,
+                    'submit_date' => $item->submit_date,
+                    'status' => $status,
+                ];
             }
-            
-            $arr_instrulist_excel[] = [
-                'unid' => $item->id,
-                'operator_code' => $item->assetOperator->code,
-                'operator_name' => $item->assetOperator->name,
-                'operator_phone' => $item->assetOperator->phone,
-                'from_date' => $item->from_date,
-                'to_date' => $item->to_date,
-                'bill_amount' => $bill_amount, 
-                'claimed_amount' => $claimed_amount, 
-                'category' => $category, 
-                'bill_number' => $bill_no, 
-                'remarks' => $remarks, 
-                'attachment' => $attachment, 
-                'da_amount' => $item->da_amount,
-                'da_limit' => $item->da_limit,
-                'total_attendance' => $item->total_attendance,
-                'hr_update_date' => $item->hr_updated_date,
-                'submit_date' => $item->submit_date,
-                'status' => $status,
-            ];
         }
-        return collect($arr_instrulist_excel);
 
-        // return Tercourier::select('id','saved_by_name','created_at','updated_by_name','updated_at')->get();
+        return collect($arr_instrulist_excel);
     }
 
     public function headings(): array
