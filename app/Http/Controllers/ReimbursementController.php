@@ -552,7 +552,7 @@ class ReimbursementController extends Controller
         $exportData = $export->collection();
 
 
-        return $exportData;
+        // return $exportData;
      
         return Excel::download(new ExportTerList($fromDate,$toDate), 'Ter_List_.'.date('d-m-Y').'.xlsx');
     }
