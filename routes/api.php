@@ -177,6 +177,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 
     Route::get('get_fleet_management_details', [DashboardController::class, 'get_fleet_management_details']);
+    Route::get('get_cso_dashboard_details', [DashboardController::class, 'get_cso_dashboard_details']);
+
 
 
 
