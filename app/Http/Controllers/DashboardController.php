@@ -244,4 +244,141 @@ class DashboardController extends Controller
 
         return response()->json($result_array, 200);
     }
+
+    public function get_management_dashboard_details()
+    {
+        $details = Auth::user();
+        $get_user_data = User::where('id', $details->id)->first();
+        if ($get_user_data->role != 'management') {
+            $result_array = array(
+                'status' => 'error',
+                'statuscode' => '200',
+                'msg' => 'Not a valid user...',
+                'data' => []
+            );
+
+            return response()->json($result_array, 200);
+        }
+
+
+
+        $total_acreage = Services::select(
+            DB::raw('SUM(requested_acreage) as total_requested_acreage'),
+        )
+            ->whereNotIn('order_status', [0])
+            ->get();
+
+        $data['total_acreage'] = $total_acreage;
+
+        $total_sprayed_acreage = Services::select(
+            DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'),
+        )
+            ->whereNotIn('order_status', [0])
+            ->get();
+
+        $data['total_sprayed_acreage'] = $total_sprayed_acreage;
+
+        $lastMonthDetails = Services::select(
+            DB::raw('DATE_FORMAT(order_date, "%M") as month'),
+            DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'),
+            DB::raw('SUM(requested_acreage) as total_requested_acreage')
+        )
+        ->whereNotIn('order_status', [0])
+        ->whereYear('order_date', '=', date('Y')) // Filter by current year
+        ->whereMonth('order_date', '=', date('m', strtotime('-1 month'))) // Filter by last month
+        ->groupBy(DB::raw('MONTH(order_date)'), DB::raw('DATE_FORMAT(order_date, "%M")'))
+        ->get();
+
+        $data['last_month_acreage'] = $lastMonthDetails;
+
+        $lastWeekStart = date('Y-m-d', strtotime('last Monday', strtotime('this week -1 week')));
+        $lastWeekEnd = date('Y-m-d', strtotime('last Sunday', strtotime('this week -1 week')));
+
+        $lastWeekDetails = Services::select(
+            DB::raw('DATE_FORMAT(order_date, "%M") as month'),
+            DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'),
+            DB::raw('SUM(requested_acreage) as total_requested_acreage')
+        )
+        ->whereNotIn('order_status', [0])
+        ->whereBetween('order_date', [$lastWeekStart, $lastWeekEnd])
+        ->groupBy(DB::raw('MONTH(order_date)'), DB::raw('DATE_FORMAT(order_date, "%M")'))
+        ->get();
+
+        $data['last_week_acreage'] = $lastWeekDetails;
+
+
+        $allTimeAverageOrderSize = Services::select(
+            DB::raw('SUM(sprayed_acreage) / COUNT(*) as average_order_size')
+        )
+        ->whereNotIn('order_status', [0])
+        ->get();
+
+        $data['all_time_average_order_size'] = $allTimeAverageOrderSize;
+
+        $lastWeekAverageOrderSize = Services::select(
+            DB::raw('SUM(sprayed_acreage) / COUNT(*) as average_order_size')
+        )
+        ->whereNotIn('order_status', [0])
+        ->whereBetween('order_date', [date('Y-m-d', strtotime('last Monday', strtotime('this week -1 week'))), date('Y-m-d', strtotime('last Sunday', strtotime('this week -1 week')))])
+        ->get();
+
+        $data['last_week_average_order_size'] = $lastWeekAverageOrderSize;
+
+        $lastMonthAverageOrderSize = Services::select(
+            DB::raw('SUM(sprayed_acreage) / COUNT(*) as average_order_size')
+        )
+        ->whereNotIn('order_status', [0])
+        ->whereMonth('order_date', '=', date('m', strtotime('-1 month')))
+        ->whereYear('order_date', '=', date('Y')) 
+        ->get();
+
+        $data['last_month_average_order_size'] = $lastMonthAverageOrderSize;
+
+
+
+
+        $clientWiseBifurcation = Services::with([
+            'clientDetails' => function ($query) {
+                $query->select('id', 'regional_client_name')
+                    ->where('status', 1);
+            }
+        ])->select(
+            'client_id',
+            DB::raw('SUM(sprayed_acreage) / COUNT(*) as average_order_size')
+        )
+        ->whereNotIn('order_status', [0])
+        ->groupBy('client_id')
+        ->get();
+
+        $data['client_wise_bifurcation'] = $clientWiseBifurcation;
+
+
+
+        $totalFarmersServed = Services::select(
+            DB::raw('COUNT(DISTINCT farmer_id) as total_farmers_served')
+        )
+        ->whereNotIn('order_status', [0])
+        ->value('total_farmers_served');
+
+        $data['total_farmers_served'] = $totalFarmersServed ?? 0;
+
+        $data['our_fleet'] = [
+            'total_assets' => AssetDetails::where('status', 1)->count(),
+            'total_vehicles_owned' => Vehicle::whereNotNull('operator_id')->orWhere('operator_id', '')->count(),
+            'total_operators' => AssetOperator::where('status', 1)->count(),
+        ];
+
+
+
+        // return [$data['client_requested_acerage'], $data['client_sprayed_acerage']];
+
+        $result_array = array(
+            'status' => 'success',
+            'statuscode' => '200',
+            'msg' => 'Users List Fetched Successfully',
+            'data' => $data
+        );
+
+        return response()->json($result_array, 200);
+    }
 }
