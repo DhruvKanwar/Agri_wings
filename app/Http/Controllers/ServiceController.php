@@ -174,13 +174,13 @@ class ServiceController extends Controller
 
         // Generate the new farmer code
         if (empty($latest_order_id)) {
-            $data['order_id'] = 'Order-000001';
+            $data['order_id'] = 'AWO-000001';
         } else {
             $parts = explode('-', $latest_order_id->order_id);
             $lastNumber = end($parts);
             $nextNumber = (int)$lastNumber + 1;
             $formattedNextNumber = sprintf('%06d', $nextNumber); // Corrected to '%06d'
-            $data['order_id'] = 'Order-' . $formattedNextNumber;
+            $data['order_id'] = 'AWO-' . $formattedNextNumber;
         }
         $data['order_date'] = date('Y-m-d');
 
