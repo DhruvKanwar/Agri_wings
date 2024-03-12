@@ -344,7 +344,7 @@ class DashboardController extends Controller
             }
         ])->select(
             'client_id',
-            DB::raw('SUM(sprayed_acreage) / COUNT(*) as average_order_size')
+            DB::raw('SUM(sprayed_acreage) / SUM(requested_acreage)  as client_wise_bifurcation')
         )
         ->whereNotIn('order_status', [0])
         ->groupBy('client_id')
