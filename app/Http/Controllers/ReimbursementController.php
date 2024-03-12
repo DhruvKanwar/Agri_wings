@@ -502,6 +502,21 @@ class ReimbursementController extends Controller
             );
         }
 
+        $status_check = $check_ter_table->status;
+
+        if($status_check == 2 || $status_check == 3)
+        {
+            return response()->json(
+                [
+                    'status' => 'error',
+                    'statuscode' => '200',
+                    'msg' => 'Don not Be Smart..',
+                    'data' => []
+                ],
+                200
+            );
+        }
+
         if ($data['status'] == 2) {
 
             $update_ter = Ter::where('id', $id)->update(['status' => 2, 'hr_updated_date' => date('Y-m-d')]);
