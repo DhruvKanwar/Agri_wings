@@ -53,6 +53,7 @@ class DashboardController extends Controller
         $data['static_report'] = [
             'total_farmers' => FarmerDetails::where('status', 1)->count(),
             'total_batteries' => Battery::where('status', 1)->count(),
+            'total_orders' => Services::where('status','!=' ,0)->count(),
             'total_crops' => Crop::where('status', 1)->count(),
             'total_assets' => AssetDetails::where('status', 1)->count(),
             'total_vehicles' => Vehicle::where('status', 1)->count(),
