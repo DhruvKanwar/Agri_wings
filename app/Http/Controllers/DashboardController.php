@@ -139,8 +139,6 @@ class DashboardController extends Controller
         $data['state_wise_sprayed_acreage'] = $state_wise;
 
 
-        $data['state_wise_sprayed_acreage'] = $state_wise;
-
 
         // return [$data['client_requested_acerage'], $data['client_sprayed_acerage']];
 
