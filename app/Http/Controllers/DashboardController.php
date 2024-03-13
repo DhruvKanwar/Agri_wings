@@ -65,7 +65,7 @@ class DashboardController extends Controller
             DB::raw('SUM(requested_acreage) as total_requested_acreage'),
             DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage')
         )
-            ->where('order_status', 6)
+            ->where('order_status','!=',0)
             ->whereYear('delivery_date', '=', date('Y')) // Filter by current year
             ->groupBy(DB::raw('MONTH(delivery_date)'), DB::raw('DATE_FORMAT(delivery_date, "%M")'))
             ->get();
@@ -75,23 +75,15 @@ class DashboardController extends Controller
         $client_requested_acerage = Services::with(['clientDetails' => function ($query) {
             $query->select('id', 'regional_client_name')->where('status', 1);
         }])
-            ->select('client_id', DB::raw('SUM(requested_acreage) as total_requested_acreage'))
-            ->whereNotIn('order_status', [0, 6])
+            ->select('client_id', DB::raw('SUM(requested_acreage) as total_requested_acreage'),
+            DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'))
+            ->where('order_status','!=',0)
             ->groupBy('client_id')
             ->orderByDesc('total_requested_acreage')
             ->get();
-        $data['client_requested_acerage'] = $client_requested_acerage;
+        $data['client_acerage'] = $client_requested_acerage;
 
-        $client_sprayed_acerage = Services::with(['clientDetails' => function ($query) {
-            $query->select('id', 'regional_client_name')
-                ->where('status', 1);
-        }])
-            ->select('client_id', DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'))
-            ->where('order_status', '=', 6)
-            ->groupBy('client_id')
-            ->orderByDesc('total_sprayed_acreage')
-            ->get();
-        $data['client_sprayed_acerage'] = $client_sprayed_acerage;
+   
 
 
         $crop_wise_acerage = Services::with(['crop' => function ($query) {
