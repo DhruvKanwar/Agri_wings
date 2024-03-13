@@ -61,13 +61,13 @@ class DashboardController extends Controller
         ];
 
         $monthlyDetails = Services::select(
-            DB::raw('DATE_FORMAT(delivery_date, "%M") as month'),
+            DB::raw('DATE_FORMAT(order_date, "%M") as month'),
             DB::raw('SUM(requested_acreage) as total_requested_acreage'),
             DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage')
         )
             ->where('order_status','!=',0)
-            ->whereYear('delivery_date', '=', date('Y')) // Filter by current year
-            ->groupBy(DB::raw('MONTH(delivery_date)'), DB::raw('DATE_FORMAT(delivery_date, "%M")'))
+            ->whereYear('order_date', '=', date('Y')) // Filter by current year
+            ->groupBy(DB::raw('MONTH(order_date)'), DB::raw('DATE_FORMAT(order_date, "%M")'))
             ->get();
 
         $data['month_wise_acreage'] = $monthlyDetails;
@@ -97,19 +97,19 @@ class DashboardController extends Controller
             ->get();
         $data['crop_wise_acerage'] = $crop_wise_acerage;
 
-        $client_wise_sprayed_acerage = Services::with([
-            'clientDetails' => function ($query) {
-                $query->select('id', 'regional_client_name')
-                    ->where('status', 1);
-            }
-        ])
-            ->select('client_id', DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'))
-            ->where('order_status', '!=', 0)
-            ->groupBy('client_id')
-            ->orderByDesc('total_sprayed_acreage')
-            ->get();
+        // $client_wise_sprayed_acerage = Services::with([
+        //     'clientDetails' => function ($query) {
+        //         $query->select('id', 'regional_client_name')
+        //             ->where('status', 1);
+        //     }
+        // ])
+        //     ->select('client_id', DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'))
+        //     ->where('order_status', '!=', 0)
+        //     ->groupBy('client_id')
+        //     ->orderByDesc('total_sprayed_acreage')
+        //     ->get();
 
-        $data['client_wise_sprayed_acerage'] = $client_wise_sprayed_acerage;
+        // $data['client_wise_sprayed_acerage'] = $client_wise_sprayed_acerage;
 
         $state_wise_sprayed_acreage = Services::with([
             'clientDetails' => function ($query) {
