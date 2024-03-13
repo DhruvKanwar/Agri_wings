@@ -181,11 +181,10 @@ class DashboardController extends Controller
         )
         ->whereNotIn('order_status', [0])
         ->whereIn('client_id', $explode_client_ids)
-        ->whereYear('order_date', '=', date('Y')) // Filter by current year
-        ->whereRaw("MONTH(order_date) = $currentMonth") // Filter by current month
-        ->whereRaw("DAY(order_date) <= $currentDay") // Filter by current day or earlier
-        // ->groupBy(DB::raw('MONTH(order_date)'), DB::raw('DATE_FORMAT(order_date, "%M")'))
+        ->whereDate('order_date', '=', date('Y-m-d')) // Filter by current date
+        ->groupBy('month')
         ->get();
+
 
         $data['todays_acreage_details'] = $todays_acreage_details;
   
