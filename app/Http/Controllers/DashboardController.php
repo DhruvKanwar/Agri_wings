@@ -184,7 +184,7 @@ class DashboardController extends Controller
         ->whereYear('order_date', '=', date('Y')) // Filter by current year
         ->whereRaw("MONTH(order_date) = $currentMonth") // Filter by current month
         ->whereRaw("DAY(order_date) <= $currentDay") // Filter by current day or earlier
-        ->groupBy(DB::raw('MONTH(order_date)'), DB::raw('DATE_FORMAT(order_date, "%M")'))
+        // ->groupBy(DB::raw('MONTH(order_date)'), DB::raw('DATE_FORMAT(order_date, "%M")'))
         ->get();
 
         $data['todays_acreage_details'] = $todays_acreage_details;
