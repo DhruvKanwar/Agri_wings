@@ -393,8 +393,6 @@ class DashboardController extends Controller
             return response()->json($result_array, 200);
         }
 
-
-
    
 
 
@@ -458,7 +456,11 @@ class DashboardController extends Controller
             }
         ])->select(
             'client_id',
-            DB::raw('SUM(sprayed_acreage) / SUM(requested_acreage)  as client_wise_bifurcation')
+            DB::raw('SUM(sprayed_acreage) / SUM(requested_acreage)  as client_wise_bifurcation'),
+            DB::raw('SUM(requested_acreage) as requested_acerage'),
+            DB::raw('SUM(sprayed_acreage) as sprayed_acerage'),
+
+
         )
         ->whereNotIn('order_status', [0])
         ->groupBy('client_id')
