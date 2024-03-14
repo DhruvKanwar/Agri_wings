@@ -440,7 +440,8 @@ class DashboardController extends Controller
             DB::raw('SUM(requested_acreage) / COUNT(*) as average_order_size'),
               DB::raw('SUM(requested_acreage) as requested_acerage'),
               DB::raw('SUM(sprayed_acreage) as sprayed_acerage'),
-            'COUNT(*) as total_no_of_orders'
+            DB::raw('COUNT(*) as total_no_of_orders'),
+
         )
         ->whereNotIn('order_status', [0])
         ->get();
@@ -451,7 +452,8 @@ class DashboardController extends Controller
             DB::raw('SUM(requested_acreage) / COUNT(*) as average_order_size'),
             DB::raw('SUM(requested_acreage) as requested_acerage'),
             DB::raw('SUM(sprayed_acreage) as sprayed_acerage'),
-            'COUNT(*) as total_no_of_orders'
+            DB::raw('COUNT(*) as total_no_of_orders'),
+
         )
         ->whereNotIn('order_status', [0])
         ->whereBetween('order_date', [$lastWeekStart, $lastWeekEnd])
@@ -466,7 +468,8 @@ class DashboardController extends Controller
             DB::raw('SUM(requested_acreage) / COUNT(*) as average_order_size'),
             DB::raw('SUM(requested_acreage) as requested_acerage'),
             DB::raw('SUM(sprayed_acreage) as sprayed_acerage'),
-            'COUNT(*) as total_no_of_orders'
+            DB::raw('COUNT(*) as total_no_of_orders'),
+           
         )
         ->whereNotIn('order_status', [0])
         ->whereBetween('order_date', [$lastThirtyDaysStart, $lastThirtyDaysEnd])
