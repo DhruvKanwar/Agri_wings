@@ -437,7 +437,10 @@ class DashboardController extends Controller
 
 
         $allTimeAverageOrderSize = Services::select(
-            DB::raw('SUM(requested_acreage) / COUNT(*) as average_order_size')
+            DB::raw('SUM(requested_acreage) / COUNT(*) as average_order_size'),
+            'SUM(requested_acreage) as requested_acerage',
+            'SUM(sprayed_acreage) as sprayed_acerage',
+            'COUNT(*) as total_no_of_orders'
         )
         ->whereNotIn('order_status', [0])
         ->get();
@@ -445,7 +448,10 @@ class DashboardController extends Controller
         $data['all_time_average_order_size'] = $allTimeAverageOrderSize;
 
         $lastSevenDaysAverageOrderSize = Services::select(
-            DB::raw('SUM(requested_acreage) / COUNT(*) as average_order_size')
+            DB::raw('SUM(requested_acreage) / COUNT(*) as average_order_size'),
+            'SUM(requested_acreage) as requested_acerage',
+            'SUM(sprayed_acreage) as sprayed_acerage',
+            'COUNT(*) as total_no_of_orders'
         )
         ->whereNotIn('order_status', [0])
         ->whereBetween('order_date', [$lastWeekStart, $lastWeekEnd])
@@ -457,7 +463,10 @@ class DashboardController extends Controller
         $lastThirtyDaysEnd = Carbon::now()->endOfDay(); // End of the current day
 
         $lastThirtyDaysAverageOrderSize = Services::select(
-            DB::raw('SUM(requested_acreage) / COUNT(*) as average_order_size')
+            DB::raw('SUM(requested_acreage) / COUNT(*) as average_order_size'),
+            'SUM(requested_acreage) as requested_acerage',
+            'SUM(sprayed_acreage) as sprayed_acerage',
+            'COUNT(*) as total_no_of_orders'
         )
         ->whereNotIn('order_status', [0])
         ->whereBetween('order_date', [$lastThirtyDaysStart, $lastThirtyDaysEnd])
