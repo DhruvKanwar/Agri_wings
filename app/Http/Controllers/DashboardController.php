@@ -181,20 +181,19 @@ class DashboardController extends Controller
 
 
         $data['cso_total_acreage'] = $cso_total_acreage;
-
         $todays_acreage_details = Services::select(
-            DB::raw('DATE_FORMAT(order_date, "%M") as month'),
+            DB::raw('DATE_FORMAT(order_date, "%d-%m-%Y") as date'),
             DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'),
             DB::raw('SUM(requested_acreage) as total_requested_acreage'),
         )
         ->whereNotIn('order_status', [0])
         ->whereIn('client_id', $explode_client_ids)
         ->whereDate('order_date', '=', date('Y-m-d')) // Filter by current date
-        ->groupBy('month')
+        ->groupBy('date')
         ->get();
 
-
         $data['todays_acreage_details'] = $todays_acreage_details;
+
   
         $monthlyDetails_acreage = Services::select(
             DB::raw('DATE_FORMAT(order_date, "%M") as month'),
