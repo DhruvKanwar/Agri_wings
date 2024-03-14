@@ -438,8 +438,8 @@ class DashboardController extends Controller
 
         $allTimeAverageOrderSize = Services::select(
             DB::raw('SUM(requested_acreage) / COUNT(*) as average_order_size'),
-            'SUM(requested_acreage) as requested_acerage',
-            'SUM(sprayed_acreage) as sprayed_acerage',
+              DB::raw('SUM(requested_acreage) as requested_acerage'),
+              DB::raw('SUM(sprayed_acreage) as sprayed_acerage'),
             'COUNT(*) as total_no_of_orders'
         )
         ->whereNotIn('order_status', [0])
@@ -449,8 +449,8 @@ class DashboardController extends Controller
 
         $lastSevenDaysAverageOrderSize = Services::select(
             DB::raw('SUM(requested_acreage) / COUNT(*) as average_order_size'),
-            'SUM(requested_acreage) as requested_acerage',
-            'SUM(sprayed_acreage) as sprayed_acerage',
+            DB::raw('SUM(requested_acreage) as requested_acerage'),
+            DB::raw('SUM(sprayed_acreage) as sprayed_acerage'),
             'COUNT(*) as total_no_of_orders'
         )
         ->whereNotIn('order_status', [0])
@@ -464,8 +464,8 @@ class DashboardController extends Controller
 
         $lastThirtyDaysAverageOrderSize = Services::select(
             DB::raw('SUM(requested_acreage) / COUNT(*) as average_order_size'),
-            'SUM(requested_acreage) as requested_acerage',
-            'SUM(sprayed_acreage) as sprayed_acerage',
+            DB::raw('SUM(requested_acreage) as requested_acerage'),
+            DB::raw('SUM(sprayed_acreage) as sprayed_acerage'),
             'COUNT(*) as total_no_of_orders'
         )
         ->whereNotIn('order_status', [0])
