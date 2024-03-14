@@ -177,7 +177,6 @@ class DashboardController extends Controller
         )
         ->whereNotIn('order_status', [0])
         ->whereIn('client_id', $explode_client_ids)
-        ->groupBy('month')
         ->get();
 
 
