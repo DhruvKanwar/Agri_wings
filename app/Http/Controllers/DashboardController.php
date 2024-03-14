@@ -97,8 +97,10 @@ class DashboardController extends Controller
         $month_wise_acreage = [];
 
         // Fill in data for each month
-        for ($i = 1; $i <= 12; $i++) {
-            $monthName = date('F', mktime(0, 0, 0, $i, 1));
+        for ($i = $startMonth; $i <= 12 + $startMonth; $i++) {
+            $month = ($i > 12) ? $i - 12 : $i;
+            $year = ($i > 12) ? $endYear : $startYear;
+            $monthName = date('F', mktime(0, 0, 0, $month, 1));
             $monthData = $monthlyDetails->where('month', $monthName)->first();
 
             if ($monthData) {
@@ -117,6 +119,7 @@ class DashboardController extends Controller
         }
 
         $data['month_wise_acreage'] = $month_wise_acreage;
+
 
 
 
