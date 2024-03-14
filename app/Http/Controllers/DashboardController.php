@@ -13,6 +13,7 @@ use App\Models\Vehicle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 
 
@@ -199,7 +200,7 @@ class DashboardController extends Controller
         $result_array = array(
             'status' => 'success',
             'statuscode' => '200',
-            'msg' => 'Users List Fetched Successfully',
+            'msg' => 'Data Fetched Successfully',
             'data' => $data
         );
 
@@ -370,7 +371,7 @@ class DashboardController extends Controller
         $result_array = array(
             'status' => 'success',
             'statuscode' => '200',
-            'msg' => 'Users List Fetched Successfully',
+            'msg' => 'Data List Fetched Successfully',
             'data' => $data
         );
 
@@ -417,8 +418,8 @@ class DashboardController extends Controller
 
         $data['last_month_acreage'] = $lastMonthDetails;
 
-        $lastWeekStart = date('Y-m-d', strtotime('last Monday', strtotime('this week -1 week')));
-        $lastWeekEnd = date('Y-m-d', strtotime('last Sunday', strtotime('this week -1 week')));
+        $lastWeekStart = Carbon::now()->subDays(6)->startOfDay(); // Start of the day 7 days ago
+        $lastWeekEnd = Carbon::now()->endOfDay(); // End of the current day
 
         $lastWeekDetails = Services::select(
             DB::raw('DATE_FORMAT(order_date, "%M") as month'),
@@ -441,14 +442,14 @@ class DashboardController extends Controller
 
         $data['all_time_average_order_size'] = $allTimeAverageOrderSize;
 
-        $lastWeekAverageOrderSize = Services::select(
+        $lastSevenDaysAverageOrderSize = Services::select(
             DB::raw('SUM(sprayed_acreage) / COUNT(*) as average_order_size')
         )
         ->whereNotIn('order_status', [0])
-        ->whereBetween('order_date', [date('Y-m-d', strtotime('last Monday', strtotime('this week -1 week'))), date('Y-m-d', strtotime('last Sunday', strtotime('this week -1 week')))])
+        ->whereBetween('order_date', [$lastWeekStart, $lastWeekEnd])
         ->get();
 
-        $data['last_week_average_order_size'] = $lastWeekAverageOrderSize;
+        $data['last_seven_days_average_order_size'] = $lastSevenDaysAverageOrderSize;
 
         $lastMonthAverageOrderSize = Services::select(
             DB::raw('SUM(sprayed_acreage) / COUNT(*) as average_order_size')
@@ -501,7 +502,7 @@ class DashboardController extends Controller
         $result_array = array(
             'status' => 'success',
             'statuscode' => '200',
-            'msg' => 'Users List Fetched Successfully',
+            'msg' => 'Data Fetched Successfully',
             'data' => $data
         );
 
