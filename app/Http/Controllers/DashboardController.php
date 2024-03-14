@@ -396,19 +396,13 @@ class DashboardController extends Controller
 
         $total_acreage = Services::select(
             DB::raw('SUM(requested_acreage) as total_requested_acreage'),
+            DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'),
         )
             ->whereNotIn('order_status', [0])
             ->get();
 
         $data['total_acreage'] = $total_acreage;
 
-        $total_sprayed_acreage = Services::select(
-            DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'),
-        )
-            ->whereNotIn('order_status', [0])
-            ->get();
-
-        $data['total_sprayed_acreage'] = $total_sprayed_acreage;
 
         $lastMonthDetails = Services::select(
             DB::raw('DATE_FORMAT(order_date, "%M") as month'),
