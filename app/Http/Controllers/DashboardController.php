@@ -171,8 +171,17 @@ class DashboardController extends Controller
             return response()->json($result_array, 200);
         }
 
-        $currentMonth = date('m'); // Get current month in numeric format
-        $currentDay = date('d'); // Get current day in numeric format
+        $cso_total_acreage = Services::select(
+            DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'),
+            DB::raw('SUM(requested_acreage) as total_requested_acreage'),
+        )
+        ->whereNotIn('order_status', [0])
+        ->whereIn('client_id', $explode_client_ids)
+        ->groupBy('month')
+        ->get();
+
+
+        $data['cso_total_acreage'] = $cso_total_acreage;
 
         $todays_acreage_details = Services::select(
             DB::raw('DATE_FORMAT(order_date, "%M") as month'),
