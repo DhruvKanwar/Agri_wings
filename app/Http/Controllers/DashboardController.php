@@ -485,6 +485,67 @@ class DashboardController extends Controller
             'total_operators' => AssetOperator::where('status', 1)->count(),
         ];
 
+        $currentMonth = date('n');
+        $currentYear = date('Y');
+        $startMonth = 4; // April is month 4
+
+        // Adjusting the year for April to March financial year
+        if ($currentMonth < $startMonth) {
+            $startYear = $currentYear - 1;
+        } else {
+            $startYear = $currentYear;
+        }
+
+        $endYear = $startYear + 1;
+        $endMonth = 3; // March is month 3
+
+        $monthlyDetails_acreage = Services::select(
+            DB::raw('DATE_FORMAT(order_date, "%M") as month'),
+            DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'),
+            DB::raw('SUM(requested_acreage) as total_requested_acreage'),
+            DB::raw('COUNT(*) as total_no_of_orders'),
+        )
+        ->whereNotIn('order_status', [0])
+        ->where(function ($query) use ($startMonth, $startYear, $endMonth, $endYear) {
+            $query->where(function ($query) use ($startMonth, $startYear) {
+                $query->whereYear('order_date', '=', $startYear)
+                    ->whereMonth('order_date', '>=', $startMonth);
+            })
+                ->orWhere(function ($query) use ($endMonth, $endYear) {
+                    $query->whereYear('order_date', '=', $endYear)
+                        ->whereMonth('order_date', '<=', $endMonth);
+                });
+        })
+            ->groupBy(DB::raw('MONTH(order_date)'), DB::raw('DATE_FORMAT(order_date, "%M")'))
+            ->get();
+
+        // Create an array to hold monthly data
+        $month_wise_acreage = [];
+
+        // Fill in data for each month
+        for ($i = 4; $i <= 15; $i++) { // Loop from April of last year to March of next year
+            $month = ($i % 12 == 0) ? 12 : $i % 12;
+            $year = ($i <= 12) ? $startYear : $endYear;
+            $monthName = date('F', mktime(0, 0, 0, $month, 1));
+            $monthData = $monthlyDetails_acreage->where('month', $monthName)->first();
+
+            if ($monthData) {
+                $month_wise_acreage[] = [
+                    'month' => $monthName,
+                    'total_sprayed_acreage' => $monthData->total_sprayed_acreage,
+                    'total_requested_acreage' => $monthData->total_requested_acreage,
+                ];
+            } else {
+                $month_wise_acreage[] = [
+                    'month' => $monthName,
+                    'total_sprayed_acreage' => 0,
+                    'total_requested_acreage' => 0,
+                ];
+            }
+        }
+
+        $data['month_wise_acreage'] = $month_wise_acreage;
+
 
 
         // return [$data['client_requested_acerage'], $data['client_sprayed_acerage']];
