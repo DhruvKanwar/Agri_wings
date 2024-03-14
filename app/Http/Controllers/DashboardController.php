@@ -531,7 +531,8 @@ class DashboardController extends Controller
             $monthData = $monthlyDetails_acreage->where('month', $monthName)->first();
          
             if ($monthData) {
-                $total_no_of_orders= $total_no_of_orders+1;
+                $total_no_of_orders=
+                $monthData->total_no_of_orders;
                 $month_wise_acreage[] = [
                     'month' => $monthName,
                     'total_sprayed_acreage' => $monthData->total_sprayed_acreage,
@@ -539,7 +540,6 @@ class DashboardController extends Controller
                     'total_no_of_orders' => $total_no_of_orders,
                 ];
             } else {
-                $total_no_of_orders = $total_no_of_orders + 0;
                 $month_wise_acreage[] = [
                     'month' => $monthName,
                     'total_sprayed_acreage' => 0,
