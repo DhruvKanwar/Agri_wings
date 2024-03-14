@@ -523,23 +523,25 @@ class DashboardController extends Controller
         $month_wise_acreage = [];
 
         // Fill in data for each month
-        for ($i = 4; $i <= 15; $i++) { // Loop from April of last year to March of next year
+        for ($i = 4; $i <= 15; $i++) { 
             $month = ($i % 12 == 0) ? 12 : $i % 12;
             $year = ($i <= 12) ? $startYear : $endYear;
             $monthName = date('F', mktime(0, 0, 0, $month, 1));
             $monthData = $monthlyDetails_acreage->where('month', $monthName)->first();
-
+         
             if ($monthData) {
                 $month_wise_acreage[] = [
                     'month' => $monthName,
                     'total_sprayed_acreage' => $monthData->total_sprayed_acreage,
                     'total_requested_acreage' => $monthData->total_requested_acreage,
+                    'total_no_of_orders' => $monthData[0]->total_no_of_orders,
                 ];
             } else {
                 $month_wise_acreage[] = [
                     'month' => $monthName,
                     'total_sprayed_acreage' => 0,
                     'total_requested_acreage' => 0,
+                    'total_no_of_orders' => 0
                 ];
             }
         }
