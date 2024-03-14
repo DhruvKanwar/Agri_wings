@@ -60,17 +60,41 @@ class DashboardController extends Controller
             'total_operators' => AssetOperator::where('status', 1)->count(),
         ];
 
+        $currentMonth = date('n');
+        $currentYear = date('Y');
+        $startMonth = 4; // April is month 4
+
+        // Adjusting the year for April to March financial year
+        if ($currentMonth < $startMonth) {
+            $startYear = $currentYear - 1;
+        } else {
+            $startYear = $currentYear;
+        }
+
+        $endYear = $startYear + 1;
+        $endMonth = 3; // March is month 3
+
         $monthlyDetails = Services::select(
             DB::raw('DATE_FORMAT(order_date, "%M") as month'),
             DB::raw('SUM(requested_acreage) as total_requested_acreage'),
             DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage')
         )
-            ->where('order_status','!=',0)
-            ->whereYear('order_date', '=', date('Y')) // Filter by current year
+        ->where('order_status', '!=', 0)
+        ->where(function ($query) use ($startMonth, $startYear, $endMonth, $endYear) {
+            $query->where(function ($query) use ($startMonth, $startYear) {
+                $query->whereYear('order_date', '=', $startYear)
+                    ->whereMonth('order_date', '>=', $startMonth);
+            })
+            ->orWhere(function ($query) use ($endMonth, $endYear) {
+                $query->whereYear('order_date', '=', $endYear)
+                    ->whereMonth('order_date', '<=', $endMonth);
+            });
+        })
             ->groupBy(DB::raw('MONTH(order_date)'), DB::raw('DATE_FORMAT(order_date, "%M")'))
             ->get();
 
         $data['month_wise_acreage'] = $monthlyDetails;
+
 
         $client_requested_acerage = Services::with(['clientDetails' => function ($query) {
             $query->select('id', 'regional_client_name')->where('status', 1);
