@@ -96,10 +96,10 @@ class DashboardController extends Controller
         // Create an array to hold monthly data
         $month_wise_acreage = [];
 
-        // Fill in data for each month
-        for ($i = $startMonth; $i <= 12 + $startMonth; $i++) {
-            $month = ($i > 12) ? $i - 12 : $i;
-            $year = ($i > 12) ? $endYear : $startYear;
+        // Fill in data for each month from April to March of the following year
+        for ($i = 4; $i <= 15; $i++) {
+            $month = ($i % 12 == 0) ? 12 : $i % 12;
+            $year = ($i <= 12) ? $startYear : $endYear;
             $monthName = date('F', mktime(0, 0, 0, $month, 1));
             $monthData = $monthlyDetails->where('month', $monthName)->first();
 
@@ -119,6 +119,7 @@ class DashboardController extends Controller
         }
 
         $data['month_wise_acreage'] = $month_wise_acreage;
+
 
 
 
