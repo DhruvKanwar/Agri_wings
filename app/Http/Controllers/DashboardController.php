@@ -194,21 +194,39 @@ class DashboardController extends Controller
 
         $data['todays_acreage_details'] = $todays_acreage_details;
 
-  
+
+        $currentMonth = date('n');
+        $currentYear = date('Y');
+        $startMonth = 4; // April is month 4
+        $endMonth = 3; // March is month 3 of the next year
+
+        // Adjusting the year for April to March financial year
+        if ($currentMonth < $startMonth) {
+            $startYear = $currentYear - 1;
+            $endYear = $currentYear;
+        } else {
+            $startYear = $currentYear;
+            $endYear = $currentYear + 1;
+        }
+
         $monthlyDetails_acreage = Services::select(
             DB::raw('DATE_FORMAT(order_date, "%M") as month'),
             DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'),
-            DB::raw('SUM(requested_acreage) as total_requested_acreage'),
+            DB::raw('SUM(requested_acreage) as total_requested_acreage')
         )
-         ->whereNotIn('order_status', [0])
-         ->whereIn('client_id', $explode_client_ids)
-        ->whereYear('order_date', '=', date('Y')) // Filter by current year
+        ->whereNotIn('order_status', [0])
+        ->whereIn('client_id', $explode_client_ids)
+        ->whereBetween(DB::raw('MONTH(order_date)'), [$startMonth, 12])
+        ->whereYear('order_date', '>=', $startYear)
+        ->orWhere(function ($query) use ($endMonth, $endYear) {
+            $query->whereBetween(DB::raw('MONTH(order_date)'), [1, $endMonth])
+                ->whereYear('order_date', '=', $endYear);
+        })
             ->groupBy(DB::raw('MONTH(order_date)'), DB::raw('DATE_FORMAT(order_date, "%M")'))
             ->get();
 
-            
+        $data['month_wise_acreage'] = $monthlyDetails_acreage->isEmpty() ? [] : $monthlyDetails_acreage;
 
-        $data['month_wise_acreage'] = $monthlyDetails_acreage;
 
 
 
