@@ -93,7 +93,31 @@ class DashboardController extends Controller
             ->groupBy(DB::raw('MONTH(order_date)'), DB::raw('DATE_FORMAT(order_date, "%M")'))
             ->get();
 
-        $data['month_wise_acreage'] = $monthlyDetails;
+        // Create an array to hold monthly data
+        $month_wise_acreage = [];
+
+        // Fill in data for each month
+        for ($i = 1; $i <= 12; $i++) {
+            $monthName = date('F', mktime(0, 0, 0, $i, 1));
+            $monthData = $monthlyDetails->where('month', $monthName)->first();
+
+            if ($monthData) {
+                $month_wise_acreage[] = [
+                    'month' => $monthName,
+                    'total_requested_acreage' => $monthData->total_requested_acreage,
+                    'total_sprayed_acreage' => $monthData->total_sprayed_acreage,
+                ];
+            } else {
+                $month_wise_acreage[] = [
+                    'month' => $monthName,
+                    'total_requested_acreage' => 0,
+                    'total_sprayed_acreage' => 0,
+                ];
+            }
+        }
+
+        $data['month_wise_acreage'] = $month_wise_acreage;
+
 
 
         $client_requested_acerage = Services::with(['clientDetails' => function ($query) {
