@@ -459,6 +459,7 @@ class DashboardController extends Controller
             DB::raw('SUM(sprayed_acreage) / SUM(requested_acreage)  as client_wise_bifurcation'),
             DB::raw('SUM(requested_acreage) as requested_acerage'),
             DB::raw('SUM(sprayed_acreage) as sprayed_acerage'),
+            DB::raw('COUNT(*) as total_no_of_orders'),
 
 
         )
