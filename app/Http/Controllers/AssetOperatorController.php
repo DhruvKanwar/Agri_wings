@@ -164,7 +164,7 @@ class AssetOperatorController extends Controller
 
 
 
-        $operator_code = AssetOperator::select('code')->latest('code')->first();
+        $operator_code = AssetOperator::withTrashed()->select('code')->latest('code')->first();
         // return $operator_code;
 
         $operator_code = json_decode(json_encode($operator_code), true);
@@ -471,16 +471,25 @@ class AssetOperatorController extends Controller
             // end
 
             $asset_id = $assetOperator->asset_id;
+            $vehicle_id = $assetOperator->vehicle_id;
+
             if ($assetOperator) {
                 if (!empty($asset_id)) {
-                    AssetOperator::where('id', $id)->update(['end_date' => $end_date, 'status' => 0, 'asset_id' => '']);
+                    AssetOperator::where('id', $id)->update(['end_date' => $end_date, 'status' => 0, 'asset_id' => '','vehicle_id'=>'']);
                     User::where('login_id', $assetOperator->user_id)->update(['status'=>0]);
+                    if(!empty($vehicle_id))
+                    {
+                        Vehicle::where('id',$vehicle_id)->update(['operator_id'=>'']);
+                    }
                     $assetOperator->delete();
                     AssetDetails::where('id', $asset_id)->update(['assigned_date' => null, 'assigned_status' => 0]);
                     return response()->json(['statuscode' => '200', 'status' => 'success',  'msg' => 'Record deleted successfully']);
                 } else {
-                    AssetOperator::where('id', $id)->update(['end_date' => $end_date, 'status' => 0]);
+                    AssetOperator::where('id', $id)->update(['end_date' => $end_date, 'status' => 0, 'vehicle_id' => '']);
                     User::where('login_id', $assetOperator->user_id)->update(['status' => 0]);
+                    if (!empty($vehicle_id)) {
+                        Vehicle::where('id', $vehicle_id)->update(['operator_id' => '']);
+                    }
                     $assetOperator->delete();
                     return response()->json(['statuscode' => '200', 'status' => 'success',  'msg' => 'Record deleted successfully']);
                 }
