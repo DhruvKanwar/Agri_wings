@@ -1055,17 +1055,18 @@ class AssetOperatorController extends Controller
             $update_services_done = Services::where('id', $id)->update($data);
             // return $update_services_done;
             $update_services = "";
+            $update_services = OrdersTimeline::where('id', $check_order_exists->order_details_id)->update($timeline_data);
 
-            if ($update_services_done) {
-                // return $check_order_exists->id;
-                $update_services = OrdersTimeline::where('id', $check_order_exists->order_details_id)->update($timeline_data);
+            $orders = Services::with(['assetOperator', 'asset', 'clientDetails', 'farmerDetails', 'farmLocation', 'orderTimeline'])->find($id);
+            return response()->json(['msg' => 'Spray Completed Successfully..', 'status' => 'success', 'statuscode' => '200', 'data' => $orders], 201);
+           
+            // if ($update_services_done) {
+            //     // return $check_order_exists->id;
+              
 
-                $orders = Services::with(['assetOperator', 'asset', 'clientDetails', 'farmerDetails', 'farmLocation', 'orderTimeline'])->find($id);
-
-                if ($update_services) {
-                    return response()->json(['msg' => 'Spray Completed Successfully..', 'status' => 'success', 'statuscode' => '200', 'data' => $orders], 201);
-                }
-            }
+            //     if ($update_services) {
+            //     }
+            // }
         }
     }
 
