@@ -211,6 +211,7 @@ class DashboardController extends Controller
     {
         $details = Auth::user();
         $get_user_data = User::where('id', $details->id)->first();
+        $user_id = $get_user_data->id;
         if ($get_user_data->role == 'cso') {
             // $user_id = $get_user_data->id;
             $explode_client_ids = explode(',', $get_user_data->client_id);
@@ -232,6 +233,9 @@ class DashboardController extends Controller
         )
         ->whereNotIn('order_status', [0])
         ->whereIn('client_id', $explode_client_ids)
+         ->whereHas('orderTimeline', function ($query) use ($user_id) {
+                $query->where('created_by_id', $user_id);
+            })
         ->get();
 
 
@@ -243,6 +247,9 @@ class DashboardController extends Controller
         )
         ->whereNotIn('order_status', [0])
         ->whereIn('client_id', $explode_client_ids)
+     ->whereHas('orderTimeline', function ($query) use ($user_id) {
+                $query->where('created_by_id', $user_id);
+            })
         ->whereDate('order_date', '=', date('Y-m-d')) // Filter by current date
         ->groupBy('date')
         ->get();
@@ -306,6 +313,9 @@ class DashboardController extends Controller
         )
         ->whereNotIn('order_status', [0])
         ->whereIn('client_id', $explode_client_ids)
+        ->whereHas('orderTimeline', function ($query) use ($user_id) {
+                $query->where('created_by_id', $user_id);
+            })
         ->where(function ($query) use ($startMonth, $startYear, $endMonth, $endYear) {
             $query->where(function ($query) use ($startMonth, $startYear) {
                 $query->whereYear('order_date', '=', $startYear)
@@ -359,6 +369,9 @@ class DashboardController extends Controller
             ->select('client_id', DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'))
             ->where('order_status', '!=', 0)
             ->whereIn('client_id', $explode_client_ids)
+            ->whereHas('orderTimeline', function ($query) use ($user_id) {
+                $query->where('created_by_id', $user_id);
+            })
             ->groupBy('client_id')
             ->orderByDesc('total_sprayed_acreage')
             ->get();
@@ -531,8 +544,7 @@ class DashboardController extends Controller
             $monthData = $monthlyDetails_acreage->where('month', $monthName)->first();
          
             if ($monthData) {
-                $total_no_of_orders=
-                $monthData->total_no_of_orders;
+                $total_no_of_orders=$monthData->total_no_of_orders;
                 $month_wise_acreage[] = [
                     'month' => $monthName,
                     'total_sprayed_acreage' => $monthData->total_sprayed_acreage,
