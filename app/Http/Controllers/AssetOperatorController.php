@@ -117,6 +117,17 @@ class AssetOperatorController extends Controller
                 );
                 return response()->json($result_array, 200);
             }
+
+            if($check_asset_id->phone == $data['phone'])
+            {
+                $result_array = array(
+                    'status' => 'error',
+                    'statuscode' => '200',
+                    'msg' => 'Mobile No already Exists',
+                    'data' => $check_asset_id->phone
+                );
+                return response()->json($result_array, 200);
+            }
         }
         $asset_id = $data['asset_id'];
         if (!empty($asset_id)) {
