@@ -14,6 +14,7 @@ class OrdersTimeline extends Model
         'updated_by_id',
         'updated_by',
         'order_date',
+        'completed_date',
         'assign_created_by_id',
         'assign_created_by',
         'assign_date',

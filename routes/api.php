@@ -12,6 +12,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\CropController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FarmerController;
+use App\Http\Controllers\MisController;
 use App\Http\Controllers\ReimbursementController;
 use App\Http\Controllers\SchemeController;
 use App\Http\Controllers\ServiceController;
@@ -179,6 +180,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('get_fleet_management_details', [DashboardController::class, 'get_fleet_management_details']);
     Route::get('get_cso_dashboard_details', [DashboardController::class, 'get_cso_dashboard_details']);
     Route::get('get_management_dashboard_details', [DashboardController::class, 'get_management_dashboard_details']);
+
+    Route::get('download_service_report', [MisController::class, 'download_service_report']);
+
 
 
 
