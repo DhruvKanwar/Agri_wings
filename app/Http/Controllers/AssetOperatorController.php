@@ -1061,6 +1061,8 @@ class AssetOperatorController extends Controller
             $timeline_data['farmer_signature'] = $data['farmer_signature'];
             $timeline_data['updated_by'] = $details->name;
             $timeline_data['updated_by_id'] =  $details->id;
+            $timeline_data['completed_date'] =  date('Y-m-d');
+
 
 
             unset($data['farmer_image']);

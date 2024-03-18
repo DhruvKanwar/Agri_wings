@@ -15,7 +15,7 @@ class AddCompletedSprayDataToOrdersTimelineTable extends Migration
     {
         Schema::table('services_timeline', function (Blueprint $table) {
             //
-            $table->string('completed_date')->nullable()->after('updated_by_id');
+            $table->date('completed_date')->nullable()->after('updated_by_id');
 
         });
     }
