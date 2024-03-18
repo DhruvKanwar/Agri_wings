@@ -399,7 +399,8 @@ class ServiceController extends Controller
         //     ];
         // });
 
-        // Return a JSON response
+        $services = Services::with(['assetOperator', 'orderTimeline', 'asset', 'clientDetails', 'farmerDetails', 'farmLocation'])->get();
+
         return response()->json(['data' => $services, 'msg' => 'Service List Fetched Successfully', 'statuscode' => '200', 'status' => 'success'], 200);
     }
 
@@ -428,6 +429,25 @@ class ServiceController extends Controller
         $order_timeline_id=$orders->order_details_id;
 
         $timeline_data=OrdersTimeline::where('id', $order_timeline_id)->get();
+
+       
+        $timeline_data[0]['requested_acreage'] = $orders->requested_acreage;
+        $timeline_data[0]['sprayed_acreage'] = $orders->sprayed_acreage;
+        $timeline_data[0]['total_amount'] = $orders->total_amount;
+        $timeline_data[0]['total_discount'] = $orders->total_discount;
+        $timeline_data[0]['total_payable_amount'] = $orders->total_payable_amount;
+        $timeline_data[0]['added_amount'] = $orders->added_amount;
+        $timeline_data[0]['refund_amount'] = $orders->refund_amount;
+        $timeline_data[0]['amount_received'] = $orders->amount_received;
+
+
+
+
+
+
+
+
+        
         if (empty($timeline_data)) {
             return response()->json(['msg' => 'Time Line not found', 'status' => 'error', 'statuscode' => '404']);
         }
