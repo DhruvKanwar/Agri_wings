@@ -177,7 +177,7 @@ class ClientController extends Controller
                     if ($existingRegionalClient) {
                         // GST number already exists, rollback the transaction
                         DB::rollBack();
-                        return response()->json(['msg' => 'GST number already exists in the database', 'status' => 'error', 'data' => $existingRegionalClient], 409);
+                        return response()->json(['msg' => 'GST number already exists in the database', 'status' => 'error','statuscode'=>'400', 'data' => $existingRegionalClient]);
                     }
 
                     $regionalClientData['regional_client_name'] = $base_client_data['client_name'] . '-' . $regionalClientData['state'];
@@ -193,7 +193,7 @@ class ClientController extends Controller
         } catch (\Exception $e) {
             // If an exception occurs, rollback the transaction and return an error response
             DB::rollBack();
-            return response()->json(['msg' => 'Error occurred while storing data', 'status' => 'error', 'statuscode' => '500', 'error' => $e->getMessage()], 500);
+            return response()->json(['msg' => 'Error occurred while storing data', 'status' => 'error', 'statuscode' => '500', 'error' => $e->getMessage()]);
         }
     }
 
