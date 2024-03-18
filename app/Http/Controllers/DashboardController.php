@@ -22,25 +22,33 @@ class DashboardController extends Controller
     //
     public function get_fleet_management_details()
     {
-        $topOperators = Services::with(['assetOperator' => function ($query) {
-            $query->select('id', 'name', 'phone')
-                ->where('status', 1);
-        }])
+        $topOperators = Services::whereHas('assetOperator', function ($query) {
+            $query->where('status', 1)->whereNull('deleted_at');
+        })
+            ->whereDoesntHave('assetOperator', function ($query) {
+                $query->whereNotNull('deleted_at');
+            })
+            ->with(['assetOperator' => function ($query) {
+                $query->select('id', 'name', 'phone')->where('status', 1);
+            }])
             ->select('asset_operator_id', DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'))
             ->where('order_status', '!=', 0)
-            ->where('order_status','>',1)
+            ->where('order_status', '>', 1)
             ->groupBy('asset_operator_id')
             ->orderByDesc('total_sprayed_acreage')
             ->limit(5)
             ->get();
 
 
+
         $data['top_five_operators'] = $topOperators;
 
-        $topAssets = Services::with(['asset' => function ($query) {
-            $query->select('id', 'asset_id', 'uin')
-                ->where('status', 1);
-        }])
+        $topAssets = Services::whereHas('asset', function ($query) {
+            $query->where('status', 1);
+        })
+            ->with(['asset' => function ($query) {
+                $query->select('id', 'asset_id', 'uin')->where('status', 1);
+            }])
             ->select('asset_id', DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'))
             ->where('order_status', '!=', 0)
             ->where('order_status', '>', 1)
@@ -50,7 +58,8 @@ class DashboardController extends Controller
             ->get();
 
 
-        $data['top_five_operators'] = $topOperators;
+
+
         $data['top_five_assets'] = $topAssets;
 
         $data['static_report'] = [
