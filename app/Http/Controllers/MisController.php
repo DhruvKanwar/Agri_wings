@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FarmerDetails;
 use App\Models\Services;
 use Illuminate\Http\Request;
 
@@ -179,6 +180,60 @@ class MisController extends Controller
                 'coordinates' => $item->FarmLocation->location_coordinates,
                 'available_person_name' => $available_person_name,
                 'available_person_phone' => $available_person_phone,
+
+
+
+            ];
+            // }
+        }
+
+        return collect($arr_instrulist_excel);
+    }
+
+    public function download_farmer_report()
+    {
+        $data = FarmerDetails::with(['FarmerProfileInfo', 'FarmInfo'])->get();
+
+        // return $data[0]->orderTimeline;
+        $arr_instrulist_excel = [];
+
+        foreach ($data as $item) {
+
+            // return $item->FarmerProfileInfo[0]->farmer_id;
+
+            $total_acerage=0;
+            foreach ($item->FarmInfo as $farm) {
+                $total_acerage =$total_acerage+$farm->acerage;
+            }
+            $count_farms=count($item->FarmInfo);
+
+            $arr_instrulist_excel[] = [
+                'farmer_name' => $item->farmer_name,
+                'farmer_mobile_no' => $item->farmer_mobile_no,
+                'farmer_address' => $item->farmer_address,
+                'farmer_sub_district' => $item->farmer_sub_district,
+                'farmer_village' =>  $item->farmer_village,
+                'farmer_state' => $item->farmer_state,
+                'farmer_pincode' => $item->farmer_pincode,
+                'farm_count' => $count_farms,
+                'total_est_acerage'=> $total_acerage,
+                'gender' => $item->FarmerProfileInfo[0]->gender,
+                'dob' => $item->FarmerProfileInfo[0]->date_of_birth,
+                'wedding_anniversary' => $item->FarmerProfileInfo[0]->wedding_anniversary,
+                'education_level' => $item->FarmerProfileInfo[0]->education_level,
+                'profession' => $item->FarmerProfileInfo[0]->professional_info,
+                'income_level' => $item->FarmerProfileInfo[0]->income,
+                'influence_level' => $item->FarmerProfileInfo[0]->influence,
+                'attitude' => $item->FarmerProfileInfo[0]->attitude, 
+                'lifestyle' => $item->FarmerProfileInfo[0]->lifestyle,
+                'hobbies' => $item->FarmerProfileInfo[0]->hobbies,
+                'intrests' => $item->FarmerProfileInfo[0]->intrests,
+                'favourite_activity' => $item->FarmerProfileInfo[0]->favourite_activities,
+                'communication' => $item->FarmerProfileInfo[0]->prferred_communication,
+                'social_media' => $item->FarmerProfileInfo[0]->social_media_platform,
+                'rating' => $item->FarmerProfileInfo[0]->ratings,
+                'feedback' => $item->FarmerProfileInfo[0]->suggestion_for_improvement,
+              
 
 
 

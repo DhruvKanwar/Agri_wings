@@ -182,6 +182,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('get_management_dashboard_details', [DashboardController::class, 'get_management_dashboard_details']);
 
     Route::get('download_service_report', [MisController::class, 'download_service_report']);
+    Route::get('download_farmer_report', [MisController::class, 'download_farmer_report']);
+
 
 
 
