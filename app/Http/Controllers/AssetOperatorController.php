@@ -104,7 +104,11 @@ class AssetOperatorController extends Controller
         $data = $validator->validated();
 
 
-        $check_asset_id = AssetOperator::where('asset_id', $data['asset_id'])->first();
+       
+        if(!empty($data['asset_id']))
+        {
+            $check_asset_id = AssetOperator::where('asset_id', $data['asset_id'])->first();
+            
 
         if (!empty($check_asset_id)) {
             if ($check_asset_id->assigned_status) {
@@ -118,6 +122,7 @@ class AssetOperatorController extends Controller
             }
 
         }
+    }
 
         $check_mobile_no = AssetOperator::where('phone', $data['phone'])->first();
 

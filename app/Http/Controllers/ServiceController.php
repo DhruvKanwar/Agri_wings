@@ -514,6 +514,7 @@ class ServiceController extends Controller
 
         // Retrieve the service
         $service = Services::where('id', $id)->first();
+        $operator_id=$service->asset_operator_id;
 
         if (empty($service)) {
             return response()->json([
@@ -531,6 +532,8 @@ class ServiceController extends Controller
         ]);
 
         if ($update_service) {
+
+            AssetOperator::where('id', $operator_id)->update(['assigned_status'=>null, 'assigned_date'=>null]);
 
             $details = Auth::user();
             $timeline_data['cancel_created_by_id'] = $details->id;
