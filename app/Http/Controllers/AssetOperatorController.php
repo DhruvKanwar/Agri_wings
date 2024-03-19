@@ -459,7 +459,7 @@ class AssetOperatorController extends Controller
                 $result_array = array(
                     'status' => 'error',
                     'statuscode' => '200',
-                    'msg' => 'Asset already Assigned,User Block not possible',
+                    'msg' => 'Order already Assigned,User Block not possible',
                     'data' => $check_asset_operator
                 );
                 return response()->json($result_array, 200);
