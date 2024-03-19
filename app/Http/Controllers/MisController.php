@@ -25,6 +25,29 @@ class MisController extends Controller
                 $status = 'Rejected';
             }
 
+
+            $amount_received = json_decode($item->amount_received);
+            $payment_data_array = [];
+            $payment_data_str = ''; // Define $payment_data_str here
+
+            // Check if $amount_received is not empty
+            if (!empty($amount_received)) {
+                foreach ($amount_received as $amount_data) {
+                    // Check if reference_no property exists before accessing it
+                    if (isset($amount_data->reference_no)) {
+                        // Concatenate payment data
+                        $payment_data = $amount_data->reference_no . ' - ' . 'Rs. ' . $amount_data->amount;
+                        $payment_data_array[] = $payment_data;
+                    }
+                }
+                // Concatenate payment data strings
+                $payment_data_str = implode(', ', $payment_data_array);
+            }
+
+
+
+
+
             $order_status = "";
             if ($item->order_status == 0) {
                 $order_status = "cancel";
@@ -60,6 +83,14 @@ class MisController extends Controller
                 $type = "Unknown";
             }
 
+            if(!empty($item->refund_image))
+            {
+                $refund_image = 'https://agriwingsnew.s3.us-east-2.amazonaws.com/refund_img_/'. $item->refund_image;
+            }else{
+                $refund_image='';
+            }
+
+            // return $item->amount_recieved;
 
             if (!empty($item->sprayed_acreage)) {
                 $base_price = round($item->total_amount / $item->sprayed_acreage, 2);
@@ -77,6 +108,27 @@ class MisController extends Controller
             }
 
 
+            if(!empty($item->orderTimeline->farmer_signature))
+            {
+                $sign_status='Signed';
+            }else{
+                $sign_status = '';
+            }
+
+            if ($item->orderTimeline->farmer_available == 1) {
+                $available_person_name = 'Self';
+                $available_person_phone = 'Self';
+
+            } else {
+                $available_person_name = $item->orderTimeline->available_person_name;
+                $available_person_phone = $item->orderTimeline->available_person_phone;
+            }
+
+            if ($item->payment_status == 1) {
+                $payment_status = 'Paid';
+            } else {
+                $payment_status = 'Pending';
+            }
             $arr_instrulist_excel[] = [
                 's_no' => $item->order_id,
                 'client_name' => $item->clientDetails->regional_client_name,
@@ -99,29 +151,36 @@ class MisController extends Controller
                 'asset_code' => $item->asset->asset_id,
                 'asset_operator' => $item->assetOperator->name,
                 'ao_mobile_no' => $item->assetOperator->phone,
+                'battery' => $item->battery_ids,
                 'service_status' => $order_status,
                 'actual_service_date' =>   $item->delivery_date,
 
                 // start
-                // 'amount_recieved' =>   $item->amount_recieved,
+                'amount_recieved' =>   $payment_data_str,
                 // 'transaction_id' =>   $item->transaction_id,
-                // 'payment_status' =>   $item->payment_status,
+                'payment_status' =>   $payment_status,
+                //complete,refund,unpaid,partially paid
                 // end
 
                 'service_request_by' =>   $item->orderTimeline->created_by,
                 'invoice_link' => $invoice_link,
 
                 // start
-                // 'payment_image' => $item->payment_image,
+                'payment_image' => $refund_image,
+                // only in refund
                 // end
 
                 'farm_image' => 'https://agriwingsnew.s3.us-east-2.amazonaws.com/farmer_img_/' . $item->orderTimeline->farmer_image,
 
                 // start
-                // 'sign_image' => 'https://agriwingsnew.s3.us-east-2.amazonaws.com/sign_img/' . $item->orderTimeline->farmer_image,
+                'sign_image' => $sign_status,
                 // end
                 'noc' => 'https://agriwingsnew.s3.us-east-2.amazonaws.com/noc_image/' . $item->orderTimeline->noc_image,
                 'coordinates' => $item->FarmLocation->location_coordinates,
+                'available_person_name' => $available_person_name,
+                'available_person_phone' => $available_person_phone,
+
+
 
             ];
             // }
