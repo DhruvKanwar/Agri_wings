@@ -24,6 +24,11 @@ class FarmDetails extends Model
             'state', 
             'saved_by_id', 'saved_by_name', 'updated_by_id', 'updated_by_name', 'created_at', 'updated_at'
     ];
+
+    public function FarmerInfo()
+    {
+        return $this->hasMany('App\Models\FarmerDetails', 'id', 'farmer_id');
+    }
 }
 
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\FarmDetails;
 use App\Models\FarmerDetails;
 use App\Models\Services;
 use Illuminate\Http\Request;
@@ -187,7 +188,8 @@ class MisController extends Controller
             // }
         }
 
-        return collect($arr_instrulist_excel);
+        return response()->json(['status' => 'success', 'statuscode' => '200', 'data' => collect($arr_instrulist_excel), 'msg' => 'Data Fetched Successfully..']);
+
     }
 
     public function download_farmer_report()
@@ -241,6 +243,38 @@ class MisController extends Controller
             // }
         }
 
-        return collect($arr_instrulist_excel);
+        return response()->json(['status' => 'success', 'statuscode' => '200', 'data' => collect($arr_instrulist_excel), 'msg' => 'Data Fetched Successfully..']);
+
+    
+    }
+
+    public function download_farm_report()
+    {
+        $data = FarmDetails::with(['FarmerInfo'])
+        ->orderBy('farmer_id') 
+        ->get();
+
+        $arr_instrulist_excel = [];
+
+        foreach ($data as $item) {
+        //    return $item->FarmerInfo[0]->farmer_name;
+
+            $arr_instrulist_excel[] = [
+                'farmer_name' => $item->FarmerInfo[0]->farmer_name,
+                'farmer_mobile_no' => $item->FarmerInfo[0]->farmer_mobile_no,
+                'farm_address' => $item->address,
+                'farm_village' => $item->village,
+                'farm_sub_district' =>  $item->sub_district,
+                'farm_state' => $item->state,
+                'farm_pin_code' => $item->pin_code,
+                'farm_acerage' => $item->acerage,
+                'farm_coordinates' =>  $item->location_coordinates,
+
+            ];
+            // }
+        }
+
+        return response()->json(['status' => 'success', 'statuscode' => '200', 'data' => collect($arr_instrulist_excel), 'msg' => 'Data Fetched Successfully..']);
+
     }
 }
