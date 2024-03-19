@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AssetDetails;
+use App\Models\AssetOperator;
+use App\Models\CropPrice;
 use App\Models\FarmDetails;
 use App\Models\FarmerDetails;
 use App\Models\Services;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
 
 class MisController extends Controller
 {
@@ -276,5 +281,127 @@ class MisController extends Controller
 
         return response()->json(['status' => 'success', 'statuscode' => '200', 'data' => collect($arr_instrulist_excel), 'msg' => 'Data Fetched Successfully..']);
 
+    }
+
+    public function download_asset_report()
+    {
+        $data = AssetDetails::get();
+
+        $arr_instrulist_excel = [];
+
+        foreach ($data as $item) {
+            //    return $item->FarmerInfo[0]->farmer_name;
+
+            $total_requested_acerage = Services::select(
+                DB::raw('FORMAT(SUM(requested_acreage), 2) AS est_acerage')
+
+            )
+                ->whereNotIn('order_status', [0])
+                ->where('asset_id',$item->id)
+                ->get();
+
+            $total_sprayed_acreage = Services::select(
+                DB::raw('FORMAT(SUM(sprayed_acreage), 2) AS spr_acerage')
+
+            )
+                ->whereNotIn('order_status', [0])
+                ->where('asset_id', $item->id)
+                ->get();
+
+         
+
+            $arr_instrulist_excel[] = [
+                'asset_code' => $item->asset_id,
+                'uin' => $item->uin,
+                'model' => $item->model,
+                'mfg_year' => $item->mfg_year,
+                'asset_capacity' =>  $item->asset_capacity,
+                'asset_spray_capacity' => $item->asset_spray_capacity,
+                'total_acerage' => $total_requested_acerage[0]->est_acerage,
+                'total_sprayed_acreage' => $total_sprayed_acreage[0]->spr_acerage,
+             
+            ];
+            // }
+        }
+
+        return response()->json(['status' => 'success', 'statuscode' => '200', 'data' => collect($arr_instrulist_excel), 'msg' => 'Data Fetched Successfully..']);
+    }
+
+    public function download_opeartor_report()
+    {
+        $data = AssetOperator::with(['VehicleDetails', 'AssetDetails'])->get();
+
+        $arr_instrulist_excel = [];
+
+        foreach ($data as $item) {
+            //    return $item->FarmerInfo[0]->farmer_name;
+
+            $total_requested_acerage = Services::select(
+                DB::raw('FORMAT(SUM(requested_acreage), 2) AS est_acerage')
+
+            )
+                ->whereNotIn('order_status', [0])
+                ->where('asset_operator_id', $item->id)
+                ->get();
+
+            $total_sprayed_acreage = Services::select(
+                DB::raw('FORMAT(SUM(sprayed_acreage), 2) AS spr_acerage')
+
+            )
+                ->whereNotIn('order_status', [0])
+                ->where('asset_operator_id', $item->id)
+                ->get();
+
+
+                $status="";
+                if($item->status == 1)
+                {
+                    $status="Active";
+                }else if($item->status == 0){
+                    $status="Inactive";
+                }
+
+            $arr_instrulist_excel[] = [
+                'ao_code' => $item->code,
+                'ao_name' => $item->name,
+                'mobile' => $item->phone,
+                'joining_date' => $item->start_date,
+                'dl_no' =>  $item->dl_no,
+                'aadhar_no' =>  $item->aadhaar_no,
+                'end_date' =>  $item->end_date,
+                'assigned_vehicle' =>  @$item->VehicleDetails->registration_no,
+                'assigned_asset' =>  @$item->AssetDetails->asset_id,
+                'status' =>  $status,
+                'total_acerage' => $total_requested_acerage[0]->est_acerage,
+                'total_sprayed_acreage' => $total_sprayed_acreage[0]->spr_acerage,
+
+            ];
+            // }
+        }
+
+        return response()->json(['status' => 'success', 'statuscode' => '200', 'data' => collect($arr_instrulist_excel), 'msg' => 'Data Fetched Successfully..']);
+    }
+
+    public function download_crop_price_report()
+    {
+        $data = CropPrice::with(['CropInfo'])->orderBy('crop_id')->get();
+
+        $arr_instrulist_excel = [];
+
+        foreach ($data as $item) {
+           
+
+            $arr_instrulist_excel[] = [
+                'crop' => $item->crop_name,
+                'base_price' => $item->CropInfo->base_price,
+                'state' => $item->state,
+                'state_price' => $item->state_price,
+                'updated_at' =>  $item->updated_at,
+
+            ];
+            // }
+        }
+
+        return response()->json(['status' => 'success', 'statuscode' => '200', 'data' => collect($arr_instrulist_excel), 'msg' => 'Data Fetched Successfully..']);
     }
 }

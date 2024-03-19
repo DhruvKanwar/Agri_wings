@@ -24,6 +24,11 @@ class CropPrice extends Model
         // Add more fields if needed
     ];
 
+    public function CropInfo()
+    {
+        return $this->belongsTo('App\Models\Crop', 'crop_id', 'id');
+    }
+
     // public function CropDetails()
     // {
     //     return $this->hasOne(Crop::class, 'id');

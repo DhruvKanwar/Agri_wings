@@ -185,6 +185,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('download_farmer_report', [MisController::class, 'download_farmer_report']);
 
     Route::get('download_farm_report', [MisController::class, 'download_farm_report']);
+    Route::get('download_asset_report', [MisController::class, 'download_asset_report']);
+
+    Route::get('download_opeartor_report', [MisController::class, 'download_opeartor_report']);
+    Route::get('download_crop_price_report', [MisController::class, 'download_crop_price_report']);
 
 
 

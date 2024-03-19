@@ -43,6 +43,11 @@ class AssetOperator extends Model
         return $this->belongsTo('App\Models\Vehicle', 'vehicle_id', 'id');
     }
 
+    public function AssetDetails()
+    {
+        return $this->belongsTo('App\Models\AssetDetails', 'asset_id', 'id');
+    }
+
     public function UserDetails()
     {
         return $this->belongsTo('App\Models\User', 'user_id', 'id');
