@@ -104,7 +104,6 @@ class AssetOperatorController extends Controller
         $data = $validator->validated();
 
 
-
         $check_asset_id = AssetOperator::where('asset_id', $data['asset_id'])->first();
 
         if (!empty($check_asset_id)) {
@@ -262,7 +261,11 @@ class AssetOperatorController extends Controller
         $assetOperator = AssetOperator::create($data);
 
         if ($assetOperator) {
-            $update_vehicle = Vehicle::where('id', $data['vehicle_id'])->update(['operator_id' => $assetOperator->id]);
+            if(!empty($data['vehicle_id']))
+            {
+                $update_vehicle = Vehicle::where('id', $data['vehicle_id'])->update(['operator_id' => $assetOperator->id]);
+
+            }
             if (!empty($asset_id)) {
                 AssetDetails::where('id', $asset_id)->update(['assigned_date' => date('Y-m-d'), 'assigned_status' => 1]);
             }
@@ -300,6 +303,7 @@ class AssetOperatorController extends Controller
 
         // If validation passes, store the details
         $data = $request->all();
+        // return $data;
 
         // return $data;
         $id = $data['id'];
@@ -409,15 +413,18 @@ class AssetOperatorController extends Controller
             $data['status'] = 0;
         }
 
-
+        $get_operator_details = AssetOperator::where('id', $data['id'])->first();
+        $vehicle_id= $get_operator_details->vehicle_id;
 
         // return [$remove_flag,$assign_flag];
         $assetOperator = AssetOperator::where('id', $data['id'])->update($data);
 
         if ($assetOperator) {
+          
             if(empty($data['vehicle_id']))
             {
-                $update_vehicle = Vehicle::where('id', $data['vehicle_id'])->update(['operator_id' => '']);
+                // return $data['vehicle_id'];
+                $update_vehicle = Vehicle::where('id', $vehicle_id)->update(['operator_id' => '']);
 
             }else{
                 $update_vehicle = Vehicle::where('id', $data['vehicle_id'])->update(['operator_id' => $data['id']]);
