@@ -415,7 +415,14 @@ class AssetOperatorController extends Controller
         $assetOperator = AssetOperator::where('id', $data['id'])->update($data);
 
         if ($assetOperator) {
-            $update_vehicle = Vehicle::where('id', $data['vehicle_id'])->update(['operator_id' => $data['id']]);
+            if(empty($data['vehicle_id']))
+            {
+                $update_vehicle = Vehicle::where('id', $data['vehicle_id'])->update(['operator_id' => '']);
+
+            }else{
+                $update_vehicle = Vehicle::where('id', $data['vehicle_id'])->update(['operator_id' => $data['id']]);
+
+            }
             if (empty($asset_id)) {
                 AssetDetails::where('id', $asset_id)->update(['assigned_date' => null, 'assigned_status' => 0]);
             }
