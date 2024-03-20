@@ -75,7 +75,7 @@ class BatteryController extends Controller
 
         // Get the authenticated user details
         $details = Auth::user();
-
+// return $nextAvailableSlot;
 
         // Create an array with the request data and additional details
         $data = [
@@ -98,8 +98,23 @@ class BatteryController extends Controller
             $explode_slot = explode('-', $nextAvailableSlot);
 
             if ($explode_slot[1] == 'B') {
-                $battery_ids = [$explode_slot[0] . '-A', $explode_slot[0] . '-B'];
-                $update_battery_details = Battery::whereIn('battery_id', $battery_ids)->update(['battery_pair' => '1']);
+                $check_battery_id= $explode_slot[0].'-A';
+                $check_battery_exists=Battery::where('battery_id', $check_battery_id)->where('status', 1)->first();
+                if(!empty($check_battery_exists))
+                {
+                    $battery_ids = [$explode_slot[0] . '-A', $explode_slot[0] . '-B'];
+                    $update_battery_details = Battery::whereIn('battery_id', $battery_ids)->where('status',1)->update(['battery_pair' => '1']);
+                }
+              
+            }
+
+            if ($explode_slot[1] == 'A') {
+                $check_battery_id = $explode_slot[0] . '-B';
+                $check_battery_exists = Battery::where('battery_id', $check_battery_id)->where('status', 1)->first();
+                if (!empty($check_battery_exists)) {
+                    $battery_ids = [$explode_slot[0] . '-A', $explode_slot[0] . '-B'];
+                    $update_battery_details = Battery::whereIn('battery_id', $battery_ids)->where('status',1)->update(['battery_pair' => '1']);
+                }
             }
         }
 
