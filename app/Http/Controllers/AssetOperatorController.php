@@ -2110,14 +2110,20 @@ class AssetOperatorController extends Controller
 
         $data=$request->all();
         $id=$data['id'];
-        $res['total_sprayed_acreage']=Services::select(
-            DB::raw('SUM(sprayed_acreage)'),
+        $total_sprayed_acreage=Services::select(
+            DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'),
         )->where('asset_operator_id',$id)->where('order_status',6)->get();
-        $res['total_services'] = Services::select(
-            DB::raw('SUM(requested_acreage)')
+        $total_services = Services::select(
+            DB::raw('SUM(requested_acreage) as total_requested_acreage')
         )->where('asset_operator_id', $id)
         ->whereNotIn('order_status', [0, 6])
         ->get();
+
+     
+        $insert_array=array();
+        $insert_array['successfully_sprayed']= $total_sprayed_acreage[0]['total_sprayed_acreage'];
+        $insert_array['total_acerage'] = $total_services[0]['total_requested_acreage'];
+
 
 
 
@@ -2125,7 +2131,7 @@ class AssetOperatorController extends Controller
             'status' => 'success',
             'statuscode' => '200',
             'msg' => 'Data Fetched Successfully',
-            'data' => $res
+            'data' => $insert_array
         );
 
         return response()->json($result_array, 200);
