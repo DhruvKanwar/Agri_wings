@@ -2196,10 +2196,13 @@ class AssetOperatorController extends Controller
         // Update user
         $user_details->update($user_info);
 
+        $get_user_details = User::find($id);
+
         $result_array = [
             'status' => 'success',
             'statuscode' => 200,
             'msg' => 'Data Updated Successfully',
+            'data'=> $get_user_details
         ];
 
         return response()->json($result_array, 200);
