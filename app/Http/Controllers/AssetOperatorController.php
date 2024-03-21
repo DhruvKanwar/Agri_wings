@@ -2141,4 +2141,69 @@ class AssetOperatorController extends Controller
 
         return response()->json($result_array, 200);
     }
+
+    public function update_operator_profile(Request $request)
+    {
+      
+        $rules = [
+            'id' => 'required|exists:users,id',
+            'user_profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', 
+            'text_password' => 'nullable|string|min:8' 
+        ];
+
+        // Validate the request data
+        $validator = Validator::make($request->all(), $rules);
+
+        // Check if validation fails
+        if ($validator->fails()) {
+            return response()->json(['data' => $validator->errors()], 200);
+        }
+
+        $data=$request->all();
+        $id = $data['id'];
+
+        // Fetch user details
+        $user_details = User::find($id);
+
+        if (!$user_details) {
+            $result_array = [
+                'status' => 'error',
+                'statuscode' => 200,
+                'msg' => 'User Not Exists',
+                'data' => []
+            ];
+            return response()->json($result_array, 200);
+        }
+
+        // Initialize user_info array
+        $user_info = [];
+
+        // Handle user_profile_picture update
+        if ($request->hasFile('user_profile_picture')) {
+            $user_profile_picture = $request->file('user_profile_picture');
+            $customFilename = 'profile_pic_' . Str::random(10) . '.' . $user_profile_picture->getClientOriginalExtension();
+            $path = $user_profile_picture->storeAs('operator_profile_pic', $customFilename, 's3');
+            $url = Storage::disk('s3')->url($path);
+            $user_info['profile_image'] = $customFilename;
+        }
+
+        // Handle text_password update
+        if (!empty($data['text_password'])) {
+            $user_info['text_password'] = $data['text_password'];
+            $user_info['password'] = Hash::make($data['text_password']);
+        }
+
+        // Update user
+        $user_details->update($user_info);
+
+        $result_array = [
+            'status' => 'success',
+            'statuscode' => 200,
+            'msg' => 'Data Updated Successfully',
+        ];
+
+        return response()->json($result_array, 200);
+    }
+
+
 }
