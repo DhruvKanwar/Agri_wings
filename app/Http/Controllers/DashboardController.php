@@ -32,7 +32,7 @@ class DashboardController extends Controller
             ->with(['assetOperator' => function ($query) {
                 $query->select('code', 'name', 'phone')->where('status', 1);
             }])
-            ->select('asset_operator_id', DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'))
+            ->select('asset_operator_id', 'sprayed_acreage', DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'))
             ->where('order_status', '!=', 0)
             ->where('order_status', '>', 1)
             ->where('SUM(sprayed_acreage)', '>', 0)
@@ -51,7 +51,7 @@ class DashboardController extends Controller
             ->with(['asset' => function ($query) {
                 $query->select('id', 'asset_id', 'uin')->where('status', 1);
             }])
-            ->select('asset_id', DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'))
+            ->select('asset_id', 'sprayed_acreage', DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'))
             ->where('order_status', '!=', 0)
             ->where('SUM(sprayed_acreage)', '>', 0)
             ->where('order_status', '>', 1)
