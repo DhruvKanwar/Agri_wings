@@ -30,11 +30,12 @@ class DashboardController extends Controller
                 $query->whereNotNull('deleted_at');
             })
             ->with(['assetOperator' => function ($query) {
-                $query->select('id', 'name', 'phone')->where('status', 1);
+                $query->select('code', 'name', 'phone')->where('status', 1);
             }])
             ->select('asset_operator_id', DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'))
             ->where('order_status', '!=', 0)
             ->where('order_status', '>', 1)
+            ->where('total_sprayed_acreage', '>', 0)
             ->groupBy('asset_operator_id')
             ->orderByDesc('total_sprayed_acreage')
             ->limit(5)
@@ -52,6 +53,7 @@ class DashboardController extends Controller
             }])
             ->select('asset_id', DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'))
             ->where('order_status', '!=', 0)
+            ->where('total_sprayed_acreage', '>', 0)
             ->where('order_status', '>', 1)
             ->groupBy('asset_id')
             ->orderByDesc('total_sprayed_acreage')
@@ -67,7 +69,7 @@ class DashboardController extends Controller
             'total_farmers' => FarmerDetails::where('status', 1)->count(),
             'total_batteries' => Battery::where('status', 1)->count(),
             'total_orders' => Services::where('order_status','!=' ,0)->count(),
-            'total_crops' => CropPrice::whereNotNull('state_price')->where('status', 1)->count(),
+            'total_crops' => Crop::whereNotNull('base_price')->where('status', 1)->count(),
             'total_assets' => AssetDetails::where('status', 1)->count(),
             'total_vehicles' => Vehicle::where('status', 1)->count(),
             'total_operators' => AssetOperator::where('status', 1)->count(),
