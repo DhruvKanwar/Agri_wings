@@ -100,6 +100,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('start_spray', [AssetOperatorController::class, 'start_spray']);
     Route::post('complete_spray', [AssetOperatorController::class, 'complete_spray']);
     Route::post('mark_spray_successful', [AssetOperatorController::class, 'mark_spray_successful']);
+    Route::post('fetch_operator_dashboard', [AssetOperatorController::class, 'fetch_operator_dashboard']);
+
 
 
     Route::post('clockIn', [AttendanceController::class, 'clockIn']);

@@ -630,6 +630,7 @@ class AssetOperatorController extends Controller
         // $fetch_assigned_orders = Services::with('crop')->where('asset_operator_id', $fetch_operator_details->id)->where('order_status', 2)->get();
         return response()->json(['msg' => 'Request Updated Successfully', 'status' => 'success', 'statuscode' => '200', 'data' => []], 201);
     }
+    
 
     public function start_spray(Request $request)
     {
@@ -2102,5 +2103,28 @@ class AssetOperatorController extends Controller
         curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_ANY);
         $result = curl_exec($ch);
         return $result;
+    }
+
+    public function fetch_operator_dashboard(Request $request)
+    {
+
+        $data=$request->all();
+        $id=$data['id'];
+        $res['successful_services']=Services::select(
+            DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'),
+        )->where('asset_operator_id',$id)->where('status',6)->get();
+        $res['total_services'] = Services::select(
+            DB::raw('SUM(requested_acreage) as total_requested_acreage'),
+        )->where('asset_operator_id', $id)->where('status', 6)->get();
+
+
+        $result_array = array(
+            'status' => 'success',
+            'statuscode' => '200',
+            'msg' => 'Data Fetched Successfully',
+            'data' => $res
+        );
+
+        return response()->json($result_array, 200);
     }
 }
