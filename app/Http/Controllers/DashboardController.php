@@ -30,7 +30,7 @@ class DashboardController extends Controller
                 $query->whereNotNull('deleted_at');
             })
             ->with(['assetOperator' => function ($query) {
-                $query->select('code', 'name', 'phone')->where('status', 1);
+                $query->select('code','id','name', 'phone')->where('status', 1);
             }])
             ->select('asset_operator_id', DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'))
             ->where('order_status', '!=', 0)
