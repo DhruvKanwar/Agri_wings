@@ -2121,7 +2121,7 @@ class AssetOperatorController extends Controller
         $total_services = Services::select(
             DB::raw('SUM(requested_acreage) as total_requested_acreage')
         )->where('asset_operator_id', $operator_id)
-        ->whereNotIn('order_status', [0,5,6])
+        ->whereIn('order_status', [3,4])
         ->get();
 
      
