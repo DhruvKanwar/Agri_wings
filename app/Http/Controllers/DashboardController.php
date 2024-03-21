@@ -6,6 +6,7 @@ use App\Models\AssetDetails;
 use App\Models\AssetOperator;
 use App\Models\Battery;
 use App\Models\Crop;
+use App\Models\CropPrice;
 use App\Models\FarmerDetails;
 use App\Models\Services;
 use App\Models\User;
@@ -66,7 +67,7 @@ class DashboardController extends Controller
             'total_farmers' => FarmerDetails::where('status', 1)->count(),
             'total_batteries' => Battery::where('status', 1)->count(),
             'total_orders' => Services::where('order_status','!=' ,0)->count(),
-            'total_crops' => Crop::where('status', 1)->count(),
+            'total_crops' => CropPrice::whereNotNull('state_price')->where('status', 1)->count(),
             'total_assets' => AssetDetails::where('status', 1)->count(),
             'total_vehicles' => Vehicle::where('status', 1)->count(),
             'total_operators' => AssetOperator::where('status', 1)->count(),
