@@ -2112,10 +2112,13 @@ class AssetOperatorController extends Controller
         $id=$data['id'];
         $res['successful_services']=Services::select(
             DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'),
-        )->where('asset_operator_id',$id)->where('status',6)->get();
+        )->where('asset_operator_id',$id)->where('order_status',6)->get();
         $res['total_services'] = Services::select(
-            DB::raw('SUM(requested_acreage) as total_requested_acreage'),
-        )->where('asset_operator_id', $id)->where('status', 6)->get();
+            DB::raw('SUM(requested_acreage) as total_requested_acreage')
+        )->where('asset_operator_id', $id)
+        ->whereNotIn('order_status', [0, 6])
+        ->get();
+
 
 
         $result_array = array(
