@@ -265,11 +265,20 @@ class ReimbursementController extends Controller
             ->where('status', 2)->get();
 
         if (count($query) == 0) {
-            $query = OperatorReimbursementDetail::select('category', 'claimed_amount', 'id', 'status')
+            $query_2 = OperatorReimbursementDetail::select('category', 'claimed_amount', 'id', 'status')
                 ->where('user_id', $userId)
                 ->whereDate('from_date', '>=', $fromDate)
                 ->whereDate('to_date', '<=', $toDate)
                 ->where('status', 1)->get();
+        }
+
+
+        if (count($query_2) == 0) {
+            $query_3 = OperatorReimbursementDetail::select('category', 'claimed_amount', 'id', 'status')
+            ->where('user_id', $userId)
+                ->whereDate('from_date', '>=', $fromDate)
+                ->whereDate('to_date', '<=', $toDate)
+                ->where('status', 3)->get();
         }
         // // If category is provided, add it to the query
         // if ($category) {
