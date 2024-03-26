@@ -2117,9 +2117,11 @@ class AssetOperatorController extends Controller
         $operator_id= $get_operator_id->id;
         $total_sprayed_acreage=Services::select(
             DB::raw('SUM(sprayed_acreage) as total_sprayed_acreage'),
+            DB::raw('COUNT(*) as sprayed_order_count')
         )->where('asset_operator_id', $operator_id)->where('order_status','>=',5)->get();
         $total_services = Services::select(
-            DB::raw('SUM(requested_acreage) as total_requested_acreage')
+            DB::raw('SUM(requested_acreage) as total_requested_acreage'),
+            DB::raw('COUNT(*) as requested_order_count')
         )->where('asset_operator_id', $operator_id)
         ->whereIn('order_status', [3,4])
         ->get();
@@ -2128,6 +2130,10 @@ class AssetOperatorController extends Controller
         $insert_array=array();
         $insert_array['successfully_sprayed']= $total_sprayed_acreage[0]['total_sprayed_acreage'];
         $insert_array['total_acerage'] = $total_services[0]['total_requested_acreage'];
+        $insert_array['sprayed_order_count'] = $total_services[0]['sprayed_order_count'];
+        $insert_array['requested_order_count'] = $total_services[0]['requested_order_count'];
+
+
 
 
 

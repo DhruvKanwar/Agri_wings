@@ -15,7 +15,7 @@ class AddRemarksToAttendanceOperatorsTable extends Migration
     {
         Schema::table('attendance_operators', function (Blueprint $table) {
             //
-            $table->date('remarks')->nullable()->after('out');
+            $table->string('remarks')->nullable()->after('out');
 
         });
     }
