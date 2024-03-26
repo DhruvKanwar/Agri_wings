@@ -2130,6 +2130,10 @@ class AssetOperatorController extends Controller
         $insert_array=array();
         $insert_array['successfully_sprayed']= $total_sprayed_acreage[0]['total_sprayed_acreage'];
         $insert_array['total_acerage'] = $total_services[0]['total_requested_acreage'];
+        $insert_array['sprayed_order_count'] = $total_services[0]['sprayed_order_count'];
+        $insert_array['requested_order_count'] = $total_services[0]['requested_order_count'];
+
+
 
 
 
