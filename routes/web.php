@@ -23,13 +23,16 @@ use App\Http\Controllers\PilotController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// commented start
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
-Auth::routes();
+// Auth::routes();
 
-Route::get('/home', [HomeController::class, 'index'])->name('home');
+// Route::get('/home', [HomeController::class, 'index'])->name('home');
+
+// commented end
 
 Route::group(['middleware' => ['auth']], function () {
     Route::resource('roles', RoleController::class);
