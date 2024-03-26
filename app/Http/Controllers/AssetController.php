@@ -155,7 +155,7 @@ class AssetController extends Controller
         // return $asset_id;
         $asset_id = json_decode(json_encode($asset_id), true);
         if (empty($asset_id) || $asset_id == null) {
-            $initial_number = "HAWK-1";
+            $initial_number = "AWD-1";
             $data['asset_details']['asset_id'] = $initial_number;
         } else {
             $parts = explode('-', $asset_id['asset_id']);
