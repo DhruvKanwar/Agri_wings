@@ -79,7 +79,7 @@ class ExportTerList implements FromCollection, WithHeadings
     {
         return [
             "UNID", "Operator Code", "Operator Name", "Operator Phone", "From_Date", "To_Date", "Bill Amount", "Claimed Amount", "Category",
-            "Bill Number", "Remarks", "Attachment", "Da Amount", "Da Limit", "Total Attendance", "Hr Update Date", "Submit Date", "Status"
+            "Bill Number", "Remarks", "Attachment", "DA Amount", "DA Limit", "Total Attendance", "HR Update Date", "Submit Date", "Status"
         ];
     }
 }

@@ -16,6 +16,7 @@ class AttendanceOperator extends Model
         'out',
         'date',
         'working_hours',
+        'remarks',
     ];
 
 }

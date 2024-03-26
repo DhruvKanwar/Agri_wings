@@ -76,6 +76,7 @@ class AttendanceController extends Controller
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|exists:users,id',
             'out' => 'required|date_format:H:i:s',
+            'remarks'=> 'required|string'
         ]);
 
         if ($validator->fails()) {
@@ -108,6 +109,8 @@ class AttendanceController extends Controller
 
         // Update the clock out time
         $attendanceOperator->out = $request->out;
+
+        $attendanceOperator->remarks=$request->remarks;
 
         // Calculate the working hours
         $startTime = Carbon::parse($attendanceOperator->in);
