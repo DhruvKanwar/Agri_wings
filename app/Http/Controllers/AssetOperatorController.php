@@ -1336,6 +1336,7 @@ class AssetOperatorController extends Controller
         $d2f_img  = public_path('assets/d2f.png');
 
 
+        // base_price=total_amount-extra_discount/total_sprayed_acerage;
 
         if (!empty($get_base_client_details->logo_img)) {
             $comp_logo = $s3_url . '/logo_img/' . $get_base_client_details->logo_img;
@@ -2126,12 +2127,15 @@ class AssetOperatorController extends Controller
         ->whereIn('order_status', [3,4])
         ->get();
 
+      $sprayed_count=  Services::where('asset_operator_id', $operator_id)->where('order_status','>=',5)->count();
+        $requested_count =  Services::where('asset_operator_id', $operator_id)->whereIn('order_status',[3, 4])->count();
+
      
         $insert_array=array();
         $insert_array['successfully_sprayed']= $total_sprayed_acreage[0]['total_sprayed_acreage'];
         $insert_array['total_acerage'] = $total_services[0]['total_requested_acreage'];
-        $insert_array['sprayed_order_count'] = $total_services[0]['sprayed_order_count'];
-        $insert_array['requested_order_count'] = $total_services[0]['requested_order_count'];
+        $insert_array['sprayed_order_count'] = $sprayed_count;
+        $insert_array['requested_order_count'] = $requested_count;
 
 
 
