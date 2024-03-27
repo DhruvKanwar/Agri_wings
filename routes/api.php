@@ -109,7 +109,6 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('clockIn', [AttendanceController::class, 'clockIn']);
     Route::post('clockOut', [AttendanceController::class, 'clockOut']);
     Route::post('get_user_attendance', [AttendanceController::class, 'get_user_attendance']);
-    Route::get('autoClockOut', [AttendanceController::class, 'autoClockOut']);
     Route::get('fetch_operator_attendance', [AttendanceController::class, 'fetch_operator_attendance']);
 
 
@@ -216,3 +215,7 @@ Route::get('generate_invoice_pdf/{id}', [AssetOperatorController::class, 'genera
 Route::get('send_invoice_sms', [AssetOperatorController::class, 'send_invoice_sms']);
 
 Route::get('download_ter_list', [ReimbursementController::class, 'download_ter_list']);
+
+Route::get('autoClockOut', [AttendanceController::class, 'autoClockOut']);
+Route::get('disable_inactive_schemes', [SchemeController::class, 'disable_inactive_schemes']);
+
