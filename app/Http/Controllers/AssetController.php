@@ -298,8 +298,8 @@ class AssetController extends Controller
             // Update assigned date and status if there are new unassigned battery IDs
             if (!empty($new_unassigned_battery_ids)) {
                 // $data['battery_ids']= $data['asset_details']['battery_ids'];
-                $data['asset_details']['assigned_date'] = date('Y-m-d');
-                $data['asset_details']['assigned_status'] = 1;
+                // $data['asset_details']['assigned_date'] = date('Y-m-d');
+                // $data['asset_details']['assigned_status'] = 1;
                 $battery_exists = 1;
             }
 
