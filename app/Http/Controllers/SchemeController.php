@@ -213,4 +213,32 @@ class SchemeController extends Controller
 
         return response()->json(['msg' => 'Scheme deleted successfully', 'status' => 'success', 'statuscode' => '200']);
     }
+
+    public function disable_inactive_schemes()
+    {
+        // Get all schemes
+        $schemes = Scheme::all();
+
+        foreach ($schemes as $scheme) {
+            // Convert period_to to Carbon instance
+            $periodTo = \Carbon\Carbon::createFromFormat('Y-m-d', $scheme->period_to);
+
+            // Check if period_to has passed
+            if ($periodTo->isPast()) {
+                // Delete the scheme
+                $scheme->delete();
+
+                // Alternatively, if you want to keep the scheme but only change its status to 0, comment the line above and uncomment the line below
+                $scheme->status = 0;
+
+                // Save the changes
+                $scheme->save();
+            }
+        }
+
+        return response()->json(['msg' => 'Schemes checked for inactive status', 'status' => 'success', 'statuscode' => '200']);
+    }
+
+
+
 }
