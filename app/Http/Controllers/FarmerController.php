@@ -19,7 +19,7 @@ class FarmerController extends Controller
 
     private
         $stateArray = [
-            "JK" => "JAMMU AND KASHMIR (UT)",
+            "JK" => "JAMMU & KASHMIR",
             "HP" => "HIMACHAL PRADESH",
             "PB" => "PUNJAB",
             "CH" => "CHANDIGARH (UT)",
