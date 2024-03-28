@@ -43,7 +43,7 @@ class FarmerController extends Controller
             "CG" => "CHATTISGARH",
             "MP" => "MADHYA PRADESH",
             "GJ" => "GUJARAT",
-            "DN" => "DADRA AND NAGAR HAVELI AND DAMAN AND DIU (UT)",
+            "DN" => "DADRA AND NAGAR HAVELI AND DAMAN AND DIU",
             "MH" => "MAHARASHTRA",
             "KA" => "KARNATAKA",
             "GA" => "GOA",
