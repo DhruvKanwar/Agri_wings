@@ -19,13 +19,13 @@ class FarmerController extends Controller
 
     private
         $stateArray = [
-            "JK" => "JAMMU AND KASHMIR (UT)",
+            "JK" => "JAMMU & KASHMIR",
             "HP" => "HIMACHAL PRADESH",
             "PB" => "PUNJAB",
-            "CH" => "CHANDIGARH (UT)",
+            "CH" => "CHANDIGARH",
             "UK" => "UTTARAKHAND",
             "HR" => "HARYANA",
-            "DL" => "DELHI (UT)",
+            "DL" => "DELHI",
             "RJ" => "RAJASTHAN",
             "UP" => "UTTAR PRADESH",
             "BH" => "BIHAR",
@@ -43,18 +43,18 @@ class FarmerController extends Controller
             "CG" => "CHATTISGARH",
             "MP" => "MADHYA PRADESH",
             "GJ" => "GUJARAT",
-            "DN" => "DADRA AND NAGAR HAVELI AND DAMAN AND DIU (UT)",
+            "DN" => "DADRA AND NAGAR HAVELI AND DAMAN AND DIU",
             "MH" => "MAHARASHTRA",
             "KA" => "KARNATAKA",
             "GA" => "GOA",
-            "LD" => "LAKSHADWEEP (UT)",
+            "LD" => "LAKSHADWEEP",
             "KL" => "KERALA",
             "TN" => "TAMIL NADU",
-            "PY" => "PUDUCHERRY (UT)",
-            "AN" => "ANDAMAN AND NICOBAR ISLANDS (UT)",
+            "PY" => "PUDUCHERRY",
+            "AN" => "ANDAMAN AND NICOBAR ISLANDS",
             "TG" => "TELANGANA",
             "AP" => "ANDHRA PRADESH",
-            "LA" => "LADAKH (UT)",
+            "LA" => "LADAKH",
         ];
 
 
